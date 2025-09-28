@@ -1,0 +1,42 @@
+{
+  "name": "dev-quality-cli",
+  "version": "0.0.0",
+  "description": "DevQuality CLI tool for code quality analysis and reporting",
+  "type": "monorepo",
+  "frameworks": [],
+  "tools": [
+    {
+      "name": "typescript",
+      "version": "5.3.3",
+      "enabled": true,
+      "config": {},
+      "priority": 1
+    },
+    {
+      "name": "eslint",
+      "version": "latest",
+      "enabled": true,
+      "config": {},
+      "priority": 2
+    },
+    {
+      "name": "prettier",
+      "version": "latest",
+      "enabled": true,
+      "config": {},
+      "priority": 3
+    }
+  ],
+  "paths": {
+    "source": "./src",
+    "tests": "./tests",
+    "config": "./configs",
+    "output": "./output"
+  },
+  "settings": {
+    "verbose": false,
+    "quiet": false,
+    "json": false,
+    "cache": true
+  }
+}

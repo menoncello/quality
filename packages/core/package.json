@@ -1,0 +1,36 @@
+{
+  "name": "@dev-quality/core",
+  "version": "0.0.0",
+  "description": "Core functionality for DevQuality CLI",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "bun run build --watch",
+    "test": "bun test",
+    "lint": "bunx eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@dev-quality/types": "workspace:*",
+    "@dev-quality/utils": "workspace:*",
+    "@types/node": "24.5.2",
+    "bun-types": "1.2.23",
+    "typescript": "5.9.2"
+  },
+  "dependencies": {
+    "zustand": "5.0.8"
+  }
+}

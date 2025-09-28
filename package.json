@@ -1,0 +1,67 @@
+{
+  "name": "dev-quality-cli",
+  "version": "0.0.0",
+  "description": "DevQuality CLI tool for code quality analysis and reporting",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun run build:cli",
+    "build:cli": "cd apps/cli && bun run build",
+    "dev": "cd apps/cli && bun run dev",
+    "test": "bun run test:cli",
+    "test:cli": "cd apps/cli && bun test",
+    "test:all": "bun test --recursive",
+    "lint": "bun run lint:cli",
+    "lint:cli": "cd apps/cli && bun run lint",
+    "lint:all": "bun run lint:cli && bun run lint:packages",
+    "lint:packages": "bun run --filter '*' lint",
+    "typecheck": "bun run typecheck:cli",
+    "typecheck:cli": "cd apps/cli && bun run typecheck",
+    "typecheck:all": "bun run typecheck:cli && bun run typecheck:packages",
+    "typecheck:packages": "bun run --filter '*' typecheck",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules apps/*/dist packages/*/dist",
+    "install:all": "bun install && bun run build:cli",
+    "format": "bun run format:cli",
+    "format:cli": "cd apps/cli && bun run format",
+    "format:all": "bun run format:cli && bun run format:packages",
+    "format:packages": "bun run --filter '*' format"
+  },
+  "devDependencies": {
+    "@types/node": "24.5.2",
+    "typescript": "5.9.2",
+    "bun-types": "1.2.23",
+    "@typescript-eslint/eslint-plugin": "8.44.1",
+    "@typescript-eslint/parser": "8.44.1",
+    "eslint": "9.36.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.4",
+    "prettier": "3.6.2"
+  },
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/dev-quality-cli.git"
+  },
+  "keywords": [
+    "cli",
+    "code-quality",
+    "typescript",
+    "analysis",
+    "developer-tools"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@types/react": "19.1.15",
+    "commander": "14.0.1",
+    "ink": "6.3.1",
+    "react": "19.1.1",
+    "zustand": "5.0.8"
+  }
+}
