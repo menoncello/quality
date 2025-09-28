@@ -15,7 +15,7 @@
 
 ## Epic 1: Core CLI Foundation (MVP)
 
-### Story 1.1: Project Setup and CLI Structure
+### Story 1.1: Project Setup and CLI Structure ✅ **DONE**
 
 **As a** developer,
 **I want** a basic CLI framework with project structure and dependency management,

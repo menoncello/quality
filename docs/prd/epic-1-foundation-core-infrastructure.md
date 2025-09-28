@@ -2,7 +2,7 @@
 
 **Goal**: Establish project setup, auto-configuration wizard, and unified analysis engine delivering basic quality insights to provide immediate value and foundation for future features.
 
-## Story 1.1 Project Setup and CLI Framework
+## Story 1.1 Project Setup and CLI Framework ✅ **DONE**
 
 As a developer, I want a basic CLI framework with project structure and dependency management, so that I have a solid foundation for building the DevQuality tool.
 
