@@ -1,0 +1,61 @@
+{
+  "name": "@dev-quality/cli",
+  "version": "0.0.0",
+  "description": "DevQuality CLI tool for code quality analysis and reporting",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "dev-quality": "dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir=dist --target=node --format=esm --external react --external react-dom --external ink --external react-devtools-core",
+    "dev": "bun run build --watch",
+    "start": "bun run dist/index.js",
+    "test": "bun test",
+    "test:unit": "bun test tests/unit/",
+    "test:integration": "bun test tests/integration/",
+    "test:e2e": "bun test tests/e2e/",
+    "lint": "bunx eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "bunx prettier --write .",
+    "format:check": "bunx prettier --check .",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@dev-quality/core": "workspace:*",
+    "@dev-quality/types": "workspace:*",
+    "@dev-quality/utils": "workspace:*",
+    "@types/node": "24.5.2",
+    "@types/react": "19.1.15",
+    "bun-types": "1.2.23",
+    "typescript": "5.9.2",
+    "@typescript-eslint/eslint-plugin": "8.44.1",
+    "@typescript-eslint/parser": "8.44.1",
+    "eslint": "9.36.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.4",
+    "prettier": "3.6.2"
+  },
+  "dependencies": {
+    "commander": "14.0.1",
+    "ink": "6.3.1",
+    "react": "19.1.1",
+    "winston": "^3.11.0",
+    "zustand": "5.0.8"
+  },
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=18.0.0"
+  }
+}
