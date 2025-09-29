@@ -22,12 +22,16 @@
     "typecheck:cli": "cd apps/cli && bun run typecheck",
     "typecheck:all": "bun run typecheck:cli && bun run typecheck:packages",
     "typecheck:packages": "bun run --filter '*' typecheck",
-    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules apps/*/dist packages/*/dist",
-    "install:all": "bun install && bun run build:cli",
     "format": "bun run format:cli",
     "format:cli": "cd apps/cli && bun run format",
+    "format:check": "cd apps/cli && bun run format:check",
     "format:all": "bun run format:cli && bun run format:packages",
-    "format:packages": "bun run --filter '*' format"
+    "format:packages": "bun run --filter '*' format",
+    "quality": "bun run lint && bun run format:check && bun run typecheck && bun run test:all",
+    "quality:fix": "bun run lint && bun run format && bun run typecheck && bun run test:all",
+    "test:coverage": "bun run scripts/check-test-coverage.ts",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules apps/*/dist packages/*/dist",
+    "install:all": "bun install && bun run build:cli"
   },
   "devDependencies": {
     "@types/node": "24.5.2",

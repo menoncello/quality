@@ -1,5 +1,5 @@
 import { BaseCommand } from './base-command';
-import { CommandOptions } from '@dev-quality/types';
+import { CommandOptions, ProjectConfiguration } from '@dev-quality/types';
 
 export interface HistoryOptions {
   limit?: string;
@@ -15,7 +15,7 @@ export class HistoryCommand extends BaseCommand {
     this.log('History functionality will be implemented in a future version.');
   }
 
-  protected override async loadConfig(_configPath?: string): Promise<any> {
+  protected override async loadConfig(): Promise<ProjectConfiguration> {
     throw new Error('History command does not load configuration');
   }
 }

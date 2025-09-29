@@ -1,5 +1,6 @@
 import { BaseCommand } from './base-command';
 import { ProjectConfiguration, ToolConfiguration, CommandOptions } from '@dev-quality/types';
+import { AutoConfigurationDetectionEngine, type DetectedTool } from '@dev-quality/core';
 import { fileUtils, pathUtils } from '@dev-quality/utils';
 import { writeFileSync, existsSync } from 'node:fs';
 
@@ -20,7 +21,7 @@ export class SetupCommand extends BaseCommand {
   async execute(): Promise<void> {
     this.log('Setting up DevQuality CLI...');
 
-    const configPath = this.options.config || '.dev-quality.json';
+    const configPath = this.options.config ?? '.dev-quality.json';
 
     if (existsSync(configPath) && !this.setupOptions.force) {
       this.log('Configuration file already exists. Use --force to overwrite.');
@@ -30,7 +31,7 @@ export class SetupCommand extends BaseCommand {
     const config = await this.createConfiguration();
 
     if (this.setupOptions.interactive) {
-      await this.interactiveSetup(config);
+      await this.interactiveSetup();
     }
 
     this.saveConfiguration(config, configPath);
@@ -38,6 +39,62 @@ export class SetupCommand extends BaseCommand {
   }
 
   private async createConfiguration(): Promise<ProjectConfiguration> {
+    const detectionEngine = new AutoConfigurationDetectionEngine();
+    const rootPath = process.cwd();
+
+    try {
+      this.log('Auto-detecting project configuration...');
+
+      const detectionResult = await detectionEngine.detectAll(rootPath);
+
+      this.log(
+        `Detected project: ${detectionResult.project.name} (${detectionResult.project.type})`
+      );
+      this.log(
+        `Found ${detectionResult.tools.length} tools and ${detectionResult.dependencies.length} dependencies`
+      );
+
+      // Convert detected tools to tool configurations
+      const tools: ToolConfiguration[] = detectionResult.tools.map((tool: DetectedTool) => ({
+        name: tool.name,
+        version: tool.version,
+        enabled: tool.enabled,
+        config: tool.config,
+        priority: tool.priority,
+      }));
+
+      // Add default tools if none detected
+      if (tools.length === 0) {
+        tools.push(...this.getDefaultTools());
+      }
+
+      return {
+        name: detectionResult.project.name,
+        version: detectionResult.project.version,
+        description: detectionResult.project.description,
+        type: detectionResult.project.type,
+        frameworks: detectionResult.project.frameworks,
+        tools,
+        paths: {
+          source: detectionResult.structure.sourceDirectories[0] ?? './src',
+          tests: detectionResult.structure.testDirectories[0] ?? './tests',
+          config: detectionResult.structure.configDirectories[0] ?? './configs',
+          output: './output',
+        },
+        settings: {
+          verbose: false,
+          quiet: false,
+          json: false,
+          cache: true,
+        },
+      };
+    } catch (error) {
+      this.log(`Auto-detection failed: ${error}. Using default configuration.`);
+      return this.createDefaultConfiguration();
+    }
+  }
+
+  private createDefaultConfiguration(): ProjectConfiguration {
     const packageJsonPath = pathUtils.getConfigPath('package.json');
 
     let projectName = 'my-project';
@@ -47,12 +104,19 @@ export class SetupCommand extends BaseCommand {
 
     if (existsSync(packageJsonPath)) {
       try {
-        const packageJson = fileUtils.readJsonSync<any>(packageJsonPath);
-        projectName = packageJson.name || projectName;
-        projectVersion = packageJson.version || projectVersion;
-        projectDescription = packageJson.description || projectDescription;
+        const packageJson = fileUtils.readJsonSync<{
+          name?: string;
+          version?: string;
+          description?: string;
+          dependencies?: Record<string, string>;
+          devDependencies?: Record<string, string>;
+          workspaces?: string[] | { packages: string[] };
+        }>(packageJsonPath);
+        projectName = packageJson.name ?? projectName;
+        projectVersion = packageJson.version ?? projectVersion;
+        projectDescription = packageJson.description ?? projectDescription;
 
-        if (packageJson.dependencies?.react || packageJson.devDependencies?.react) {
+        if (packageJson.dependencies?.['react'] || packageJson.devDependencies?.['react']) {
           projectType = 'frontend';
         } else if (packageJson.workspaces) {
           projectType = 'monorepo';
@@ -110,7 +174,7 @@ export class SetupCommand extends BaseCommand {
     ];
   }
 
-  private async interactiveSetup(_config: ProjectConfiguration): Promise<void> {
+  private async interactiveSetup(): Promise<void> {
     this.log('Interactive setup mode - coming soon!');
     this.log('For now, using default configuration.');
   }
@@ -125,8 +189,8 @@ export class SetupCommand extends BaseCommand {
     }
   }
 
-  protected override async loadConfig(configPath?: string): Promise<ProjectConfiguration> {
-    const path = configPath || this.options.config || '.dev-quality.json';
+  protected override async loadConfig(): Promise<ProjectConfiguration> {
+    const path = this.options.config ?? '.dev-quality.json';
 
     if (!existsSync(path)) {
       throw new Error(`Configuration file not found: ${path}`);

@@ -1,6 +1,6 @@
-import { BaseCommand } from "./base-command";
-import { ProjectConfiguration, CommandOptions } from "@dev-quality/types";
-import { fileUtils } from "@dev-quality/utils";
+import { BaseCommand } from './base-command';
+import { ProjectConfiguration, CommandOptions } from '@dev-quality/types';
+import { fileUtils } from '@dev-quality/utils';
 
 export interface ConfigOptions {
   show?: boolean;
@@ -29,67 +29,64 @@ export class ConfigCommand extends BaseCommand {
   private async showConfig(): Promise<void> {
     try {
       const config = await this.loadConfig();
-      this.log("Current configuration:");
-      console.log(this.formatOutput(config));
-    } catch (error) {
-      this.log(
-        `No configuration found. Run 'dev-quality setup' to create one.`,
-        "warn"
-      );
+      this.log('Current configuration:');
+      process.stdout.write(this.formatOutput(config));
+    } catch {
+      this.log(`No configuration found. Run 'dev-quality setup' to create one.`, 'warn');
     }
   }
 
   private async editConfig(): Promise<void> {
-    this.log("Edit configuration - opening in default editor...");
-    this.log("This feature will be implemented in a future version.");
+    this.log('Edit configuration - opening in default editor...');
+    this.log('This feature will be implemented in a future version.');
   }
 
   private async resetConfig(): Promise<void> {
-    const configPath = this.options.config || ".dev-quality.json";
+    const configPath = this.options.config ?? '.dev-quality.json';
 
-    this.log("Resetting configuration to defaults...");
+    this.log('Resetting configuration to defaults...');
 
     const defaultConfig: ProjectConfiguration = {
-      name: "my-project",
-      version: "1.0.0",
-      description: "A project analyzed by DevQuality",
-      type: "backend",
+      name: 'my-project',
+      version: '1.0.0',
+      description: 'A project analyzed by DevQuality',
+      type: 'backend',
       frameworks: [],
       tools: [
         {
-          name: "typescript",
-          version: "5.3.3",
+          name: 'typescript',
+          version: '5.3.3',
           enabled: true,
           config: {},
-          priority: 1
+          priority: 1,
         },
         {
-          name: "eslint",
-          version: "latest",
+          name: 'eslint',
+          version: 'latest',
           enabled: true,
           config: {},
-          priority: 2
+          priority: 2,
         },
         {
-          name: "prettier",
-          version: "latest",
+          name: 'prettier',
+          version: 'latest',
           enabled: true,
           config: {},
-          priority: 3
-        }
+          priority: 3,
+        },
       ],
       paths: {
-        source: "./src",
-        tests: "./tests",
-        config: "./configs",
-        output: "./output"
+        source: './src',
+        tests: './tests',
+        config: './configs',
+        output: './output',
       },
       settings: {
         verbose: false,
         quiet: false,
         json: false,
-        cache: true
-      }
+        cache: true,
+      },
     };
 
     try {
@@ -100,10 +97,8 @@ export class ConfigCommand extends BaseCommand {
     }
   }
 
-  protected override async loadConfig(
-    configPath?: string
-  ): Promise<ProjectConfiguration> {
-    const path = configPath || this.options.config || ".dev-quality.json";
+  protected override async loadConfig(): Promise<ProjectConfiguration> {
+    const path = this.options.config ?? '.dev-quality.json';
 
     try {
       const config = fileUtils.readJsonSync<ProjectConfiguration>(path);

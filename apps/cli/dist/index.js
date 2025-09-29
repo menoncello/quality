@@ -1812,7 +1812,7 @@ class BaseCommand {
   constructor(options) {
     this.options = options;
   }
-  async loadConfig(_configPath) {
+  async loadConfig() {
     throw new Error("loadConfig must be implemented by subclass");
   }
   log(message, level = "info") {
@@ -1821,7 +1821,8 @@ class BaseCommand {
     }
     const timestamp = new Date().toISOString();
     const prefix = level === "error" ? "ERROR" : level === "warn" ? "WARN" : "INFO";
-    console.log(`[${timestamp}] ${prefix}: ${message}`);
+    process.stdout.write(`[${timestamp}] ${prefix}: ${message}
+`);
   }
   logVerbose(message) {
     if (this.options.verbose) {
@@ -1835,6 +1836,132 @@ class BaseCommand {
     return String(data);
   }
 }
+
+// ../../node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js
+import * as React from "react";
+var require_use_sync_external_store_shim_development = __commonJS((exports) => {
+  (function() {
+    function is(x, y) {
+      return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y;
+    }
+    function useSyncExternalStore$2(subscribe, getSnapshot) {
+      didWarnOld18Alpha || React.startTransition === undefined || (didWarnOld18Alpha = true, console.error("You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."));
+      var value = getSnapshot();
+      if (!didWarnUncachedGetSnapshot) {
+        var cachedValue = getSnapshot();
+        objectIs(value, cachedValue) || (console.error("The result of getSnapshot should be cached to avoid an infinite loop"), didWarnUncachedGetSnapshot = true);
+      }
+      cachedValue = useState2({
+        inst: { value, getSnapshot }
+      });
+      var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
+      useLayoutEffect2(function() {
+        inst.value = value;
+        inst.getSnapshot = getSnapshot;
+        checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+      }, [subscribe, value, getSnapshot]);
+      useEffect2(function() {
+        checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+        return subscribe(function() {
+          checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+        });
+      }, [subscribe]);
+      useDebugValue2(value);
+      return value;
+    }
+    function checkIfSnapshotChanged(inst) {
+      var latestGetSnapshot = inst.getSnapshot;
+      inst = inst.value;
+      try {
+        var nextValue = latestGetSnapshot();
+        return !objectIs(inst, nextValue);
+      } catch (error) {
+        return true;
+      }
+    }
+    function useSyncExternalStore$1(subscribe, getSnapshot) {
+      return getSnapshot();
+    }
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function" && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
+    var objectIs = typeof Object.is === "function" ? Object.is : is, useState2 = React.useState, useEffect2 = React.useEffect, useLayoutEffect2 = React.useLayoutEffect, useDebugValue2 = React.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = typeof window === "undefined" || typeof window.document === "undefined" || typeof window.document.createElement === "undefined" ? useSyncExternalStore$1 : useSyncExternalStore$2;
+    exports.useSyncExternalStore = React.useSyncExternalStore !== undefined ? React.useSyncExternalStore : shim;
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop === "function" && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
+  })();
+});
+
+// ../../node_modules/use-sync-external-store/shim/index.js
+var require_shim = __commonJS((exports, module) => {
+  if (false) {} else {
+    module.exports = require_use_sync_external_store_shim_development();
+  }
+});
+
+// ../../node_modules/use-sync-external-store/cjs/use-sync-external-store-shim/with-selector.development.js
+import * as React2 from "react";
+var require_with_selector_development = __commonJS((exports) => {
+  (function() {
+    function is(x, y) {
+      return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y;
+    }
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function" && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
+    var shim = require_shim(), objectIs = typeof Object.is === "function" ? Object.is : is, useSyncExternalStore = shim.useSyncExternalStore, useRef2 = React2.useRef, useEffect2 = React2.useEffect, useMemo2 = React2.useMemo, useDebugValue2 = React2.useDebugValue;
+    exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
+      var instRef = useRef2(null);
+      if (instRef.current === null) {
+        var inst = { hasValue: false, value: null };
+        instRef.current = inst;
+      } else
+        inst = instRef.current;
+      instRef = useMemo2(function() {
+        function memoizedSelector(nextSnapshot) {
+          if (!hasMemo) {
+            hasMemo = true;
+            memoizedSnapshot = nextSnapshot;
+            nextSnapshot = selector(nextSnapshot);
+            if (isEqual !== undefined && inst.hasValue) {
+              var currentSelection = inst.value;
+              if (isEqual(currentSelection, nextSnapshot))
+                return memoizedSelection = currentSelection;
+            }
+            return memoizedSelection = nextSnapshot;
+          }
+          currentSelection = memoizedSelection;
+          if (objectIs(memoizedSnapshot, nextSnapshot))
+            return currentSelection;
+          var nextSelection = selector(nextSnapshot);
+          if (isEqual !== undefined && isEqual(currentSelection, nextSelection))
+            return memoizedSnapshot = nextSnapshot, currentSelection;
+          memoizedSnapshot = nextSnapshot;
+          return memoizedSelection = nextSelection;
+        }
+        var hasMemo = false, memoizedSnapshot, memoizedSelection, maybeGetServerSnapshot = getServerSnapshot === undefined ? null : getServerSnapshot;
+        return [
+          function() {
+            return memoizedSelector(getSnapshot());
+          },
+          maybeGetServerSnapshot === null ? undefined : function() {
+            return memoizedSelector(maybeGetServerSnapshot());
+          }
+        ];
+      }, [getSnapshot, getServerSnapshot, selector, isEqual]);
+      var value = useSyncExternalStore(subscribe, instRef[0], instRef[1]);
+      useEffect2(function() {
+        inst.hasValue = true;
+        inst.value = value;
+      }, [value]);
+      useDebugValue2(value);
+      return value;
+    };
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop === "function" && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
+  })();
+});
+
+// ../../node_modules/use-sync-external-store/shim/with-selector.js
+var require_with_selector = __commonJS((exports, module) => {
+  if (false) {} else {
+    module.exports = require_with_selector_development();
+  }
+});
 
 // src/components/watch.tsx
 var exports_watch = {};
@@ -1852,7 +1979,7 @@ function WatchComponent(props) {
   useEffect(() => {
     if (!isRunning)
       return;
-    const intervalMs = parseInt(props.interval || "5000");
+    const intervalMs = parseInt(props.interval ?? "5000");
     const interval = setInterval(() => {
       setLastRun(new Date);
       setAnalysisCount((prev) => prev + 1);
@@ -1934,10 +2061,9 @@ function WatchComponent(props) {
           dimColor: true,
           children: [
             "Interval: ",
-            props.interval || "5000",
-            "ms | Debounce:",
-            " ",
-            props.debounce || "1000",
+            props.interval ?? "5000",
+            "ms | Debounce: ",
+            props.debounce ?? "1000",
             "ms"
           ]
         }, undefined, true, undefined, this)
@@ -1961,7 +2087,7 @@ var init_export = __esm(() => {
     async execute() {
       this.log("Export functionality will be implemented in a future version.");
     }
-    async loadConfig(_configPath) {
+    async loadConfig() {
       throw new Error("Export command does not load configuration");
     }
   };
@@ -1981,7 +2107,7 @@ var init_history = __esm(() => {
     async execute() {
       this.log("History functionality will be implemented in a future version.");
     }
-    async loadConfig(_configPath) {
+    async loadConfig() {
       throw new Error("History command does not load configuration");
     }
   };
@@ -2005,9 +2131,70 @@ var {
 
 // src/index.ts
 import { render } from "ink";
-import React3 from "react";
+import React5 from "react";
 // package.json
 var version = "0.0.0";
+// ../../packages/core/node_modules/zustand/esm/vanilla.mjs
+var createStoreImpl = (createState) => {
+  let state;
+  const listeners = /* @__PURE__ */ new Set;
+  const setState = (partial, replace) => {
+    const nextState = typeof partial === "function" ? partial(state) : partial;
+    if (!Object.is(nextState, state)) {
+      const previousState = state;
+      state = (replace != null ? replace : typeof nextState !== "object" || nextState === null) ? nextState : Object.assign({}, state, nextState);
+      listeners.forEach((listener) => listener(state, previousState));
+    }
+  };
+  const getState = () => state;
+  const getInitialState = () => initialState;
+  const subscribe = (listener) => {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  };
+  const destroy = () => {
+    if ((import.meta.env ? import.meta.env.MODE : undefined) !== "production") {
+      console.warn("[DEPRECATED] The `destroy` method will be unsupported in a future version. Instead use unsubscribe function returned by subscribe. Everything will be garbage-collected if store is garbage-collected.");
+    }
+    listeners.clear();
+  };
+  const api = { setState, getState, getInitialState, subscribe, destroy };
+  const initialState = state = createState(setState, getState, api);
+  return api;
+};
+var createStore = (createState) => createState ? createStoreImpl(createState) : createStoreImpl;
+
+// ../../packages/core/node_modules/zustand/esm/index.mjs
+var import_with_selector = __toESM(require_with_selector(), 1);
+import ReactExports from "react";
+var { useDebugValue } = ReactExports;
+var { useSyncExternalStoreWithSelector } = import_with_selector.default;
+var didWarnAboutEqualityFn = false;
+var identity = (arg) => arg;
+function useStore(api, selector = identity, equalityFn) {
+  if ((import.meta.env ? import.meta.env.MODE : undefined) !== "production" && equalityFn && !didWarnAboutEqualityFn) {
+    console.warn("[DEPRECATED] Use `createWithEqualityFn` instead of `create` or use `useStoreWithEqualityFn` instead of `useStore`. They can be imported from 'zustand/traditional'. https://github.com/pmndrs/zustand/discussions/1937");
+    didWarnAboutEqualityFn = true;
+  }
+  const slice = useSyncExternalStoreWithSelector(api.subscribe, api.getState, api.getServerState || api.getInitialState, selector, equalityFn);
+  useDebugValue(slice);
+  return slice;
+}
+var createImpl = (createState) => {
+  if ((import.meta.env ? import.meta.env.MODE : undefined) !== "production" && typeof createState !== "function") {
+    console.warn("[DEPRECATED] Passing a vanilla store will be unsupported in a future version. Instead use `import { useStore } from 'zustand'`.");
+  }
+  const api = typeof createState === "function" ? createStore(createState) : createState;
+  const useBoundStore = (selector, equalityFn) => useStore(api, selector, equalityFn);
+  Object.assign(useBoundStore, api);
+  return useBoundStore;
+};
+var create = (createState) => createState ? createImpl(createState) : createImpl;
+
+// ../../packages/core/src/detection/project-detector.ts
+import { existsSync as existsSync2 } from "node:fs";
+import { join as join2 } from "node:path";
+
 // ../../packages/utils/src/index.ts
 import { join, dirname, basename, extname, relative } from "node:path";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -2061,8 +2248,1215 @@ var fileUtils = {
   }
 };
 
+// ../../packages/core/src/detection/project-detector.ts
+class ProjectDetector {
+  CONFIG_FILES = [
+    "package.json",
+    "tsconfig.json",
+    "jsconfig.json",
+    "angular.json",
+    "nuxt.config.ts",
+    "next.config.js",
+    "vite.config.ts",
+    "webpack.config.js",
+    "rollup.config.js"
+  ];
+  FRAMEWORK_PATTERNS = {
+    react: ["react", "react-dom", "@types/react", "next", "gatsby", "remix"],
+    vue: ["vue", "nuxt", "@nuxt/core", "quasar"],
+    angular: ["@angular/core", "@angular/common", "@angular/platform-browser"],
+    svelte: ["svelte", "svelte-kit"],
+    node: ["express", "fastify", "koa", "nestjs", "hapi"]
+  };
+  BUILD_SYSTEMS = [
+    { name: "vite", files: ["vite.config.ts", "vite.config.js"] },
+    { name: "webpack", files: ["webpack.config.js", "webpack.config.ts"] },
+    { name: "rollup", files: ["rollup.config.js", "rollup.config.ts"] },
+    { name: "next", files: ["next.config.js", "next.config.ts"] },
+    { name: "nuxt", files: ["nuxt.config.ts", "nuxt.config.js"] },
+    { name: "angular", files: ["angular.json"] },
+    { name: "parcel", files: [".parcelrc"] }
+  ];
+  async detectProject(rootPath) {
+    const packageJsonPath = join2(rootPath, "package.json");
+    if (!existsSync2(packageJsonPath)) {
+      throw new Error("No package.json found in project root");
+    }
+    const packageJson = this.parsePackageJson(packageJsonPath);
+    const projectType = this.determineProjectType(packageJson, rootPath);
+    const frameworks = this.detectFrameworks(packageJson);
+    const buildSystems = this.detectBuildSystems(rootPath);
+    const packageManager = this.detectPackageManager(rootPath);
+    const hasTypeScript = this.hasTypeScript(packageJson, rootPath);
+    const hasTests = this.hasTests(packageJson, rootPath);
+    return {
+      name: packageJson.name || "unknown-project",
+      version: packageJson.version || "1.0.0",
+      description: packageJson.description || "",
+      type: projectType,
+      frameworks,
+      buildSystems,
+      packageManager,
+      hasTypeScript,
+      hasTests,
+      isMonorepo: projectType === "monorepo",
+      root: rootPath
+    };
+  }
+  parsePackageJson(packageJsonPath) {
+    try {
+      return fileUtils.readJsonSync(packageJsonPath);
+    } catch (error) {
+      throw new Error(`Failed to parse package.json: ${error}`);
+    }
+  }
+  determineProjectType(packageJson, rootPath) {
+    const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
+    const depNames = Object.keys(dependencies);
+    if (packageJson.workspaces || this.hasMonorepoConfig(rootPath)) {
+      return "monorepo";
+    }
+    const frontendFrameworks = ["react", "vue", "angular", "svelte"];
+    const hasFrontendDeps = frontendFrameworks.some((framework) => depNames.some((dep) => dep.includes(framework)));
+    const backendFrameworks = ["express", "fastify", "koa", "nestjs", "hapi"];
+    const hasBackendDeps = backendFrameworks.some((framework) => depNames.some((dep) => dep.includes(framework)));
+    if (hasFrontendDeps && hasBackendDeps) {
+      return "fullstack";
+    } else if (hasFrontendDeps) {
+      return "frontend";
+    } else {
+      return "backend";
+    }
+  }
+  detectFrameworks(packageJson) {
+    const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
+    const depNames = Object.keys(dependencies);
+    const frameworks = [];
+    for (const [framework, patterns] of Object.entries(this.FRAMEWORK_PATTERNS)) {
+      if (patterns.some((pattern) => depNames.some((dep) => dep.includes(pattern)))) {
+        frameworks.push(framework);
+      }
+    }
+    return frameworks;
+  }
+  detectBuildSystems(rootPath) {
+    const buildSystems = [];
+    for (const system of this.BUILD_SYSTEMS) {
+      for (const file of system.files) {
+        if (existsSync2(join2(rootPath, file))) {
+          buildSystems.push(system.name);
+          break;
+        }
+      }
+    }
+    return buildSystems;
+  }
+  detectPackageManager(rootPath) {
+    if (existsSync2(join2(rootPath, "bun.lockb"))) {
+      return "bun";
+    }
+    if (existsSync2(join2(rootPath, "pnpm-lock.yaml"))) {
+      return "pnpm";
+    }
+    if (existsSync2(join2(rootPath, "yarn.lock"))) {
+      return "yarn";
+    }
+    return "npm";
+  }
+  hasTypeScript(packageJson, rootPath) {
+    const hasTypeScriptDep = Object.keys({
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies
+    }).some((dep) => dep === "typescript" || dep.startsWith("@types/"));
+    const hasTsConfig = existsSync2(join2(rootPath, "tsconfig.json")) || existsSync2(join2(rootPath, "jsconfig.json"));
+    return hasTypeScriptDep || hasTsConfig;
+  }
+  hasTests(packageJson, rootPath) {
+    const testScripts = packageJson.scripts ? Object.keys(packageJson.scripts).filter((key) => key.includes("test") || key.includes("spec")) : [];
+    const testDeps = Object.keys({
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies
+    }).filter((dep) => dep.includes("jest") || dep.includes("vitest") || dep.includes("mocha") || dep.includes("cypress") || dep.includes("playwright") || dep.includes("test") || dep.includes("bun-test"));
+    const hasTestDir = existsSync2(join2(rootPath, "test")) || existsSync2(join2(rootPath, "tests")) || existsSync2(join2(rootPath, "__tests__"));
+    return testScripts.length > 0 || testDeps.length > 0 || hasTestDir;
+  }
+  hasMonorepoConfig(rootPath) {
+    const monorepoFiles = [
+      "pnpm-workspace.yaml",
+      "nx.json",
+      "turbo.json",
+      "lerna.json",
+      "rush.json"
+    ];
+    return monorepoFiles.some((file) => existsSync2(join2(rootPath, file)));
+  }
+}
+
+// ../../packages/core/src/detection/tool-detector.ts
+import { existsSync as existsSync3 } from "node:fs";
+import { join as join3, basename as basename3, extname as extname3 } from "node:path";
+class ToolDetector {
+  TOOL_CONFIGS = [
+    {
+      tool: "eslint",
+      configs: [
+        ".eslintrc",
+        ".eslintrc.json",
+        ".eslintrc.yaml",
+        ".eslintrc.yml",
+        ".eslintrc.js",
+        "eslint.config.js"
+      ],
+      versionDep: "eslint"
+    },
+    {
+      tool: "prettier",
+      configs: [
+        ".prettierrc",
+        ".prettierrc.json",
+        ".prettierrc.yaml",
+        ".prettierrc.yml",
+        ".prettierrc.js",
+        ".prettierrc.toml"
+      ],
+      versionDep: "prettier"
+    },
+    {
+      tool: "typescript",
+      configs: ["tsconfig.json", "jsconfig.json"],
+      versionDep: "typescript"
+    },
+    {
+      tool: "jest",
+      configs: [
+        "jest.config.js",
+        "jest.config.ts",
+        "jest.config.json",
+        "jest.config.mjs",
+        "jest.config.cjs"
+      ],
+      versionDep: "jest"
+    },
+    {
+      tool: "vitest",
+      configs: ["vitest.config.ts", "vitest.config.js", "vitest.workspace.ts"],
+      versionDep: "vitest"
+    },
+    {
+      tool: "cypress",
+      configs: ["cypress.config.js", "cypress.config.ts"],
+      versionDep: "cypress"
+    },
+    {
+      tool: "playwright",
+      configs: ["playwright.config.js", "playwright.config.ts"],
+      versionDep: "@playwright/test"
+    },
+    {
+      tool: "webpack",
+      configs: [
+        "webpack.config.js",
+        "webpack.config.ts",
+        "webpack.config.mjs",
+        "webpack.config.cjs"
+      ],
+      versionDep: "webpack"
+    },
+    {
+      tool: "vite",
+      configs: ["vite.config.js", "vite.config.ts"],
+      versionDep: "vite"
+    },
+    {
+      tool: "rollup",
+      configs: ["rollup.config.js", "rollup.config.ts"],
+      versionDep: "rollup"
+    },
+    {
+      tool: "next",
+      configs: ["next.config.js", "next.config.ts", "next.config.mjs"],
+      versionDep: "next"
+    },
+    {
+      tool: "nuxt",
+      configs: ["nuxt.config.ts", "nuxt.config.js"],
+      versionDep: "nuxt"
+    },
+    {
+      tool: "tailwind",
+      configs: ["tailwind.config.js", "tailwind.config.ts"],
+      versionDep: "tailwindcss"
+    },
+    {
+      tool: "postcss",
+      configs: ["postcss.config.js", "postcss.config.ts", "postcss.config.mjs"],
+      versionDep: "postcss"
+    },
+    {
+      tool: "babel",
+      configs: ["babel.config.js", "babel.config.json", ".babelrc", ".babelrc.js"],
+      versionDep: "@babel/core"
+    }
+  ];
+  async detectTools(rootPath) {
+    const detectedTools = [];
+    const packageJson = this.loadPackageJson(rootPath);
+    for (const toolConfig of this.TOOL_CONFIGS) {
+      const tool = await this.detectSingleTool(rootPath, toolConfig, packageJson);
+      if (tool) {
+        detectedTools.push(tool);
+      }
+    }
+    return detectedTools.sort((a, b) => a.priority - b.priority);
+  }
+  async detectConfigs(rootPath) {
+    const configFiles = [];
+    for (const toolConfig of this.TOOL_CONFIGS) {
+      for (const configFile of toolConfig.configs) {
+        const configPath = join3(rootPath, configFile);
+        if (existsSync3(configPath)) {
+          try {
+            const configContent = this.parseConfigFile(configPath);
+            configFiles.push({
+              path: configPath,
+              format: this.getConfigFormat(configFile),
+              tool: toolConfig.tool,
+              config: configContent
+            });
+          } catch (error) {
+            console.warn(`Failed to parse config file ${configPath}:`, error);
+          }
+        }
+      }
+    }
+    return configFiles;
+  }
+  async detectSingleTool(rootPath, toolConfig, packageJson) {
+    const configPath = this.findConfigPath(rootPath, toolConfig.configs);
+    if (!configPath) {
+      return null;
+    }
+    try {
+      const version2 = this.extractVersion(packageJson, toolConfig.versionDep);
+      const configContent = this.parseConfigFile(configPath);
+      return {
+        name: toolConfig.tool,
+        version: version2 || "unknown",
+        configPath,
+        configFormat: this.getConfigFormat(basename3(configPath)),
+        enabled: true,
+        priority: this.getToolPriority(toolConfig.tool),
+        config: configContent
+      };
+    } catch (error) {
+      console.warn(`Failed to detect tool ${toolConfig.tool}:`, error);
+      return null;
+    }
+  }
+  findConfigPath(rootPath, configFiles) {
+    for (const configFile of configFiles) {
+      const configPath = join3(rootPath, configFile);
+      if (existsSync3(configPath)) {
+        return configPath;
+      }
+    }
+    return null;
+  }
+  parseConfigFile(configPath) {
+    const format = this.getConfigFormat(basename3(configPath));
+    switch (format) {
+      case "json":
+        return fileUtils.readJsonSync(configPath);
+      case "js":
+      case "ts":
+        return { _type: format, _path: configPath };
+      case "yaml":
+      case "yml":
+        return { _type: format, _path: configPath };
+      default:
+        return { _type: "unknown", _path: configPath };
+    }
+  }
+  getConfigFormat(filename) {
+    const ext = extname3(filename).toLowerCase();
+    switch (ext) {
+      case ".json":
+        return "json";
+      case ".js":
+        return "js";
+      case ".ts":
+        return "ts";
+      case ".yaml":
+      case ".yml":
+        return "yaml";
+      default:
+        if (filename.endsWith(".json"))
+          return "json";
+        if (filename.endsWith(".js"))
+          return "js";
+        if (filename.endsWith(".ts"))
+          return "ts";
+        if (filename.endsWith(".yaml") || filename.endsWith(".yml"))
+          return "yaml";
+        return "json";
+    }
+  }
+  extractVersion(packageJson, depName) {
+    const allDeps = {
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies,
+      ...packageJson.peerDependencies,
+      ...packageJson.optionalDependencies
+    };
+    return allDeps[depName] || null;
+  }
+  getToolPriority(toolName) {
+    const priorities = {
+      typescript: 1,
+      eslint: 2,
+      prettier: 3,
+      jest: 4,
+      vitest: 4,
+      webpack: 5,
+      vite: 5,
+      rollup: 5,
+      next: 6,
+      nuxt: 6,
+      tailwind: 7,
+      postcss: 7,
+      babel: 8,
+      cypress: 9,
+      playwright: 9
+    };
+    return priorities[toolName] || 99;
+  }
+  loadPackageJson(rootPath) {
+    const packageJsonPath = join3(rootPath, "package.json");
+    if (!existsSync3(packageJsonPath)) {
+      return {};
+    }
+    try {
+      return fileUtils.readJsonSync(packageJsonPath);
+    } catch (error) {
+      console.warn(`Failed to load package.json:`, error);
+      return {};
+    }
+  }
+}
+
+// ../../packages/core/src/detection/dependency-checker.ts
+class DependencyChecker {
+  COMPATIBILITY_MATRIX = {
+    typescript: {
+      minimum: "4.9.0",
+      recommended: "5.3.3",
+      incompatible: ["<4.9.0"]
+    },
+    eslint: {
+      minimum: "8.0.0",
+      recommended: "8.57.0",
+      incompatible: ["<8.0.0"]
+    },
+    prettier: {
+      minimum: "2.0.0",
+      recommended: "3.0.0",
+      incompatible: ["<2.0.0"]
+    },
+    jest: {
+      minimum: "29.0.0",
+      recommended: "29.7.0",
+      incompatible: ["<29.0.0"]
+    },
+    vitest: {
+      minimum: "0.34.0",
+      recommended: "1.0.0",
+      incompatible: ["<0.34.0"]
+    },
+    webpack: {
+      minimum: "5.0.0",
+      recommended: "5.89.0",
+      incompatible: ["<5.0.0"]
+    },
+    vite: {
+      minimum: "4.0.0",
+      recommended: "5.0.0",
+      incompatible: ["<4.0.0"]
+    },
+    react: {
+      minimum: "16.8.0",
+      recommended: "18.2.0",
+      incompatible: ["<16.8.0"]
+    },
+    next: {
+      minimum: "13.0.0",
+      recommended: "14.0.0",
+      incompatible: ["<13.0.0"]
+    }
+  };
+  VERSION_CONFLICTS = {
+    "typescript@<4.9.0": ["next@>=13.0.0", "react@>=18.0.0"],
+    "typescript@>=5.0.0": ["some-old-framework@<2.0.0"],
+    "react@<16.8.0": ["react-hooks@>=1.0.0"],
+    "react@>=18.0.0": ["some-old-library@<1.0.0"],
+    "webpack@<5.0.0": ["webpack-dev-server@>=4.0.0"],
+    "vite@<3.0.0": ["@vitejs/plugin-react@>=2.0.0"]
+  };
+  async detectDependencies(rootPath) {
+    const packageJson = this.loadPackageJson(rootPath);
+    const dependencies = [];
+    const depTypes = [
+      "dependencies",
+      "devDependencies",
+      "peerDependencies",
+      "optionalDependencies"
+    ];
+    for (const depType of depTypes) {
+      if (packageJson[depType]) {
+        for (const [name, version2] of Object.entries(packageJson[depType])) {
+          const compatibility = this.checkDependencyCompatibility(name, version2);
+          const issues = this.getCompatibilityIssues(name, version2);
+          dependencies.push({
+            name,
+            version: version2,
+            type: depType,
+            compatibility,
+            issues
+          });
+        }
+      }
+    }
+    return dependencies;
+  }
+  async checkCompatibility(deps) {
+    const issues = [];
+    const recommendations = [];
+    let compatible = true;
+    for (const dep of deps) {
+      if (dep.compatibility === "incompatible") {
+        compatible = false;
+        issues.push(...dep.issues);
+      }
+    }
+    const conflicts = this.checkVersionConflicts(deps);
+    if (conflicts.length > 0) {
+      compatible = false;
+      issues.push(...conflicts);
+    }
+    const upgradeRecommendations = this.generateUpgradeRecommendations(deps);
+    recommendations.push(...upgradeRecommendations);
+    return {
+      compatible,
+      issues: [...new Set(issues)],
+      recommendations: [...new Set(recommendations)]
+    };
+  }
+  getMinimumVersion(tool) {
+    return this.COMPATIBILITY_MATRIX[tool]?.minimum || "0.0.0";
+  }
+  getRecommendedVersion(tool) {
+    return this.COMPATIBILITY_MATRIX[tool]?.recommended || "latest";
+  }
+  checkDependencyCompatibility(name, version2) {
+    const matrix = this.COMPATIBILITY_MATRIX[name];
+    if (!matrix) {
+      return "unknown";
+    }
+    const cleanVersion = this.cleanVersion(version2);
+    const minVersion = matrix.minimum;
+    const incompatibleVersions = matrix.incompatible || [];
+    for (const incompatible of incompatibleVersions) {
+      if (this.satisfiesVersion(cleanVersion, incompatible)) {
+        return "incompatible";
+      }
+    }
+    if (this.compareVersions(cleanVersion, minVersion) < 0) {
+      return "incompatible";
+    }
+    return "compatible";
+  }
+  getCompatibilityIssues(name, version2) {
+    const issues = [];
+    const matrix = this.COMPATIBILITY_MATRIX[name];
+    if (!matrix) {
+      return issues;
+    }
+    const cleanVersion = this.cleanVersion(version2);
+    const minVersion = matrix.minimum;
+    if (this.compareVersions(cleanVersion, minVersion) < 0) {
+      issues.push(`${name}@${version2} is below minimum required version ${minVersion}`);
+    }
+    return issues;
+  }
+  checkVersionConflicts(deps) {
+    const conflicts = [];
+    const depMap = new Map(deps.map((d) => [d.name, d.version]));
+    for (const [conflictPattern, conflictingDeps] of Object.entries(this.VERSION_CONFLICTS)) {
+      const [depName, versionRange] = conflictPattern.split("@");
+      const currentDep = depMap.get(depName);
+      if (currentDep && this.satisfiesVersion(currentDep, versionRange)) {
+        for (const conflictingDep of conflictingDeps) {
+          const [conflictingName, conflictingRange] = conflictingDep.split("@");
+          const conflictingVersion = depMap.get(conflictingName);
+          if (conflictingVersion && this.satisfiesVersion(conflictingVersion, conflictingRange)) {
+            conflicts.push(`Version conflict: ${depName}@${currentDep} conflicts with ${conflictingName}@${conflictingVersion}`);
+          }
+        }
+      }
+    }
+    return conflicts;
+  }
+  generateUpgradeRecommendations(deps) {
+    const recommendations = [];
+    for (const dep of deps) {
+      const matrix = this.COMPATIBILITY_MATRIX[dep.name];
+      if (matrix && dep.compatibility === "incompatible") {
+        const recommended = matrix.recommended;
+        recommendations.push(`Upgrade ${dep.name} from ${dep.version} to ${recommended}`);
+      }
+    }
+    return recommendations;
+  }
+  cleanVersion(version2) {
+    return version2.replace(/^[\^~]/, "").replace(/-.*$/, "").split(" ")[0];
+  }
+  compareVersions(version1, version2) {
+    const v1 = version1.split(".").map(Number);
+    const v2 = version2.split(".").map(Number);
+    for (let i = 0;i < Math.max(v1.length, v2.length); i++) {
+      const num1 = v1[i] || 0;
+      const num2 = v2[i] || 0;
+      if (num1 > num2)
+        return 1;
+      if (num1 < num2)
+        return -1;
+    }
+    return 0;
+  }
+  satisfiesVersion(version2, range) {
+    const cleanVersion = this.cleanVersion(version2);
+    if (range.startsWith(">=")) {
+      return this.compareVersions(cleanVersion, range.substring(2)) >= 0;
+    } else if (range.startsWith(">")) {
+      return this.compareVersions(cleanVersion, range.substring(1)) > 0;
+    } else if (range.startsWith("<=")) {
+      return this.compareVersions(cleanVersion, range.substring(2)) <= 0;
+    } else if (range.startsWith("<")) {
+      return this.compareVersions(cleanVersion, range.substring(1)) < 0;
+    } else if (range.includes("-")) {
+      const [min, max] = range.split("-");
+      return this.compareVersions(cleanVersion, min) >= 0 && this.compareVersions(cleanVersion, max) <= 0;
+    } else {
+      return cleanVersion === range;
+    }
+  }
+  loadPackageJson(rootPath) {
+    const packageJsonPath = `${rootPath}/package.json`;
+    try {
+      return fileUtils.readJsonSync(packageJsonPath);
+    } catch (error) {
+      return {};
+    }
+  }
+}
+
+// ../../packages/core/src/detection/structure-analyzer.ts
+import { existsSync as existsSync4, readdirSync as readdirSync3, readFileSync as readFileSync4 } from "node:fs";
+import { join as join4, relative as relative2 } from "node:path";
+class StructureAnalyzer {
+  MONOREPO_PATTERNS = {
+    npm: ["package.json", "workspaces"],
+    yarn: ["package.json", "workspaces"],
+    pnpm: ["pnpm-workspace.yaml"],
+    nx: ["nx.json"],
+    turbo: ["turbo.json"],
+    lerna: ["lerna.json"],
+    rush: ["rush.json"]
+  };
+  SOURCE_PATTERNS = [
+    "src",
+    "lib",
+    "source",
+    "app",
+    "components",
+    "pages",
+    "views",
+    "services",
+    "utils",
+    "helpers",
+    "hooks",
+    "types",
+    "interfaces"
+  ];
+  TEST_PATTERNS = [
+    "test",
+    "tests",
+    "__tests__",
+    "spec",
+    "specs",
+    "e2e",
+    "integration",
+    "unit"
+  ];
+  CONFIG_PATTERNS = ["config", "configs", ".config", "configuration", "conf"];
+  async analyzeStructure(rootPath) {
+    const isMonorepo = this.detectMonorepo(rootPath);
+    const workspaceType = isMonorepo ? await this.detectMonorepoType(rootPath) : null;
+    const packages = isMonorepo ? await this.detectPackages(rootPath) : [];
+    const sourceDirectories = await this.findDirectoriesByPatterns(rootPath, this.SOURCE_PATTERNS);
+    const testDirectories = await this.findDirectoriesByPatterns(rootPath, this.TEST_PATTERNS);
+    const configDirectories = await this.findDirectoriesByPatterns(rootPath, this.CONFIG_PATTERNS);
+    const complexity = this.calculateComplexity({
+      isMonorepo,
+      workspaceType,
+      packages,
+      sourceDirectories,
+      testDirectories,
+      configDirectories
+    });
+    return {
+      isMonorepo,
+      workspaceType,
+      packages,
+      sourceDirectories,
+      testDirectories,
+      configDirectories,
+      complexity
+    };
+  }
+  async detectMonorepoType(rootPath) {
+    for (const [type, patterns] of Object.entries(this.MONOREPO_PATTERNS)) {
+      if (type === "npm" || type === "yarn")
+        continue;
+      for (const pattern of patterns) {
+        if (existsSync4(join4(rootPath, pattern))) {
+          return type;
+        }
+      }
+    }
+    const packageJsonPath = join4(rootPath, "package.json");
+    if (existsSync4(packageJsonPath)) {
+      try {
+        const pkgJson = fileUtils.readJsonSync(packageJsonPath);
+        if (pkgJson.workspaces) {
+          const packageManager = this.detectPackageManager(rootPath);
+          return packageManager === "yarn" ? "yarn" : "npm";
+        }
+      } catch (error) {
+        console.warn("Failed to read package.json for monorepo type detection:", error);
+      }
+    }
+    return null;
+  }
+  detectMonorepo(rootPath) {
+    const packageJsonPath = join4(rootPath, "package.json");
+    if (existsSync4(packageJsonPath)) {
+      try {
+        const pkgJson = fileUtils.readJsonSync(packageJsonPath);
+        if (pkgJson.workspaces) {
+          return true;
+        }
+      } catch (error) {
+        console.warn("Failed to read package.json:", error);
+      }
+    }
+    const monorepoFiles = [
+      "pnpm-workspace.yaml",
+      "nx.json",
+      "turbo.json",
+      "lerna.json",
+      "rush.json"
+    ];
+    return monorepoFiles.some((file) => existsSync4(join4(rootPath, file)));
+  }
+  async detectPackages(rootPath) {
+    const packages = [];
+    const packageJsonPath = join4(rootPath, "package.json");
+    if (existsSync4(packageJsonPath)) {
+      try {
+        const pkgJson = fileUtils.readJsonSync(packageJsonPath);
+        if (pkgJson.workspaces) {
+          const workspaces = pkgJson.workspaces;
+          if (Array.isArray(workspaces)) {
+            packages.push(...workspaces);
+          } else if (workspaces.packages) {
+            packages.push(...workspaces.packages);
+          }
+        }
+      } catch (error) {}
+    }
+    const pnpmWorkspacePath = join4(rootPath, "pnpm-workspace.yaml");
+    if (existsSync4(pnpmWorkspacePath)) {
+      try {
+        const content = readFileSync4(pnpmWorkspacePath, "utf-8");
+        const packagesMatch = content.match(/packages:\s*\n((?:\s*-\s*[^\n]+\n?)*)/);
+        if (packagesMatch) {
+          const packageLines = packagesMatch[1].split(`
+`).filter((line) => line.trim());
+          for (const line of packageLines) {
+            const packagePath = line.replace(/^\s*-\s*/, "").trim();
+            if (packagePath) {
+              packages.push(packagePath);
+            }
+          }
+        }
+      } catch (error) {}
+    }
+    const allPackageDirs = await this.findPackageDirectories(rootPath);
+    packages.push(...allPackageDirs.filter((dir) => dir !== "."));
+    return [...new Set(packages)];
+  }
+  async findPackageDirectories(rootPath) {
+    const packageDirs = [];
+    const scanDirectory = (dir) => {
+      const entries = readdirSync3(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const fullPath = join4(dir, entry.name);
+          const packageJsonPath = join4(fullPath, "package.json");
+          if (existsSync4(packageJsonPath)) {
+            const relativePath = relative2(rootPath, fullPath);
+            packageDirs.push(relativePath);
+          }
+          if (entry.name !== "node_modules") {
+            scanDirectory(fullPath);
+          }
+        }
+      }
+    };
+    scanDirectory(rootPath);
+    return packageDirs;
+  }
+  async findDirectoriesByPatterns(rootPath, patterns) {
+    const directories = [];
+    const scanDirectory = (dir, currentDepth = 0) => {
+      if (currentDepth > 3)
+        return;
+      const entries = readdirSync3(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const fullPath = join4(dir, entry.name);
+          const relativePath = relative2(rootPath, fullPath);
+          if (patterns.some((pattern) => entry.name === pattern || entry.name.includes(pattern) || entry.name.toLowerCase().includes(pattern.toLowerCase()))) {
+            directories.push(relativePath);
+          }
+          if (entry.name !== "node_modules" && !entry.name.startsWith(".")) {
+            scanDirectory(fullPath, currentDepth + 1);
+          }
+        }
+      }
+    };
+    scanDirectory(rootPath);
+    return [...new Set(directories)];
+  }
+  detectPackageManager(rootPath) {
+    const packageJsonPath = join4(rootPath, "package.json");
+    if (!existsSync4(packageJsonPath)) {
+      return "npm";
+    }
+    if (existsSync4(join4(rootPath, "bun.lockb"))) {
+      return "bun";
+    }
+    if (existsSync4(join4(rootPath, "pnpm-lock.yaml"))) {
+      return "pnpm";
+    }
+    if (existsSync4(join4(rootPath, "yarn.lock"))) {
+      return "yarn";
+    }
+    if (existsSync4(join4(rootPath, "bun.lock"))) {
+      return "bun";
+    }
+    if (existsSync4(join4(rootPath, "package-lock.json"))) {
+      return "npm";
+    }
+    return "npm";
+  }
+  calculateComplexity(structure) {
+    let score = 0;
+    if (structure.isMonorepo) {
+      score += 3;
+    }
+    if (structure.packages.length > 10) {
+      score += 4;
+    } else if (structure.packages.length > 5) {
+      score += 2;
+    } else if (structure.packages.length > 2) {
+      score += 1;
+    }
+    if (structure.sourceDirectories.length > 10) {
+      score += 2;
+    } else if (structure.sourceDirectories.length > 5) {
+      score += 1;
+    }
+    if (structure.testDirectories.length > 5) {
+      score += 2;
+    } else if (structure.testDirectories.length > 2) {
+      score += 1;
+    }
+    if (structure.configDirectories.length > 3) {
+      score += 2;
+    } else if (structure.configDirectories.length > 1) {
+      score += 1;
+    }
+    if (structure.workspaceType === "nx" || structure.workspaceType === "rush") {
+      score += 2;
+    } else if (structure.workspaceType === "turbo" || structure.workspaceType === "lerna") {
+      score += 1;
+    }
+    if (score >= 8) {
+      return "complex";
+    } else if (score >= 4) {
+      return "medium";
+    } else {
+      return "simple";
+    }
+  }
+}
+
+// ../../packages/core/src/detection/detection-cache.ts
+import { existsSync as existsSync5, statSync as statSync3 } from "fs";
+
+class DetectionCache {
+  fileCache;
+  configCache;
+  dependencyCache;
+  resultCache;
+  defaultTTL;
+  maxCacheSize;
+  constructor(options = {}) {
+    this.fileCache = new Map;
+    this.configCache = new Map;
+    this.dependencyCache = new Map;
+    this.resultCache = new Map;
+    this.defaultTTL = options.ttl ?? 5 * 60 * 1000;
+    this.maxCacheSize = options.maxSize ?? 1000;
+  }
+  getCachedFile(filePath) {
+    if (!existsSync5(filePath)) {
+      return null;
+    }
+    const cached = this.fileCache.get(filePath);
+    if (!cached) {
+      return null;
+    }
+    const stats = statSync3(filePath);
+    const currentMtime = stats.mtimeMs;
+    if (cached.mtime !== currentMtime) {
+      this.fileCache.delete(filePath);
+      return null;
+    }
+    return cached.data;
+  }
+  setCachedFile(filePath, content) {
+    if (!existsSync5(filePath)) {
+      return;
+    }
+    this.ensureCacheSize(this.fileCache);
+    const stats = statSync3(filePath);
+    this.fileCache.set(filePath, {
+      data: content,
+      timestamp: Date.now(),
+      mtime: stats.mtimeMs
+    });
+  }
+  getCachedConfig(key) {
+    const cached = this.configCache.get(key);
+    if (!cached) {
+      return null;
+    }
+    if (Date.now() - cached.timestamp > this.defaultTTL) {
+      this.configCache.delete(key);
+      return null;
+    }
+    return cached.data;
+  }
+  setCachedConfig(key, data) {
+    this.ensureCacheSize(this.configCache);
+    this.configCache.set(key, {
+      data,
+      timestamp: Date.now()
+    });
+  }
+  getCachedDependencies(rootPath) {
+    const cached = this.dependencyCache.get(rootPath);
+    if (!cached) {
+      return null;
+    }
+    if (Date.now() - cached.timestamp > this.defaultTTL) {
+      this.dependencyCache.delete(rootPath);
+      return null;
+    }
+    return cached.data;
+  }
+  setCachedDependencies(rootPath, data) {
+    this.ensureCacheSize(this.dependencyCache);
+    this.dependencyCache.set(rootPath, {
+      data,
+      timestamp: Date.now()
+    });
+  }
+  getCachedResult(rootPath) {
+    const cached = this.resultCache.get(rootPath);
+    if (!cached) {
+      return null;
+    }
+    const packageJsonPath = `${rootPath}/package.json`;
+    if (existsSync5(packageJsonPath)) {
+      const stats = statSync3(packageJsonPath);
+      if (cached.mtime && cached.mtime !== stats.mtimeMs) {
+        this.resultCache.delete(rootPath);
+        return null;
+      }
+    }
+    if (Date.now() - cached.timestamp > this.defaultTTL) {
+      this.resultCache.delete(rootPath);
+      return null;
+    }
+    return cached.data;
+  }
+  setCachedResult(rootPath, result) {
+    this.ensureCacheSize(this.resultCache);
+    let mtime;
+    const packageJsonPath = `${rootPath}/package.json`;
+    if (existsSync5(packageJsonPath)) {
+      const stats = statSync3(packageJsonPath);
+      mtime = stats.mtimeMs;
+    }
+    this.resultCache.set(rootPath, {
+      data: result,
+      timestamp: Date.now(),
+      mtime
+    });
+  }
+  invalidate(rootPath) {
+    for (const [key] of this.fileCache) {
+      if (key.startsWith(rootPath)) {
+        this.fileCache.delete(key);
+      }
+    }
+    for (const [key] of this.configCache) {
+      if (key.startsWith(rootPath)) {
+        this.configCache.delete(key);
+      }
+    }
+    this.dependencyCache.delete(rootPath);
+    this.resultCache.delete(rootPath);
+  }
+  clear() {
+    this.fileCache.clear();
+    this.configCache.clear();
+    this.dependencyCache.clear();
+    this.resultCache.clear();
+  }
+  getStats() {
+    return {
+      fileCache: {
+        size: this.fileCache.size,
+        maxSize: this.maxCacheSize
+      },
+      configCache: {
+        size: this.configCache.size,
+        maxSize: this.maxCacheSize
+      },
+      dependencyCache: {
+        size: this.dependencyCache.size,
+        maxSize: this.maxCacheSize
+      },
+      resultCache: {
+        size: this.resultCache.size,
+        maxSize: this.maxCacheSize
+      }
+    };
+  }
+  ensureCacheSize(cache) {
+    if (cache.size >= this.maxCacheSize) {
+      const firstKey = cache.keys().next().value;
+      if (firstKey) {
+        cache.delete(firstKey);
+      }
+    }
+  }
+}
+
+// ../../packages/core/src/detection/detection-engine.ts
+class AutoConfigurationDetectionEngine {
+  projectDetector;
+  toolDetector;
+  dependencyChecker;
+  structureAnalyzer;
+  cache;
+  constructor(cache) {
+    this.projectDetector = new ProjectDetector;
+    this.toolDetector = new ToolDetector;
+    this.dependencyChecker = new DependencyChecker;
+    this.structureAnalyzer = new StructureAnalyzer;
+    this.cache = cache ?? new DetectionCache;
+  }
+  async detectProject(rootPath) {
+    return this.projectDetector.detectProject(rootPath);
+  }
+  async detectTools(rootPath) {
+    return this.toolDetector.detectTools(rootPath);
+  }
+  async detectConfigs(rootPath) {
+    return this.toolDetector.detectConfigs(rootPath);
+  }
+  async detectDependencies(rootPath) {
+    return this.dependencyChecker.detectDependencies(rootPath);
+  }
+  async detectStructure(rootPath) {
+    return this.structureAnalyzer.analyzeStructure(rootPath);
+  }
+  async detectAll(rootPath) {
+    try {
+      const cachedResult = this.cache.getCachedResult(rootPath);
+      if (cachedResult) {
+        return cachedResult;
+      }
+      const [project, tools, configs, dependencies, structure] = await Promise.all([
+        this.projectDetector.detectProject(rootPath),
+        this.toolDetector.detectTools(rootPath),
+        this.toolDetector.detectConfigs(rootPath),
+        this.dependencyChecker.detectDependencies(rootPath),
+        this.structureAnalyzer.analyzeStructure(rootPath)
+      ]);
+      const compatibility = await this.dependencyChecker.checkCompatibility(dependencies);
+      const issues = this.generateIssues(project, tools, configs, dependencies, structure, compatibility);
+      const recommendations = this.generateRecommendations(project, tools, configs, dependencies, structure, compatibility);
+      const result = {
+        project,
+        tools,
+        configs,
+        dependencies,
+        structure,
+        issues,
+        recommendations,
+        timestamp: new Date().toISOString()
+      };
+      this.cache.setCachedResult(rootPath, result);
+      return result;
+    } catch (error) {
+      throw new Error(`Detection failed: ${error}`);
+    }
+  }
+  clearCache(rootPath) {
+    if (rootPath) {
+      this.cache.invalidate(rootPath);
+    } else {
+      this.cache.clear();
+    }
+  }
+  getCacheStats() {
+    return this.cache.getStats();
+  }
+  generateIssues(project, tools, configs, dependencies, structure, compatibility) {
+    const issues = [];
+    if (project.type === "unknown") {
+      issues.push("Could not determine project type");
+    }
+    const enabledTools = tools.filter((t) => t.enabled);
+    if (enabledTools.length === 0) {
+      issues.push("No development tools detected");
+    }
+    if (compatibility.issues.length > 0) {
+      issues.push(...compatibility.issues);
+    }
+    if (structure.sourceDirectories.length === 0) {
+      issues.push("No source directories found");
+    }
+    if (structure.testDirectories.length === 0) {
+      issues.push("No test directories found - consider adding tests");
+    }
+    const hasLinting = tools.some((t) => t.name === "eslint" && t.enabled);
+    const hasFormatting = tools.some((t) => t.name === "prettier" && t.enabled);
+    if (!hasLinting) {
+      issues.push("No linting tool detected - consider adding ESLint");
+    }
+    if (!hasFormatting) {
+      issues.push("No formatting tool detected - consider adding Prettier");
+    }
+    return issues;
+  }
+  generateRecommendations(project, tools, configs, dependencies, structure, compatibility) {
+    const recommendations = [];
+    recommendations.push(...compatibility.recommendations);
+    const toolNames = tools.map((t) => t.name);
+    if (!toolNames.includes("typescript") && project.hasTypeScript) {
+      recommendations.push("Add TypeScript configuration");
+    }
+    if (!toolNames.includes("vitest") && !toolNames.includes("jest")) {
+      recommendations.push("Add a testing framework (Vitest or Jest)");
+    }
+    if (!toolNames.includes("eslint")) {
+      recommendations.push("Add ESLint for code linting and quality checks");
+    }
+    if (!toolNames.includes("prettier")) {
+      recommendations.push("Add Prettier for consistent code formatting");
+    }
+    if (structure.complexity === "complex" && !structure.isMonorepo) {
+      recommendations.push("Consider converting to monorepo structure for better organization");
+    }
+    if (structure.packages.length > 5 && structure.workspaceType === "npm") {
+      recommendations.push("Consider using pnpm or yarn workspaces for better performance");
+    }
+    if (toolNames.includes("eslint") && !toolNames.includes("prettier")) {
+      recommendations.push("Add Prettier for consistent code formatting");
+    }
+    if (structure.testDirectories.length === 0) {
+      recommendations.push("Set up testing structure with unit and integration tests");
+    }
+    return recommendations;
+  }
+}
+
+// ../../packages/core/src/index.ts
+var useCoreStore = create((set, get) => ({
+  currentProject: null,
+  plugins: new Map,
+  isLoading: false,
+  error: null,
+  actions: {
+    setProject: (project) => set({ currentProject: project }),
+    registerPlugin: (plugin) => {
+      const plugins = new Map(get().plugins);
+      plugins.set(plugin.name, plugin);
+      set({ plugins });
+    },
+    setLoading: (loading) => set({ isLoading: loading }),
+    setError: (error) => set({ error }),
+    clearError: () => set({ error: null })
+  }
+}));
+
+class PluginManager {
+  plugins = new Map;
+  register(plugin) {
+    this.plugins.set(plugin.name, plugin);
+  }
+  get(name) {
+    return this.plugins.get(name);
+  }
+  list() {
+    return Array.from(this.plugins.values());
+  }
+  async executeAnalysis(toolName, config, options) {
+    const plugin = this.get(toolName);
+    if (!plugin) {
+      throw new Error(`Plugin '${toolName}' not found`);
+    }
+    return plugin.analyze(config, options);
+  }
+  validateConfiguration(toolName, config) {
+    const plugin = this.get(toolName);
+    if (!plugin) {
+      return false;
+    }
+    return plugin.validate(config);
+  }
+}
+var pluginManager = new PluginManager;
+
 // src/commands/setup.ts
-import { writeFileSync as writeFileSync2, existsSync as existsSync2 } from "node:fs";
+import { writeFileSync as writeFileSync2, existsSync as existsSync6 } from "node:fs";
 
 class SetupCommand extends BaseCommand {
   constructor(options) {
@@ -2073,31 +3467,74 @@ class SetupCommand extends BaseCommand {
   }
   async execute() {
     this.log("Setting up DevQuality CLI...");
-    const configPath = this.options.config || ".dev-quality.json";
-    if (existsSync2(configPath) && !this.setupOptions.force) {
+    const configPath = this.options.config ?? ".dev-quality.json";
+    if (existsSync6(configPath) && !this.setupOptions.force) {
       this.log("Configuration file already exists. Use --force to overwrite.");
       return;
     }
     const config = await this.createConfiguration();
     if (this.setupOptions.interactive) {
-      await this.interactiveSetup(config);
+      await this.interactiveSetup();
     }
     this.saveConfiguration(config, configPath);
     this.log("DevQuality CLI setup completed successfully!");
   }
   async createConfiguration() {
+    const detectionEngine = new AutoConfigurationDetectionEngine;
+    const rootPath = process.cwd();
+    try {
+      this.log("Auto-detecting project configuration...");
+      const detectionResult = await detectionEngine.detectAll(rootPath);
+      this.log(`Detected project: ${detectionResult.project.name} (${detectionResult.project.type})`);
+      this.log(`Found ${detectionResult.tools.length} tools and ${detectionResult.dependencies.length} dependencies`);
+      const tools = detectionResult.tools.map((tool) => ({
+        name: tool.name,
+        version: tool.version,
+        enabled: tool.enabled,
+        config: tool.config,
+        priority: tool.priority
+      }));
+      if (tools.length === 0) {
+        tools.push(...this.getDefaultTools());
+      }
+      return {
+        name: detectionResult.project.name,
+        version: detectionResult.project.version,
+        description: detectionResult.project.description,
+        type: detectionResult.project.type,
+        frameworks: detectionResult.project.frameworks,
+        tools,
+        paths: {
+          source: detectionResult.structure.sourceDirectories[0] ?? "./src",
+          tests: detectionResult.structure.testDirectories[0] ?? "./tests",
+          config: detectionResult.structure.configDirectories[0] ?? "./configs",
+          output: "./output"
+        },
+        settings: {
+          verbose: false,
+          quiet: false,
+          json: false,
+          cache: true
+        }
+      };
+    } catch (error) {
+      this.log(`Auto-detection failed: ${error}. Using default configuration.`);
+      return this.createDefaultConfiguration();
+    }
+  }
+  createDefaultConfiguration() {
     const packageJsonPath = pathUtils.getConfigPath("package.json");
     let projectName = "my-project";
     let projectVersion = "1.0.0";
     let projectDescription = "A project analyzed by DevQuality";
     let projectType = "backend";
-    if (existsSync2(packageJsonPath)) {
+    if (existsSync6(packageJsonPath)) {
       try {
         const packageJson = fileUtils.readJsonSync(packageJsonPath);
-        projectName = packageJson.name || projectName;
-        projectVersion = packageJson.version || projectVersion;
-        projectDescription = packageJson.description || projectDescription;
-        if (packageJson.dependencies?.react || packageJson.devDependencies?.react) {
+        projectName = packageJson.name ?? projectName;
+        projectVersion = packageJson.version ?? projectVersion;
+        projectDescription = packageJson.description ?? projectDescription;
+        if (packageJson.dependencies?.["react"] || packageJson.devDependencies?.["react"]) {
           projectType = "frontend";
         } else if (packageJson.workspaces) {
           projectType = "monorepo";
@@ -2152,7 +3589,7 @@ class SetupCommand extends BaseCommand {
       }
     ];
   }
-  async interactiveSetup(_config) {
+  async interactiveSetup() {
     this.log("Interactive setup mode - coming soon!");
     this.log("For now, using default configuration.");
   }
@@ -2165,9 +3602,9 @@ class SetupCommand extends BaseCommand {
       throw new Error(`Failed to save configuration: ${error}`);
     }
   }
-  async loadConfig(configPath) {
-    const path = configPath || this.options.config || ".dev-quality.json";
-    if (!existsSync2(path)) {
+  async loadConfig() {
+    const path = this.options.config ?? ".dev-quality.json";
+    if (!existsSync6(path)) {
       throw new Error(`Configuration file not found: ${path}`);
     }
     try {
@@ -2200,8 +3637,8 @@ class ConfigCommand extends BaseCommand {
     try {
       const config = await this.loadConfig();
       this.log("Current configuration:");
-      console.log(this.formatOutput(config));
-    } catch (error) {
+      process.stdout.write(this.formatOutput(config));
+    } catch {
       this.log(`No configuration found. Run 'dev-quality setup' to create one.`, "warn");
     }
   }
@@ -2210,7 +3647,7 @@ class ConfigCommand extends BaseCommand {
     this.log("This feature will be implemented in a future version.");
   }
   async resetConfig() {
-    const configPath = this.options.config || ".dev-quality.json";
+    const configPath = this.options.config ?? ".dev-quality.json";
     this.log("Resetting configuration to defaults...");
     const defaultConfig = {
       name: "my-project",
@@ -2261,8 +3698,8 @@ class ConfigCommand extends BaseCommand {
       throw new Error(`Failed to reset configuration: ${error}`);
     }
   }
-  async loadConfig(configPath) {
-    const path = configPath || this.options.config || ".dev-quality.json";
+  async loadConfig() {
+    const path = this.options.config ?? ".dev-quality.json";
     try {
       const config = fileUtils.readJsonSync(path);
       this.config = config;
@@ -2329,8 +3766,8 @@ class AnalyzeCommand extends BaseCommand {
     return config.tools?.filter((tool) => tool.enabled)?.map((tool) => tool.name)?.sort((a, b) => {
       const toolA = config.tools.find((t) => t.name === a);
       const toolB = config.tools.find((t) => t.name === b);
-      return (toolA?.priority || 999) - (toolB?.priority || 999);
-    }) || [];
+      return (toolA?.priority ?? 999) - (toolB?.priority ?? 999);
+    }) ?? [];
   }
   async runToolAnalysis(toolName) {
     const startTime = Date.now();
@@ -2359,7 +3796,7 @@ class AnalyzeCommand extends BaseCommand {
       writeFileSync3(analyzeOptions.output, content, "utf-8");
       this.log(`Results saved to: ${analyzeOptions.output}`);
     } else {
-      console.log(this.formatOutput(results));
+      process.stdout.write(this.formatOutput(results));
     }
   }
   generateSummary(results) {
@@ -2368,11 +3805,11 @@ class AnalyzeCommand extends BaseCommand {
     const failed = total - passed;
     return `${passed}/${total} tools passed, ${failed} failed`;
   }
-  async loadConfig(configPath) {
-    const path = configPath || this.options.config || ".dev-quality.json";
+  async loadConfig() {
+    const path = this.options.config ?? ".dev-quality.json";
     try {
-      const { readFileSync: readFileSync2 } = await import("node:fs");
-      const content = readFileSync2(path, "utf-8");
+      const { readFileSync: readFileSync5 } = await import("node:fs");
+      const content = readFileSync5(path, "utf-8");
       const config = JSON.parse(content);
       this.config = config;
       return config;
@@ -2394,8 +3831,8 @@ class ReportCommand extends BaseCommand {
     this.log("Generating quality report...");
     try {
       const config = await this.loadConfig();
-      const reportType = this.reportOptions.type || "summary";
-      const reportFormat = this.reportOptions.format || "html";
+      const reportType = this.reportOptions.type ?? "summary";
+      const reportFormat = this.reportOptions.format ?? "html";
       this.log(`Generating ${reportType} report in ${reportFormat} format...`);
       const reportData = await this.generateReportData(config);
       await this.outputReport(reportData, reportFormat);
@@ -2461,7 +3898,7 @@ class ReportCommand extends BaseCommand {
       writeFileSync3(this.reportOptions.output, content, "utf-8");
       this.log(`Report saved to: ${this.reportOptions.output}`);
     } else {
-      console.log(content);
+      process.stdout.write(content);
     }
   }
   generateHtmlReport(data) {
@@ -2551,11 +3988,11 @@ ${data.results.map((result) => `
 `).join("")}
 `;
   }
-  async loadConfig(configPath) {
-    const path = configPath || this.options.config || ".dev-quality.json";
+  async loadConfig() {
+    const path = this.options.config ?? ".dev-quality.json";
     try {
-      const { readFileSync: readFileSync2 } = await import("node:fs");
-      const content = readFileSync2(path, "utf-8");
+      const { readFileSync: readFileSync5 } = await import("node:fs");
+      const content = readFileSync5(path, "utf-8");
       const config = JSON.parse(content);
       this.config = config;
       return config;
@@ -2566,12 +4003,12 @@ ${data.results.map((result) => `
 }
 
 // src/components/app.tsx
-import React from "react";
+import React3 from "react";
 import { Box, Text, useApp } from "ink";
 import { jsxDEV } from "react/jsx-dev-runtime";
 function App() {
   const { exit } = useApp();
-  React.useEffect(() => {
+  React3.useEffect(() => {
     const timer = setTimeout(() => {
       exit();
     }, 5000);
@@ -2668,7 +4105,8 @@ program2.command("setup").description("Initialize DevQuality for your project").
     const setupCommand = new SetupCommand(options);
     await setupCommand.execute();
   } catch (error) {
-    console.error("Setup failed:", error instanceof Error ? error.message : error);
+    process.stderr.write(`Setup failed: ${error instanceof Error ? error.message : error}
+`);
     process.exit(1);
   }
 });
@@ -2677,7 +4115,8 @@ program2.command("config").description("Manage DevQuality configuration").option
     const configCommand = new ConfigCommand(options);
     await configCommand.execute();
   } catch (error) {
-    console.error("Config command failed:", error instanceof Error ? error.message : error);
+    process.stderr.write(`Config command failed: ${error instanceof Error ? error.message : error}
+`);
     process.exit(1);
   }
 });
@@ -2686,7 +4125,8 @@ program2.command("analyze").alias("a").description("Analyze code quality using c
     const analyzeCommand = new AnalyzeCommand(options);
     await analyzeCommand.execute();
   } catch (error) {
-    console.error("Analysis failed:", error instanceof Error ? error.message : error);
+    process.stderr.write(`Analysis failed: ${error instanceof Error ? error.message : error}
+`);
     process.exit(1);
   }
 });
@@ -2695,7 +4135,8 @@ program2.command("report").alias("r").description("Generate comprehensive qualit
     const reportCommand = new ReportCommand(options);
     await reportCommand.execute();
   } catch (error) {
-    console.error("Report generation failed:", error instanceof Error ? error.message : error);
+    process.stderr.write(`Report generation failed: ${error instanceof Error ? error.message : error}
+`);
     process.exit(1);
   }
 });
@@ -2704,7 +4145,8 @@ program2.command("quick").alias("q").description("Quick analysis with default se
     const analyzeCommand = new AnalyzeCommand({ quick: true });
     await analyzeCommand.execute();
   } catch (error) {
-    console.error("Quick analysis failed:", error instanceof Error ? error.message : error);
+    process.stderr.write(`Quick analysis failed: ${error instanceof Error ? error.message : error}
+`);
     process.exit(1);
   }
 });
@@ -2712,9 +4154,10 @@ program2.command("watch").alias("w").description("Watch for changes and run anal
   try {
     const { render: render2 } = await import("ink");
     const { WatchComponent: WatchComponent2 } = await Promise.resolve().then(() => (init_watch(), exports_watch));
-    render2(React3.createElement(WatchComponent2, options));
+    render2(React5.createElement(WatchComponent2, options));
   } catch (error) {
-    console.error("Watch mode failed:", error instanceof Error ? error.message : error);
+    process.stderr.write(`Watch mode failed: ${error instanceof Error ? error.message : error}
+`);
     process.exit(1);
   }
 });
@@ -2724,7 +4167,8 @@ program2.command("export").description("Export analysis results to various forma
     const exportCommand = new ExportCommand2(options);
     await exportCommand.execute();
   } catch (error) {
-    console.error("Export failed:", error instanceof Error ? error.message : error);
+    process.stderr.write(`Export failed: ${error instanceof Error ? error.message : error}
+`);
     process.exit(1);
   }
 });
@@ -2734,17 +4178,19 @@ program2.command("history").description("View analysis history and trends").opti
     const historyCommand = new HistoryCommand2(options);
     await historyCommand.execute();
   } catch (error) {
-    console.error("History command failed:", error instanceof Error ? error.message : error);
+    process.stderr.write(`History command failed: ${error instanceof Error ? error.message : error}
+`);
     process.exit(1);
   }
 });
 program2.on("command:*", () => {
-  console.error(`Invalid command: %s
-See --help for a list of available commands.`, program2.args.join(" "));
+  process.stderr.write(`Invalid command: ${program2.args.join(" ")}
+See --help for a list of available commands.
+`);
   process.exit(1);
 });
 if (process.argv.length === 2) {
-  render(React3.createElement(App));
+  render(React5.createElement(App));
 } else {
   program2.parse();
 }

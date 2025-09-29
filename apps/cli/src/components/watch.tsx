@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Box, Text, useApp } from "ink";
+import React, { useState, useEffect } from 'react';
+import { Box, Text, useApp } from 'ink';
 
 interface WatchProps {
   debounce?: string;
@@ -15,7 +15,7 @@ export function WatchComponent(props: WatchProps): React.ReactElement {
   useEffect(() => {
     if (!isRunning) return;
 
-    const intervalMs = parseInt(props.interval || "5000");
+    const intervalMs = parseInt(props.interval ?? '5000');
     const interval = setInterval(() => {
       setLastRun(new Date());
       setAnalysisCount(prev => prev + 1);
@@ -25,8 +25,8 @@ export function WatchComponent(props: WatchProps): React.ReactElement {
   }, [isRunning, props.interval]);
 
   useEffect(() => {
-    const handleKeyPress = (data: any) => {
-      if (data === "q") {
+    const handleKeyPress = (data: Buffer | string) => {
+      if (data === 'q') {
         setIsRunning(false);
         exit();
       }
@@ -34,12 +34,12 @@ export function WatchComponent(props: WatchProps): React.ReactElement {
 
     process.stdin.setRawMode(true);
     process.stdin.resume();
-    process.stdin.on("data", handleKeyPress);
+    process.stdin.on('data', handleKeyPress);
 
     return () => {
       process.stdin.setRawMode(false);
       process.stdin.pause();
-      process.stdin.off("data", handleKeyPress);
+      process.stdin.off('data', handleKeyPress);
     };
   }, [exit]);
 
@@ -60,7 +60,7 @@ export function WatchComponent(props: WatchProps): React.ReactElement {
       </Box>
 
       <Box marginBottom={1}>
-        <Text color="green">Status: {isRunning ? "Running" : "Stopped"}</Text>
+        <Text color="green">Status: {isRunning ? 'Running' : 'Stopped'}</Text>
       </Box>
 
       {lastRun && (
@@ -75,8 +75,7 @@ export function WatchComponent(props: WatchProps): React.ReactElement {
 
       <Box marginTop={1}>
         <Text dimColor>
-          Interval: {props.interval || "5000"}ms | Debounce:{" "}
-          {props.debounce || "1000"}ms
+          Interval: {props.interval ?? '5000'}ms | Debounce: {props.debounce ?? '1000'}ms
         </Text>
       </Box>
     </Box>

@@ -22,5 +22,11 @@ export declare class PluginManager {
     validateConfiguration(toolName: string, config: any): boolean;
 }
 export declare const pluginManager: PluginManager;
+export { AutoConfigurationDetectionEngine } from './detection/detection-engine';
+export { ProjectDetector } from './detection/project-detector';
+export { ToolDetector } from './detection/tool-detector';
+export { DependencyChecker } from './detection/dependency-checker';
+export { StructureAnalyzer } from './detection/structure-analyzer';
+export type { DetectedProject, DetectedTool, ConfigFile, DependencyInfo, ProjectStructure, DetectionResult, DetectionEngine, ConfigAnalyzer, DependencyChecker as DependencyCheckerInterface, StructureAnalyzer as StructureAnalyzerInterface, } from './detection/types';
 export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };
 //# sourceMappingURL=index.d.ts.map

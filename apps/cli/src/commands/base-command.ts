@@ -10,7 +10,7 @@ export abstract class BaseCommand {
 
   abstract execute(): Promise<void>;
 
-  protected async loadConfig(_configPath?: string): Promise<ProjectConfiguration> {
+  protected async loadConfig(): Promise<ProjectConfiguration> {
     throw new Error('loadConfig must be implemented by subclass');
   }
 
@@ -22,7 +22,7 @@ export abstract class BaseCommand {
     const timestamp = new Date().toISOString();
     const prefix = level === 'error' ? 'ERROR' : level === 'warn' ? 'WARN' : 'INFO';
 
-    console.log(`[${timestamp}] ${prefix}: ${message}`);
+    process.stdout.write(`[${timestamp}] ${prefix}: ${message}\n`);
   }
 
   protected logVerbose(message: string): void {
