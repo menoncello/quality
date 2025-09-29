@@ -4,14 +4,11 @@ import { ConfigCommand } from '../src/commands/config';
 import { AnalyzeCommand } from '../src/commands/analyze';
 import { ReportCommand } from '../src/commands/report';
 import { BaseCommand } from '../src/commands/base-command';
+import { ProjectConfiguration } from '@dev-quality/types';
 
 describe('CLI Commands', () => {
-  let mockConsoleLog: any;
-  let mockConsoleError: any;
-
   beforeEach(() => {
-    mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-    mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -51,6 +48,16 @@ describe('CLI Commands', () => {
   });
 
   describe('BaseCommand logging', () => {
+    let mockStdoutWrite: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      mockStdoutWrite = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
     class TestCommand extends BaseCommand {
       async execute(): Promise<void> {
         this.log('test message');
@@ -58,8 +65,8 @@ describe('CLI Commands', () => {
         this.log('error message', 'error');
       }
 
-      protected async loadConfig(configPath?: string): Promise<any> {
-        return {};
+      protected async loadConfig(): Promise<ProjectConfiguration> {
+        return {} as ProjectConfiguration;
       }
     }
 
@@ -67,16 +74,16 @@ describe('CLI Commands', () => {
       const command = new TestCommand({ verbose: false, quiet: false });
       await command.execute();
 
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('INFO: test message'));
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('ERROR: error message'));
+      expect(mockStdoutWrite).toHaveBeenCalledWith(expect.stringContaining('INFO: test message'));
+      expect(mockStdoutWrite).toHaveBeenCalledWith(expect.stringContaining('ERROR: error message'));
     });
 
     it('should respect quiet mode', async () => {
       const command = new TestCommand({ verbose: false, quiet: true });
       await command.execute();
 
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('ERROR: error message'));
-      expect(mockConsoleLog).not.toHaveBeenCalledWith(
+      expect(mockStdoutWrite).toHaveBeenCalledWith(expect.stringContaining('ERROR: error message'));
+      expect(mockStdoutWrite).not.toHaveBeenCalledWith(
         expect.stringContaining('INFO: test message')
       );
     });

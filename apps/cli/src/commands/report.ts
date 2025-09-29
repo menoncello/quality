@@ -1,5 +1,26 @@
 import { BaseCommand } from './base-command';
-import { CommandOptions } from '@dev-quality/types';
+import { CommandOptions, ProjectConfiguration } from '@dev-quality/types';
+
+interface ReportData {
+  project: ProjectConfiguration;
+  results: Array<{
+    tool: string;
+    success: boolean;
+    data: {
+      issues: number;
+      warnings: number;
+      suggestions: number;
+    };
+    duration: number;
+  }>;
+  summary: {
+    total: number;
+    passed: number;
+    failed: number;
+    warnings: number;
+  };
+  generatedAt: string;
+}
 
 export interface ReportOptions {
   type?: string;
@@ -23,8 +44,8 @@ export class ReportCommand extends BaseCommand {
     try {
       const config = await this.loadConfig();
 
-      const reportType = this.reportOptions.type || 'summary';
-      const reportFormat = this.reportOptions.format || 'html';
+      const reportType = this.reportOptions.type ?? 'summary';
+      const reportFormat = this.reportOptions.format ?? 'html';
 
       this.log(`Generating ${reportType} report in ${reportFormat} format...`);
 
@@ -42,7 +63,7 @@ export class ReportCommand extends BaseCommand {
     }
   }
 
-  private async generateReportData(config: any): Promise<any> {
+  private async generateReportData(config: ProjectConfiguration): Promise<ReportData> {
     const mockAnalysisResults = [
       {
         tool: 'typescript',
@@ -74,13 +95,13 @@ export class ReportCommand extends BaseCommand {
         total: mockAnalysisResults.length,
         passed: mockAnalysisResults.filter(r => r.success).length,
         failed: mockAnalysisResults.filter(r => !r.success).length,
-        warnings: mockAnalysisResults.reduce((sum, r) => sum + (r.data as any).warnings, 0),
+        warnings: mockAnalysisResults.reduce((sum, r) => sum + r.data.warnings, 0),
       },
       generatedAt: new Date().toISOString(),
     };
   }
 
-  private async outputReport(reportData: any, format: string): Promise<void> {
+  private async outputReport(reportData: ReportData, format: string): Promise<void> {
     let content = '';
 
     switch (format) {
@@ -102,11 +123,11 @@ export class ReportCommand extends BaseCommand {
       writeFileSync(this.reportOptions.output, content, 'utf-8');
       this.log(`Report saved to: ${this.reportOptions.output}`);
     } else {
-      console.log(content);
+      process.stdout.write(content);
     }
   }
 
-  private generateHtmlReport(data: any): string {
+  private generateHtmlReport(data: ReportData): string {
     return `
 <!DOCTYPE html>
 <html>
@@ -155,7 +176,7 @@ export class ReportCommand extends BaseCommand {
         <h2>Tool Results</h2>
         ${data.results
           .map(
-            (result: any) => `
+            result => `
             <div class="result ${result.success ? 'success' : 'failed'}">
                 <h3>${result.tool}</h3>
                 <p><strong>Status:</strong> ${result.success ? '✅ Passed' : '❌ Failed'}</p>
@@ -171,7 +192,7 @@ export class ReportCommand extends BaseCommand {
 </html>`;
   }
 
-  private generateMarkdownReport(data: any): string {
+  private generateMarkdownReport(data: ReportData): string {
     return `# DevQuality Report
 
 ## Project: ${data.project.name}
@@ -189,7 +210,7 @@ export class ReportCommand extends BaseCommand {
 
 ${data.results
   .map(
-    (result: any) => `
+    result => `
 ### ${result.tool}
 
 **Status:** ${result.success ? '✅ Passed' : '❌ Failed'}
@@ -203,8 +224,8 @@ ${data.results
 `;
   }
 
-  protected override async loadConfig(configPath?: string): Promise<any> {
-    const path = configPath || this.options.config || '.dev-quality.json';
+  protected override async loadConfig(): Promise<ProjectConfiguration> {
+    const path = this.options.config ?? '.dev-quality.json';
 
     try {
       const { readFileSync } = await import('node:fs');

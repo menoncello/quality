@@ -1,5 +1,5 @@
-import { BaseCommand } from "./base-command";
-import { CommandOptions } from "@dev-quality/types";
+import { BaseCommand } from './base-command';
+import { CommandOptions, ProjectConfiguration } from '@dev-quality/types';
 
 export class HelpCommand extends BaseCommand {
   constructor(options: CommandOptions) {
@@ -63,10 +63,10 @@ SUPPORT:
   For more information, visit: https://github.com/your-org/dev-quality-cli
 `;
 
-    console.log(helpText);
+    process.stdout.write(helpText);
   }
 
-  protected override async loadConfig(_configPath?: string): Promise<any> {
-    throw new Error("Help command does not load configuration");
+  protected override async loadConfig(): Promise<ProjectConfiguration> {
+    throw new Error('Help command does not load configuration');
   }
 }

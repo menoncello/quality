@@ -80,4 +80,24 @@ export class PluginManager {
 
 export const pluginManager = new PluginManager();
 
+// Auto-Configuration Detection Engine exports
+export { AutoConfigurationDetectionEngine } from './detection/detection-engine';
+export { ProjectDetector } from './detection/project-detector';
+export { ToolDetector } from './detection/tool-detector';
+export { DependencyChecker } from './detection/dependency-checker';
+export { StructureAnalyzer } from './detection/structure-analyzer';
+export { DetectionCache } from './detection/detection-cache';
+export type {
+  DetectedProject,
+  DetectedTool,
+  ConfigFile,
+  DependencyInfo,
+  ProjectStructure,
+  DetectionResult,
+  DetectionEngine,
+  ConfigAnalyzer,
+  DependencyChecker as DependencyCheckerInterface,
+  StructureAnalyzer as StructureAnalyzerInterface,
+} from './detection/types';
+
 export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };

@@ -1,5 +1,5 @@
 import { BaseCommand } from './base-command';
-import { CommandOptions } from '@dev-quality/types';
+import { CommandOptions, ProjectConfiguration } from '@dev-quality/types';
 
 export interface ExportOptions {
   input?: string;
@@ -16,7 +16,7 @@ export class ExportCommand extends BaseCommand {
     this.log('Export functionality will be implemented in a future version.');
   }
 
-  protected override async loadConfig(_configPath?: string): Promise<any> {
+  protected override async loadConfig(): Promise<ProjectConfiguration> {
     throw new Error('Export command does not load configuration');
   }
 }

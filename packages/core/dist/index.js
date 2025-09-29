@@ -43,4 +43,10 @@ export class PluginManager {
     }
 }
 export const pluginManager = new PluginManager();
+// Auto-Configuration Detection Engine exports
+export { AutoConfigurationDetectionEngine } from './detection/detection-engine';
+export { ProjectDetector } from './detection/project-detector';
+export { ToolDetector } from './detection/tool-detector';
+export { DependencyChecker } from './detection/dependency-checker';
+export { StructureAnalyzer } from './detection/structure-analyzer';
 //# sourceMappingURL=index.js.map

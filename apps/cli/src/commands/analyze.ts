@@ -1,5 +1,10 @@
 import { BaseCommand } from './base-command';
-import { AnalysisResult, CommandOptions } from '@dev-quality/types';
+import {
+  AnalysisResult,
+  CommandOptions,
+  ProjectConfiguration,
+  ToolConfiguration,
+} from '@dev-quality/types';
 
 export interface AnalyzeOptions {
   tools?: string;
@@ -50,7 +55,7 @@ export class AnalyzeCommand extends BaseCommand {
             success: false,
             data: { error: error instanceof Error ? error.message : String(error) },
             timestamp: new Date().toISOString(),
-            duration: 0
+            duration: 0,
           });
 
           if ((this.options as AnalyzeOptions & CommandOptions).failOnError) {
@@ -63,27 +68,28 @@ export class AnalyzeCommand extends BaseCommand {
 
       const summary = this.generateSummary(results);
       this.log(`Analysis completed: ${summary}`);
-
     } catch (error) {
       this.log(`Analysis failed: ${error instanceof Error ? error.message : error}`, 'error');
       throw error;
     }
   }
 
-  private getToolsToRun(config: any): string[] {
+  private getToolsToRun(config: ProjectConfiguration): string[] {
     const analyzeOptions = this.options as AnalyzeOptions & CommandOptions;
     if (analyzeOptions.tools) {
       return analyzeOptions.tools.split(',').map(tool => tool.trim());
     }
 
-    return config.tools
-      ?.filter((tool: any) => tool.enabled)
-      ?.map((tool: any) => tool.name)
-      ?.sort((a: string, b: string) => {
-        const toolA = config.tools.find((t: any) => t.name === a);
-        const toolB = config.tools.find((t: any) => t.name === b);
-        return (toolA?.priority || 999) - (toolB?.priority || 999);
-      }) || [];
+    return (
+      config.tools
+        ?.filter((tool: ToolConfiguration) => tool.enabled)
+        ?.map((tool: ToolConfiguration) => tool.name)
+        ?.sort((a: string, b: string) => {
+          const toolA = config.tools.find((t: ToolConfiguration) => t.name === a);
+          const toolB = config.tools.find((t: ToolConfiguration) => t.name === b);
+          return (toolA?.priority ?? 999) - (toolB?.priority ?? 999);
+        }) ?? []
+    );
   }
 
   private async runToolAnalysis(toolName: string): Promise<AnalysisResult> {
@@ -102,10 +108,10 @@ export class AnalyzeCommand extends BaseCommand {
         issues: success ? Math.floor(Math.random() * 10) : Math.floor(Math.random() * 20) + 10,
         warnings: success ? Math.floor(Math.random() * 5) : Math.floor(Math.random() * 15) + 5,
         suggestions: Math.floor(Math.random() * 8),
-        filesAnalyzed: Math.floor(Math.random() * 100) + 10
+        filesAnalyzed: Math.floor(Math.random() * 100) + 10,
       },
       timestamp: new Date().toISOString(),
-      duration: Date.now() - startTime
+      duration: Date.now() - startTime,
     };
 
     return result;
@@ -119,7 +125,7 @@ export class AnalyzeCommand extends BaseCommand {
       writeFileSync(analyzeOptions.output, content, 'utf-8');
       this.log(`Results saved to: ${analyzeOptions.output}`);
     } else {
-      console.log(this.formatOutput(results));
+      process.stdout.write(this.formatOutput(results));
     }
   }
 
@@ -131,8 +137,8 @@ export class AnalyzeCommand extends BaseCommand {
     return `${passed}/${total} tools passed, ${failed} failed`;
   }
 
-  protected override async loadConfig(configPath?: string): Promise<any> {
-    const path = configPath || this.options.config || '.dev-quality.json';
+  protected override async loadConfig(): Promise<ProjectConfiguration> {
+    const path = this.options.config ?? '.dev-quality.json';
 
     try {
       const { readFileSync } = await import('node:fs');

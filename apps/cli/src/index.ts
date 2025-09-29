@@ -39,7 +39,7 @@ program
       const setupCommand = new SetupCommand(options);
       await setupCommand.execute();
     } catch (error) {
-      console.error('Setup failed:', error instanceof Error ? error.message : error);
+      process.stderr.write(`Setup failed: ${error instanceof Error ? error.message : error}\n`);
       process.exit(1);
     }
   });
@@ -55,7 +55,9 @@ program
       const configCommand = new ConfigCommand(options);
       await configCommand.execute();
     } catch (error) {
-      console.error('Config command failed:', error instanceof Error ? error.message : error);
+      process.stderr.write(
+        `Config command failed: ${error instanceof Error ? error.message : error}\n`
+      );
       process.exit(1);
     }
   });
@@ -73,7 +75,7 @@ program
       const analyzeCommand = new AnalyzeCommand(options);
       await analyzeCommand.execute();
     } catch (error) {
-      console.error('Analysis failed:', error instanceof Error ? error.message : error);
+      process.stderr.write(`Analysis failed: ${error instanceof Error ? error.message : error}\n`);
       process.exit(1);
     }
   });
@@ -91,7 +93,9 @@ program
       const reportCommand = new ReportCommand(options);
       await reportCommand.execute();
     } catch (error) {
-      console.error('Report generation failed:', error instanceof Error ? error.message : error);
+      process.stderr.write(
+        `Report generation failed: ${error instanceof Error ? error.message : error}\n`
+      );
       process.exit(1);
     }
   });
@@ -105,7 +109,9 @@ program
       const analyzeCommand = new AnalyzeCommand({ quick: true });
       await analyzeCommand.execute();
     } catch (error) {
-      console.error('Quick analysis failed:', error instanceof Error ? error.message : error);
+      process.stderr.write(
+        `Quick analysis failed: ${error instanceof Error ? error.message : error}\n`
+      );
       process.exit(1);
     }
   });
@@ -122,7 +128,9 @@ program
       const { WatchComponent } = await import('./components/watch');
       render(React.createElement(WatchComponent, options));
     } catch (error) {
-      console.error('Watch mode failed:', error instanceof Error ? error.message : error);
+      process.stderr.write(
+        `Watch mode failed: ${error instanceof Error ? error.message : error}\n`
+      );
       process.exit(1);
     }
   });
@@ -139,7 +147,7 @@ program
       const exportCommand = new ExportCommand(options);
       await exportCommand.execute();
     } catch (error) {
-      console.error('Export failed:', error instanceof Error ? error.message : error);
+      process.stderr.write(`Export failed: ${error instanceof Error ? error.message : error}\n`);
       process.exit(1);
     }
   });
@@ -155,15 +163,16 @@ program
       const historyCommand = new HistoryCommand(options);
       await historyCommand.execute();
     } catch (error) {
-      console.error('History command failed:', error instanceof Error ? error.message : error);
+      process.stderr.write(
+        `History command failed: ${error instanceof Error ? error.message : error}\n`
+      );
       process.exit(1);
     }
   });
 
 program.on('command:*', () => {
-  console.error(
-    'Invalid command: %s\nSee --help for a list of available commands.',
-    program.args.join(' ')
+  process.stderr.write(
+    `Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.\n`
   );
   process.exit(1);
 });

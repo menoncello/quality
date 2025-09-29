@@ -1,6 +1,6 @@
-import React from "react";
-import { Box, Text, useApp } from "ink";
-import { version } from "../../package.json";
+import React from 'react';
+import { Box, Text, useApp } from 'ink';
+import { version } from '../../package.json';
 
 export function App(): React.ReactElement {
   const { exit } = useApp();
@@ -45,9 +45,7 @@ export function App(): React.ReactElement {
       </Box>
 
       <Box marginTop={1}>
-        <Text dimColor>
-          Starting interactive mode... (auto-exit in 5 seconds)
-        </Text>
+        <Text dimColor>Starting interactive mode... (auto-exit in 5 seconds)</Text>
       </Box>
     </Box>
   );
