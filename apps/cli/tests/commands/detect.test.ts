@@ -6,7 +6,6 @@ import { join } from 'node:path';
 
 describe('DetectCommand', () => {
   let mockStdoutWrite: ReturnType<typeof vi.spyOn>;
-  let mockProcessExit: ReturnType<typeof vi.spyOn>;
   const testConfigPath = join(process.cwd(), '.test-detect-config.json');
 
   const mockDetectionResult: DetectionResult = {
@@ -78,7 +77,6 @@ describe('DetectCommand', () => {
 
   beforeEach(() => {
     mockStdoutWrite = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    mockProcessExit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
     // Create test package.json
     const testPackageJson = {
@@ -390,7 +388,7 @@ describe('DetectCommand', () => {
 
       // Mock the detection engine to return our custom result
       const mockDetectAll = vi.fn(async () => resultWithIssues);
-      vi.spyOn(command as any, 'execute').mockImplementation(async () => {
+      vi.spyOn(command, 'execute').mockImplementation(async () => {
         command['log']('🔍 Detecting project configuration...');
         const result = await mockDetectAll();
 
@@ -423,7 +421,7 @@ describe('DetectCommand', () => {
 
       // Mock the detection engine to return our custom result
       const mockDetectAll = vi.fn(async () => resultWithRecs);
-      vi.spyOn(command as any, 'execute').mockImplementation(async () => {
+      vi.spyOn(command, 'execute').mockImplementation(async () => {
         command['log']('🔍 Detecting project configuration...');
         const result = await mockDetectAll();
 
