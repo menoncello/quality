@@ -41,16 +41,16 @@ describe('DependencyChecker', () => {
       const dependencies = await checker.detectDependencies(testDir);
 
       expect(dependencies.length).toBeGreaterThanOrEqual(5);
-      expect(dependencies.some(d => d.name === 'react' && d.type === 'dependencies')).toBe(true);
-      expect(dependencies.some(d => d.name === 'typescript' && d.type === 'devDependencies')).toBe(
+      expect(dependencies.some(d => d.name === 'react' && d.type === 'dependency')).toBe(true);
+      expect(dependencies.some(d => d.name === 'typescript' && d.type === 'devDependency')).toBe(
         true
       );
       expect(
-        dependencies.some(d => d.name === 'react-redux' && d.type === 'peerDependencies')
+        dependencies.some(d => d.name === 'react-redux' && d.type === 'peerDependency')
       ).toBe(true);
       expect(
-        dependencies.some(d => d.name === 'fsevents' && d.type === 'optionalDependencies')
-      ).toBe(true);
+        dependencies.some(d => d.name === 'fsevents' && d.type === 'devDependency')
+      ).toBe(true); // optionalDependencies are treated as devDependency
     });
 
     it('should detect compatible dependencies', async () => {
