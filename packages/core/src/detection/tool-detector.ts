@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join, dirname, basename, extname } from 'node:path';
+import { existsSync } from 'node:fs';
+import { join, basename, extname } from 'node:path';
 import { fileUtils } from '@dev-quality/utils';
 import { DetectedTool, ConfigFile } from './types';
 
@@ -202,7 +202,6 @@ export class ToolDetector {
         // For now, return basic info
         return { _type: format, _path: configPath };
       case 'yaml':
-      case 'yml':
         // For YAML configs, we'd need a YAML parser
         // For now, return basic info
         return { _type: format, _path: configPath };

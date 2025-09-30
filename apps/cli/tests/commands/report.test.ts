@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi, mock } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'bun:test';
 import { ReportCommand } from '../../src/commands/report';
 import { ProjectConfiguration } from '@dev-quality/types';
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
@@ -6,7 +6,6 @@ import { join } from 'node:path';
 
 describe('ReportCommand', () => {
   let mockStdoutWrite: ReturnType<typeof vi.spyOn>;
-  let mockStderrWrite: ReturnType<typeof vi.spyOn>;
   const testConfigPath = join(process.cwd(), '.test-config-report.json');
   const testOutputPath = join(process.cwd(), '.test-report-output.html');
 
@@ -36,7 +35,7 @@ describe('ReportCommand', () => {
 
   beforeEach(() => {
     mockStdoutWrite = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    mockStderrWrite = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     writeFileSync(testConfigPath, JSON.stringify(mockConfig), 'utf-8');
   });

@@ -2,7 +2,10 @@ import { fileUtils } from '@dev-quality/utils';
 import { DependencyInfo } from './types';
 
 export class DependencyChecker {
-  private readonly COMPATIBILITY_MATRIX = {
+  private readonly COMPATIBILITY_MATRIX: Record<
+    string,
+    { minimum: string; recommended: string; incompatible: string[] }
+  > = {
     // DevQuality tool requirements
     typescript: {
       minimum: '4.9.0',
@@ -72,13 +75,16 @@ export class DependencyChecker {
     const packageJson = this.loadPackageJson(rootPath);
     const dependencies: DependencyInfo[] = [];
 
+    // Map package.json types to DependencyInfo types
+    const depTypeMap = {
+      dependencies: 'dependency' as const,
+      devDependencies: 'devDependency' as const,
+      peerDependencies: 'peerDependency' as const,
+      optionalDependencies: 'devDependency' as const, // Treat optional as dev
+    };
+
     // Process all dependency types
-    const depTypes = [
-      'dependencies',
-      'devDependencies',
-      'peerDependencies',
-      'optionalDependencies',
-    ] as const;
+    const depTypes = Object.keys(depTypeMap) as Array<keyof typeof depTypeMap>;
 
     for (const depType of depTypes) {
       if (packageJson[depType]) {
@@ -89,7 +95,7 @@ export class DependencyChecker {
           dependencies.push({
             name,
             version: version as string,
-            type: depType,
+            type: depTypeMap[depType],
             compatibility,
             issues,
           });
@@ -195,11 +201,15 @@ export class DependencyChecker {
 
     for (const [conflictPattern, conflictingDeps] of Object.entries(this.VERSION_CONFLICTS)) {
       const [depName, versionRange] = conflictPattern.split('@');
+      if (!depName || !versionRange) continue;
+
       const currentDep = depMap.get(depName);
 
       if (currentDep && this.satisfiesVersion(currentDep, versionRange)) {
         for (const conflictingDep of conflictingDeps) {
           const [conflictingName, conflictingRange] = conflictingDep.split('@');
+          if (!conflictingName || !conflictingRange) continue;
+
           const conflictingVersion = depMap.get(conflictingName);
 
           if (conflictingVersion && this.satisfiesVersion(conflictingVersion, conflictingRange)) {
@@ -220,7 +230,7 @@ export class DependencyChecker {
     for (const dep of deps) {
       const matrix = this.COMPATIBILITY_MATRIX[dep.name];
       if (matrix && dep.compatibility === 'incompatible') {
-        const recommended = matrix.recommended;
+        const recommended: string = matrix.recommended;
         recommendations.push(`Upgrade ${dep.name} from ${dep.version} to ${recommended}`);
       }
     }
@@ -230,10 +240,12 @@ export class DependencyChecker {
 
   private cleanVersion(version: string): string {
     // Remove npm version prefixes and suffixes
-    return version
-      .replace(/^[\^~]/, '')
-      .replace(/-.*$/, '')
-      .split(' ')[0];
+    return (
+      version
+        .replace(/^[\^~]/, '')
+        .replace(/-.*$/, '')
+        .split(' ')[0] || '0.0.0'
+    );
   }
 
   private compareVersions(version1: string, version2: string): number {
@@ -265,6 +277,7 @@ export class DependencyChecker {
     } else if (range.includes('-')) {
       // Handle range like "1.0.0-2.0.0"
       const [min, max] = range.split('-');
+      if (!min || !max) return false;
       return (
         this.compareVersions(cleanVersion, min) >= 0 && this.compareVersions(cleanVersion, max) <= 0
       );

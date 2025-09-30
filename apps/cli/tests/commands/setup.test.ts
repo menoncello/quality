@@ -6,13 +6,12 @@ import { join } from 'node:path';
 
 describe('SetupCommand', () => {
   let mockStdoutWrite: ReturnType<typeof vi.spyOn>;
-  let mockStderrWrite: ReturnType<typeof vi.spyOn>;
   const testConfigPath = join(process.cwd(), '.test-config-setup.json');
   const testPackageJsonPath = join(process.cwd(), 'package.json');
 
   beforeEach(() => {
     mockStdoutWrite = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    mockStderrWrite = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
   });
 
   afterEach(() => {

@@ -1,21 +1,9 @@
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, dirname, basename, extname } from 'node:path';
-import { fileUtils, pathUtils } from '@dev-quality/utils';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileUtils } from '@dev-quality/utils';
 import { DetectedProject } from './types';
 
 export class ProjectDetector {
-  private readonly CONFIG_FILES = [
-    'package.json',
-    'tsconfig.json',
-    'jsconfig.json',
-    'angular.json',
-    'nuxt.config.ts',
-    'next.config.js',
-    'vite.config.ts',
-    'webpack.config.js',
-    'rollup.config.js',
-  ];
-
   private readonly FRAMEWORK_PATTERNS = {
     react: ['react', 'react-dom', '@types/react', 'next', 'gatsby', 'remix'],
     vue: ['vue', 'nuxt', '@nuxt/core', 'quasar'],

@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { StructureAnalyzer } from '../../src/detection/structure-analyzer';
 import { join } from 'node:path';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { createTestDir, cleanupTestDir } from '../test-utils';
 
 describe('StructureAnalyzer', () => {
   let analyzer: StructureAnalyzer;
@@ -9,10 +10,11 @@ describe('StructureAnalyzer', () => {
 
   beforeEach(() => {
     analyzer = new StructureAnalyzer();
-    testDir = join(
-      process.cwd(),
-      'test-structure-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9)
-    );
+    testDir = createTestDir('test-structure');
+  });
+
+  afterEach(() => {
+    cleanupTestDir(testDir);
   });
 
   describe('analyzeStructure', () => {

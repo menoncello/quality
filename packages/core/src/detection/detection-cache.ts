@@ -184,7 +184,7 @@ export class DetectionCache {
   setCachedResult(rootPath: string, result: DetectionResult): void {
     this.ensureCacheSize(this.resultCache);
 
-    let mtime: number | undefined;
+    let mtime: number = 0;
     const packageJsonPath = `${rootPath}/package.json`;
     if (existsSync(packageJsonPath)) {
       const stats = statSync(packageJsonPath);

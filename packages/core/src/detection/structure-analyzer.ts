@@ -1,5 +1,5 @@
-import { existsSync, readdirSync, statSync, readFileSync } from 'node:fs';
-import { join, dirname, relative, basename } from 'node:path';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import { fileUtils } from '@dev-quality/utils';
 import { ProjectStructure } from './types';
 
@@ -50,24 +50,20 @@ export class StructureAnalyzer {
     const sourceDirectories = await this.findDirectoriesByPatterns(rootPath, this.SOURCE_PATTERNS);
     const testDirectories = await this.findDirectoriesByPatterns(rootPath, this.TEST_PATTERNS);
     const configDirectories = await this.findDirectoriesByPatterns(rootPath, this.CONFIG_PATTERNS);
-    const complexity = this.calculateComplexity({
-      isMonorepo,
-      workspaceType,
-      packages,
-      sourceDirectories,
-      testDirectories,
-      configDirectories,
-    });
 
-    return {
+    const structure: ProjectStructure = {
       isMonorepo,
       workspaceType,
       packages,
       sourceDirectories,
       testDirectories,
       configDirectories,
-      complexity,
+      complexity: 'simple',
     };
+
+    structure.complexity = this.calculateComplexity(structure);
+
+    return structure;
   }
 
   async detectMonorepoType(rootPath: string): Promise<ProjectStructure['workspaceType']> {
@@ -87,7 +83,7 @@ export class StructureAnalyzer {
     const packageJsonPath = join(rootPath, 'package.json');
     if (existsSync(packageJsonPath)) {
       try {
-        const pkgJson = fileUtils.readJsonSync(packageJsonPath);
+        const pkgJson = fileUtils.readJsonSync<{ workspaces?: unknown }>(packageJsonPath);
 
         // Check npm/yarn workspaces
         if (pkgJson.workspaces) {
@@ -108,7 +104,7 @@ export class StructureAnalyzer {
     const packageJsonPath = join(rootPath, 'package.json');
     if (existsSync(packageJsonPath)) {
       try {
-        const pkgJson = fileUtils.readJsonSync(packageJsonPath);
+        const pkgJson = fileUtils.readJsonSync<{ workspaces?: unknown }>(packageJsonPath);
         if (pkgJson.workspaces) {
           return true;
         }
@@ -136,7 +132,9 @@ export class StructureAnalyzer {
 
     if (existsSync(packageJsonPath)) {
       try {
-        const pkgJson = fileUtils.readJsonSync(packageJsonPath);
+        const pkgJson = fileUtils.readJsonSync<{
+          workspaces?: string[] | { packages?: string[] };
+        }>(packageJsonPath);
 
         // Check npm/yarn workspaces
         if (pkgJson.workspaces) {
@@ -158,7 +156,7 @@ export class StructureAnalyzer {
       try {
         const content = readFileSync(pnpmWorkspacePath, 'utf-8');
         const packagesMatch = content.match(/packages:\s*\n((?:\s*-\s*[^\n]+\n?)*)/);
-        if (packagesMatch) {
+        if (packagesMatch && packagesMatch[1]) {
           const packageLines = packagesMatch[1].split('\n').filter(line => line.trim());
           for (const line of packageLines) {
             const packagePath = line.replace(/^\s*-\s*/, '').trim();

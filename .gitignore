@@ -1,0 +1,85 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+*.log
+
+# Temp directories for tests
+temp/
+tmp/
+test-*/
+*-test-*/
+
+# Build outputs
+dist/
+build/
+output/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun-debug.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# DevQuality specific
+.devquality-backup/
+.dev-quality.json
+
+# SQLite databases (local only)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Flattened codebase (generated files)
+flattened-codebase.xml
+flattened-codebase.stats.md
+
+# AI/Debug files
+.ai/
+debug-log.md
+
+# Lock files (keep bun.lock, ignore others)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

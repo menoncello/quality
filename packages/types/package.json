@@ -19,7 +19,6 @@
     "build": "tsc --build",
     "dev": "bun run build --watch",
     "test": "bun test",
-    "lint": "bunx eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
