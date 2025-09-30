@@ -11,6 +11,8 @@
     "start": "cd apps/cli && bun run src/index.ts",
     "build": "bun run build:cli",
     "build:cli": "cd apps/cli && bun run build",
+    "build:all": "bun run build:packages && bun run build:cli",
+    "build:packages": "bun run --filter '*' build",
     "dev": "cd apps/cli && bun run dev",
     "test": "bun run test:cli",
     "test:cli": "cd apps/cli && bun test",
