@@ -8,25 +8,23 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'fs';
-import { tmpdir } from 'os';
+import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { AutoConfigurationDetectionEngine } from '../../src/detection/detection-engine';
 import { DetectionCache } from '../../src/detection/detection-cache';
+import { createTestDir, cleanupTestDir } from '../test-utils';
 
 describe('Performance Benchmarks', () => {
   let testDir: string;
   let engine: AutoConfigurationDetectionEngine;
 
   beforeEach(() => {
-    testDir = mkdtempSync(join(tmpdir(), 'perf-test-'));
+    testDir = createTestDir('perf-test');
     engine = new AutoConfigurationDetectionEngine();
   });
 
   afterEach(() => {
-    if (testDir) {
-      rmSync(testDir, { recursive: true, force: true });
-    }
+    cleanupTestDir(testDir);
   });
 
   /**
@@ -198,14 +196,12 @@ describe('Cache Performance Tests', () => {
   let cache: DetectionCache;
 
   beforeEach(() => {
-    testDir = mkdtempSync(join(tmpdir(), 'cache-test-'));
+    testDir = createTestDir('cache-test');
     cache = new DetectionCache({ ttl: 5000, maxSize: 100 });
   });
 
   afterEach(() => {
-    if (testDir) {
-      rmSync(testDir, { recursive: true, force: true });
-    }
+    cleanupTestDir(testDir);
     cache.clear();
   });
 

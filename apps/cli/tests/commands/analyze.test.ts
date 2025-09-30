@@ -6,7 +6,6 @@ import { join } from 'node:path';
 
 describe('AnalyzeCommand', () => {
   let mockStdoutWrite: ReturnType<typeof vi.spyOn>;
-  let mockStderrWrite: ReturnType<typeof vi.spyOn>;
   const testConfigPath = join(process.cwd(), '.test-config-analyze.json');
   const testOutputPath = join(process.cwd(), '.test-analyze-output.json');
 
@@ -38,7 +37,7 @@ describe('AnalyzeCommand', () => {
 
   beforeEach(() => {
     mockStdoutWrite = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    mockStderrWrite = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     writeFileSync(testConfigPath, JSON.stringify(mockConfig), 'utf-8');
   });

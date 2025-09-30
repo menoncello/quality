@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "start": "cd apps/cli && bun run src/index.ts",
     "build": "bun run build:cli",
     "build:cli": "cd apps/cli && bun run build",
     "dev": "cd apps/cli && bun run dev",

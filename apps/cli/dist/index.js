@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { createRequire } from "node:module";
+import { createRequire } from 'node:module';
 var __create = Object.create;
 var __getProtoOf = Object.getPrototypeOf;
 var __defProp = Object.defineProperty;
@@ -7,12 +7,15 @@ var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __toESM = (mod, isNodeMode, target) => {
   target = mod != null ? __create(__getProtoOf(mod)) : {};
-  const to = isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target;
+  const to =
+    isNodeMode || !mod || !mod.__esModule
+      ? __defProp(target, 'default', { value: mod, enumerable: true })
+      : target;
   for (let key of __getOwnPropNames(mod))
     if (!__hasOwnProp.call(to, key))
       __defProp(to, key, {
         get: () => mod[key],
-        enumerable: true
+        enumerable: true,
       });
   return to;
 };
@@ -23,14 +26,14 @@ var __export = (target, all) => {
       get: all[name],
       enumerable: true,
       configurable: true,
-      set: (newValue) => all[name] = () => newValue
+      set: newValue => (all[name] = () => newValue),
     });
 };
-var __esm = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
+var __esm = (fn, res) => () => (fn && (res = fn((fn = 0))), res);
 var __require = /* @__PURE__ */ createRequire(import.meta.url);
 
 // node_modules/commander/lib/error.js
-var require_error = __commonJS((exports) => {
+var require_error = __commonJS(exports => {
   class CommanderError extends Error {
     constructor(exitCode, code, message) {
       super(message);
@@ -44,7 +47,7 @@ var require_error = __commonJS((exports) => {
 
   class InvalidArgumentError extends CommanderError {
     constructor(message) {
-      super(1, "commander.invalidArgument", message);
+      super(1, 'commander.invalidArgument', message);
       Error.captureStackTrace(this, this.constructor);
       this.name = this.constructor.name;
     }
@@ -54,23 +57,23 @@ var require_error = __commonJS((exports) => {
 });
 
 // node_modules/commander/lib/argument.js
-var require_argument = __commonJS((exports) => {
+var require_argument = __commonJS(exports => {
   var { InvalidArgumentError } = require_error();
 
   class Argument {
     constructor(name, description) {
-      this.description = description || "";
+      this.description = description || '';
       this.variadic = false;
       this.parseArg = undefined;
       this.defaultValue = undefined;
       this.defaultValueDescription = undefined;
       this.argChoices = undefined;
       switch (name[0]) {
-        case "<":
+        case '<':
           this.required = true;
           this._name = name.slice(1, -1);
           break;
-        case "[":
+        case '[':
           this.required = false;
           this._name = name.slice(1, -1);
           break;
@@ -79,7 +82,7 @@ var require_argument = __commonJS((exports) => {
           this._name = name;
           break;
       }
-      if (this._name.length > 3 && this._name.slice(-3) === "...") {
+      if (this._name.length > 3 && this._name.slice(-3) === '...') {
         this.variadic = true;
         this._name = this._name.slice(0, -3);
       }
@@ -106,7 +109,7 @@ var require_argument = __commonJS((exports) => {
       this.argChoices = values.slice();
       this.parseArg = (arg, previous) => {
         if (!this.argChoices.includes(arg)) {
-          throw new InvalidArgumentError(`Allowed choices are ${this.argChoices.join(", ")}.`);
+          throw new InvalidArgumentError(`Allowed choices are ${this.argChoices.join(', ')}.`);
         }
         if (this.variadic) {
           return this._concatValue(arg, previous);
@@ -125,15 +128,15 @@ var require_argument = __commonJS((exports) => {
     }
   }
   function humanReadableArgName(arg) {
-    const nameOutput = arg.name() + (arg.variadic === true ? "..." : "");
-    return arg.required ? "<" + nameOutput + ">" : "[" + nameOutput + "]";
+    const nameOutput = arg.name() + (arg.variadic === true ? '...' : '');
+    return arg.required ? '<' + nameOutput + '>' : '[' + nameOutput + ']';
   }
   exports.Argument = Argument;
   exports.humanReadableArgName = humanReadableArgName;
 });
 
 // node_modules/commander/lib/help.js
-var require_help = __commonJS((exports) => {
+var require_help = __commonJS(exports => {
   var { humanReadableArgName } = require_argument();
 
   class Help {
@@ -144,13 +147,12 @@ var require_help = __commonJS((exports) => {
       this.showGlobalOptions = false;
     }
     visibleCommands(cmd) {
-      const visibleCommands = cmd.commands.filter((cmd2) => !cmd2._hidden);
+      const visibleCommands = cmd.commands.filter(cmd2 => !cmd2._hidden);
       if (cmd._hasImplicitHelpCommand()) {
         const [, helpName, helpArgs] = cmd._helpCommandnameAndArgs.match(/([^ ]+) *(.*)/);
         const helpCommand = cmd.createCommand(helpName).helpOption(false);
         helpCommand.description(cmd._helpCommandDescription);
-        if (helpArgs)
-          helpCommand.arguments(helpArgs);
+        if (helpArgs) helpCommand.arguments(helpArgs);
         visibleCommands.push(helpCommand);
       }
       if (this.sortSubcommands) {
@@ -161,14 +163,15 @@ var require_help = __commonJS((exports) => {
       return visibleCommands;
     }
     compareOptions(a, b) {
-      const getSortKey = (option) => {
-        return option.short ? option.short.replace(/^-/, "") : option.long.replace(/^--/, "");
+      const getSortKey = option => {
+        return option.short ? option.short.replace(/^-/, '') : option.long.replace(/^--/, '');
       };
       return getSortKey(a).localeCompare(getSortKey(b));
     }
     visibleOptions(cmd) {
-      const visibleOptions = cmd.options.filter((option) => !option.hidden);
-      const showShortHelpFlag = cmd._hasHelpOption && cmd._helpShortFlag && !cmd._findOption(cmd._helpShortFlag);
+      const visibleOptions = cmd.options.filter(option => !option.hidden);
+      const showShortHelpFlag =
+        cmd._hasHelpOption && cmd._helpShortFlag && !cmd._findOption(cmd._helpShortFlag);
       const showLongHelpFlag = cmd._hasHelpOption && !cmd._findOption(cmd._helpLongFlag);
       if (showShortHelpFlag || showLongHelpFlag) {
         let helpOption;
@@ -187,11 +190,10 @@ var require_help = __commonJS((exports) => {
       return visibleOptions;
     }
     visibleGlobalOptions(cmd) {
-      if (!this.showGlobalOptions)
-        return [];
+      if (!this.showGlobalOptions) return [];
       const globalOptions = [];
-      for (let ancestorCmd = cmd.parent;ancestorCmd; ancestorCmd = ancestorCmd.parent) {
-        const visibleOptions = ancestorCmd.options.filter((option) => !option.hidden);
+      for (let ancestorCmd = cmd.parent; ancestorCmd; ancestorCmd = ancestorCmd.parent) {
+        const visibleOptions = ancestorCmd.options.filter(option => !option.hidden);
         globalOptions.push(...visibleOptions);
       }
       if (this.sortOptions) {
@@ -201,18 +203,24 @@ var require_help = __commonJS((exports) => {
     }
     visibleArguments(cmd) {
       if (cmd._argsDescription) {
-        cmd.registeredArguments.forEach((argument) => {
-          argument.description = argument.description || cmd._argsDescription[argument.name()] || "";
+        cmd.registeredArguments.forEach(argument => {
+          argument.description =
+            argument.description || cmd._argsDescription[argument.name()] || '';
         });
       }
-      if (cmd.registeredArguments.find((argument) => argument.description)) {
+      if (cmd.registeredArguments.find(argument => argument.description)) {
         return cmd.registeredArguments;
       }
       return [];
     }
     subcommandTerm(cmd) {
-      const args = cmd.registeredArguments.map((arg) => humanReadableArgName(arg)).join(" ");
-      return cmd._name + (cmd._aliases[0] ? "|" + cmd._aliases[0] : "") + (cmd.options.length ? " [options]" : "") + (args ? " " + args : "");
+      const args = cmd.registeredArguments.map(arg => humanReadableArgName(arg)).join(' ');
+      return (
+        cmd._name +
+        (cmd._aliases[0] ? '|' + cmd._aliases[0] : '') +
+        (cmd.options.length ? ' [options]' : '') +
+        (args ? ' ' + args : '')
+      );
     }
     optionTerm(option) {
       return option.flags;
@@ -243,13 +251,13 @@ var require_help = __commonJS((exports) => {
     commandUsage(cmd) {
       let cmdName = cmd._name;
       if (cmd._aliases[0]) {
-        cmdName = cmdName + "|" + cmd._aliases[0];
+        cmdName = cmdName + '|' + cmd._aliases[0];
       }
-      let ancestorCmdNames = "";
-      for (let ancestorCmd = cmd.parent;ancestorCmd; ancestorCmd = ancestorCmd.parent) {
-        ancestorCmdNames = ancestorCmd.name() + " " + ancestorCmdNames;
+      let ancestorCmdNames = '';
+      for (let ancestorCmd = cmd.parent; ancestorCmd; ancestorCmd = ancestorCmd.parent) {
+        ancestorCmdNames = ancestorCmd.name() + ' ' + ancestorCmdNames;
       }
-      return ancestorCmdNames + cmdName + " " + cmd.usage();
+      return ancestorCmdNames + cmdName + ' ' + cmd.usage();
     }
     commandDescription(cmd) {
       return cmd.description();
@@ -260,12 +268,19 @@ var require_help = __commonJS((exports) => {
     optionDescription(option) {
       const extraInfo = [];
       if (option.argChoices) {
-        extraInfo.push(`choices: ${option.argChoices.map((choice) => JSON.stringify(choice)).join(", ")}`);
+        extraInfo.push(
+          `choices: ${option.argChoices.map(choice => JSON.stringify(choice)).join(', ')}`
+        );
       }
       if (option.defaultValue !== undefined) {
-        const showDefault = option.required || option.optional || option.isBoolean() && typeof option.defaultValue === "boolean";
+        const showDefault =
+          option.required ||
+          option.optional ||
+          (option.isBoolean() && typeof option.defaultValue === 'boolean');
         if (showDefault) {
-          extraInfo.push(`default: ${option.defaultValueDescription || JSON.stringify(option.defaultValue)}`);
+          extraInfo.push(
+            `default: ${option.defaultValueDescription || JSON.stringify(option.defaultValue)}`
+          );
         }
       }
       if (option.presetArg !== undefined && option.optional) {
@@ -275,20 +290,24 @@ var require_help = __commonJS((exports) => {
         extraInfo.push(`env: ${option.envVar}`);
       }
       if (extraInfo.length > 0) {
-        return `${option.description} (${extraInfo.join(", ")})`;
+        return `${option.description} (${extraInfo.join(', ')})`;
       }
       return option.description;
     }
     argumentDescription(argument) {
       const extraInfo = [];
       if (argument.argChoices) {
-        extraInfo.push(`choices: ${argument.argChoices.map((choice) => JSON.stringify(choice)).join(", ")}`);
+        extraInfo.push(
+          `choices: ${argument.argChoices.map(choice => JSON.stringify(choice)).join(', ')}`
+        );
       }
       if (argument.defaultValue !== undefined) {
-        extraInfo.push(`default: ${argument.defaultValueDescription || JSON.stringify(argument.defaultValue)}`);
+        extraInfo.push(
+          `default: ${argument.defaultValueDescription || JSON.stringify(argument.defaultValue)}`
+        );
       }
       if (extraInfo.length > 0) {
-        const extraDescripton = `(${extraInfo.join(", ")})`;
+        const extraDescripton = `(${extraInfo.join(', ')})`;
         if (argument.description) {
           return `${argument.description} ${extraDescripton}`;
         }
@@ -309,86 +328,105 @@ var require_help = __commonJS((exports) => {
         return term;
       }
       function formatList(textArray) {
-        return textArray.join(`
-`).replace(/^/gm, " ".repeat(itemIndentWidth));
+        return textArray
+          .join(
+            `
+`
+          )
+          .replace(/^/gm, ' '.repeat(itemIndentWidth));
       }
-      let output = [`Usage: ${helper.commandUsage(cmd)}`, ""];
+      let output = [`Usage: ${helper.commandUsage(cmd)}`, ''];
       const commandDescription = helper.commandDescription(cmd);
       if (commandDescription.length > 0) {
-        output = output.concat([helper.wrap(commandDescription, helpWidth, 0), ""]);
+        output = output.concat([helper.wrap(commandDescription, helpWidth, 0), '']);
       }
-      const argumentList = helper.visibleArguments(cmd).map((argument) => {
+      const argumentList = helper.visibleArguments(cmd).map(argument => {
         return formatItem(helper.argumentTerm(argument), helper.argumentDescription(argument));
       });
       if (argumentList.length > 0) {
-        output = output.concat(["Arguments:", formatList(argumentList), ""]);
+        output = output.concat(['Arguments:', formatList(argumentList), '']);
       }
-      const optionList = helper.visibleOptions(cmd).map((option) => {
+      const optionList = helper.visibleOptions(cmd).map(option => {
         return formatItem(helper.optionTerm(option), helper.optionDescription(option));
       });
       if (optionList.length > 0) {
-        output = output.concat(["Options:", formatList(optionList), ""]);
+        output = output.concat(['Options:', formatList(optionList), '']);
       }
       if (this.showGlobalOptions) {
-        const globalOptionList = helper.visibleGlobalOptions(cmd).map((option) => {
+        const globalOptionList = helper.visibleGlobalOptions(cmd).map(option => {
           return formatItem(helper.optionTerm(option), helper.optionDescription(option));
         });
         if (globalOptionList.length > 0) {
-          output = output.concat(["Global Options:", formatList(globalOptionList), ""]);
+          output = output.concat(['Global Options:', formatList(globalOptionList), '']);
         }
       }
-      const commandList = helper.visibleCommands(cmd).map((cmd2) => {
+      const commandList = helper.visibleCommands(cmd).map(cmd2 => {
         return formatItem(helper.subcommandTerm(cmd2), helper.subcommandDescription(cmd2));
       });
       if (commandList.length > 0) {
-        output = output.concat(["Commands:", formatList(commandList), ""]);
+        output = output.concat(['Commands:', formatList(commandList), '']);
       }
       return output.join(`
 `);
     }
     padWidth(cmd, helper) {
-      return Math.max(helper.longestOptionTermLength(cmd, helper), helper.longestGlobalOptionTermLength(cmd, helper), helper.longestSubcommandTermLength(cmd, helper), helper.longestArgumentTermLength(cmd, helper));
+      return Math.max(
+        helper.longestOptionTermLength(cmd, helper),
+        helper.longestGlobalOptionTermLength(cmd, helper),
+        helper.longestSubcommandTermLength(cmd, helper),
+        helper.longestArgumentTermLength(cmd, helper)
+      );
     }
     wrap(str, width, indent, minColumnWidth = 40) {
-      const indents = " \\f\\t\\v   -   　\uFEFF";
+      const indents = ' \\f\\t\\v   -   　\uFEFF';
       const manualIndent = new RegExp(`[\\n][${indents}]+`);
-      if (str.match(manualIndent))
-        return str;
+      if (str.match(manualIndent)) return str;
       const columnWidth = width - indent;
-      if (columnWidth < minColumnWidth)
-        return str;
+      if (columnWidth < minColumnWidth) return str;
       const leadingStr = str.slice(0, indent);
-      const columnText = str.slice(indent).replace(`\r
-`, `
-`);
-      const indentString = " ".repeat(indent);
-      const zeroWidthSpace = "​";
+      const columnText = str.slice(indent).replace(
+        `\r
+`,
+        `
+`
+      );
+      const indentString = ' '.repeat(indent);
+      const zeroWidthSpace = '​';
       const breaks = `\\s${zeroWidthSpace}`;
-      const regex = new RegExp(`
-|.{1,${columnWidth - 1}}([${breaks}]|$)|[^${breaks}]+?([${breaks}]|$)`, "g");
+      const regex = new RegExp(
+        `
+|.{1,${columnWidth - 1}}([${breaks}]|$)|[^${breaks}]+?([${breaks}]|$)`,
+        'g'
+      );
       const lines = columnText.match(regex) || [];
-      return leadingStr + lines.map((line, i) => {
-        if (line === `
+      return (
+        leadingStr +
+        lines.map((line, i) => {
+          if (
+            line ===
+            `
+`
+          )
+            return '';
+          return (i > 0 ? indentString : '') + line.trimEnd();
+        }).join(`
 `)
-          return "";
-        return (i > 0 ? indentString : "") + line.trimEnd();
-      }).join(`
-`);
+      );
     }
   }
   exports.Help = Help;
 });
 
 // node_modules/commander/lib/option.js
-var require_option = __commonJS((exports) => {
+var require_option = __commonJS(exports => {
   var { InvalidArgumentError } = require_error();
 
   class Option {
     constructor(flags, description) {
       this.flags = flags;
-      this.description = description || "";
-      this.required = flags.includes("<");
-      this.optional = flags.includes("[");
+      this.description = description || '';
+      this.required = flags.includes('<');
+      this.optional = flags.includes('[');
       this.variadic = /\w\.\.\.[>\]]$/.test(flags);
       this.mandatory = false;
       const optionFlags = splitOptionFlags(flags);
@@ -396,7 +434,7 @@ var require_option = __commonJS((exports) => {
       this.long = optionFlags.longFlag;
       this.negate = false;
       if (this.long) {
-        this.negate = this.long.startsWith("--no-");
+        this.negate = this.long.startsWith('--no-');
       }
       this.defaultValue = undefined;
       this.defaultValueDescription = undefined;
@@ -423,7 +461,7 @@ var require_option = __commonJS((exports) => {
     }
     implies(impliedOptionValues) {
       let newImplied = impliedOptionValues;
-      if (typeof impliedOptionValues === "string") {
+      if (typeof impliedOptionValues === 'string') {
         newImplied = { [impliedOptionValues]: true };
       }
       this.implied = Object.assign(this.implied || {}, newImplied);
@@ -455,7 +493,7 @@ var require_option = __commonJS((exports) => {
       this.argChoices = values.slice();
       this.parseArg = (arg, previous) => {
         if (!this.argChoices.includes(arg)) {
-          throw new InvalidArgumentError(`Allowed choices are ${this.argChoices.join(", ")}.`);
+          throw new InvalidArgumentError(`Allowed choices are ${this.argChoices.join(', ')}.`);
         }
         if (this.variadic) {
           return this._concatValue(arg, previous);
@@ -466,12 +504,12 @@ var require_option = __commonJS((exports) => {
     }
     name() {
       if (this.long) {
-        return this.long.replace(/^--/, "");
+        return this.long.replace(/^--/, '');
       }
-      return this.short.replace(/^-/, "");
+      return this.short.replace(/^-/, '');
     }
     attributeName() {
-      return camelcase(this.name().replace(/^no-/, ""));
+      return camelcase(this.name().replace(/^no-/, ''));
     }
     is(arg) {
       return this.short === arg || this.long === arg;
@@ -483,10 +521,10 @@ var require_option = __commonJS((exports) => {
 
   class DualOptions {
     constructor(options) {
-      this.positiveOptions = new Map;
-      this.negativeOptions = new Map;
-      this.dualOptions = new Set;
-      options.forEach((option) => {
+      this.positiveOptions = new Map();
+      this.negativeOptions = new Map();
+      this.dualOptions = new Set();
+      options.forEach(option => {
         if (option.negate) {
           this.negativeOptions.set(option.attributeName(), option);
         } else {
@@ -501,15 +539,14 @@ var require_option = __commonJS((exports) => {
     }
     valueFromOption(value, option) {
       const optionKey = option.attributeName();
-      if (!this.dualOptions.has(optionKey))
-        return true;
+      if (!this.dualOptions.has(optionKey)) return true;
       const preset = this.negativeOptions.get(optionKey).presetArg;
       const negativeValue = preset !== undefined ? preset : false;
       return option.negate === (negativeValue === value);
     }
   }
   function camelcase(str) {
-    return str.split("-").reduce((str2, word) => {
+    return str.split('-').reduce((str2, word) => {
       return str2 + word[0].toUpperCase() + word.slice(1);
     });
   }
@@ -517,8 +554,7 @@ var require_option = __commonJS((exports) => {
     let shortFlag;
     let longFlag;
     const flagParts = flags.split(/[ |,]+/);
-    if (flagParts.length > 1 && !/^[[<]/.test(flagParts[1]))
-      shortFlag = flagParts.shift();
+    if (flagParts.length > 1 && !/^[[<]/.test(flagParts[1])) shortFlag = flagParts.shift();
     longFlag = flagParts.shift();
     if (!shortFlag && /^-[^-]$/.test(longFlag)) {
       shortFlag = longFlag;
@@ -532,20 +568,19 @@ var require_option = __commonJS((exports) => {
 });
 
 // node_modules/commander/lib/suggestSimilar.js
-var require_suggestSimilar = __commonJS((exports) => {
+var require_suggestSimilar = __commonJS(exports => {
   var maxDistance = 3;
   function editDistance(a, b) {
-    if (Math.abs(a.length - b.length) > maxDistance)
-      return Math.max(a.length, b.length);
+    if (Math.abs(a.length - b.length) > maxDistance) return Math.max(a.length, b.length);
     const d = [];
-    for (let i = 0;i <= a.length; i++) {
+    for (let i = 0; i <= a.length; i++) {
       d[i] = [i];
     }
-    for (let j = 0;j <= b.length; j++) {
+    for (let j = 0; j <= b.length; j++) {
       d[0][j] = j;
     }
-    for (let j = 1;j <= b.length; j++) {
-      for (let i = 1;i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      for (let i = 1; i <= a.length; i++) {
         let cost = 1;
         if (a[i - 1] === b[j - 1]) {
           cost = 0;
@@ -561,20 +596,18 @@ var require_suggestSimilar = __commonJS((exports) => {
     return d[a.length][b.length];
   }
   function suggestSimilar(word, candidates) {
-    if (!candidates || candidates.length === 0)
-      return "";
+    if (!candidates || candidates.length === 0) return '';
     candidates = Array.from(new Set(candidates));
-    const searchingOptions = word.startsWith("--");
+    const searchingOptions = word.startsWith('--');
     if (searchingOptions) {
       word = word.slice(2);
-      candidates = candidates.map((candidate) => candidate.slice(2));
+      candidates = candidates.map(candidate => candidate.slice(2));
     }
     let similar = [];
     let bestDistance = maxDistance;
     const minSimilarity = 0.4;
-    candidates.forEach((candidate) => {
-      if (candidate.length <= 1)
-        return;
+    candidates.forEach(candidate => {
+      if (candidate.length <= 1) return;
       const distance = editDistance(word, candidate);
       const length = Math.max(word.length, candidate.length);
       const similarity = (length - distance) / length;
@@ -589,28 +622,28 @@ var require_suggestSimilar = __commonJS((exports) => {
     });
     similar.sort((a, b) => a.localeCompare(b));
     if (searchingOptions) {
-      similar = similar.map((candidate) => `--${candidate}`);
+      similar = similar.map(candidate => `--${candidate}`);
     }
     if (similar.length > 1) {
       return `
-(Did you mean one of ${similar.join(", ")}?)`;
+(Did you mean one of ${similar.join(', ')}?)`;
     }
     if (similar.length === 1) {
       return `
 (Did you mean ${similar[0]}?)`;
     }
-    return "";
+    return '';
   }
   exports.suggestSimilar = suggestSimilar;
 });
 
 // node_modules/commander/lib/command.js
-var require_command = __commonJS((exports) => {
-  var EventEmitter = __require("events").EventEmitter;
-  var childProcess = __require("child_process");
-  var path = __require("path");
-  var fs = __require("fs");
-  var process2 = __require("process");
+var require_command = __commonJS(exports => {
+  var EventEmitter = __require('events').EventEmitter;
+  var childProcess = __require('child_process');
+  var path = __require('path');
+  var fs = __require('fs');
+  var process2 = __require('process');
   var { Argument, humanReadableArgName } = require_argument();
   var { CommanderError } = require_error();
   var { Help } = require_help();
@@ -631,7 +664,7 @@ var require_command = __commonJS((exports) => {
       this.rawArgs = [];
       this.processedArgs = [];
       this._scriptPath = null;
-      this._name = name || "";
+      this._name = name || '';
       this._optionValues = {};
       this._optionValueSources = {};
       this._storeOptionsAsProperties = false;
@@ -643,8 +676,8 @@ var require_command = __commonJS((exports) => {
       this._exitCallback = null;
       this._aliases = [];
       this._combineFlagAndOptionalValue = true;
-      this._description = "";
-      this._summary = "";
+      this._description = '';
+      this._summary = '';
       this._argsDescription = undefined;
       this._enablePositionalOptions = false;
       this._passThroughOptions = false;
@@ -652,22 +685,22 @@ var require_command = __commonJS((exports) => {
       this._showHelpAfterError = false;
       this._showSuggestionAfterError = true;
       this._outputConfiguration = {
-        writeOut: (str) => process2.stdout.write(str),
-        writeErr: (str) => process2.stderr.write(str),
-        getOutHelpWidth: () => process2.stdout.isTTY ? process2.stdout.columns : undefined,
-        getErrHelpWidth: () => process2.stderr.isTTY ? process2.stderr.columns : undefined,
-        outputError: (str, write) => write(str)
+        writeOut: str => process2.stdout.write(str),
+        writeErr: str => process2.stderr.write(str),
+        getOutHelpWidth: () => (process2.stdout.isTTY ? process2.stdout.columns : undefined),
+        getErrHelpWidth: () => (process2.stderr.isTTY ? process2.stderr.columns : undefined),
+        outputError: (str, write) => write(str),
       };
       this._hidden = false;
       this._hasHelpOption = true;
-      this._helpFlags = "-h, --help";
-      this._helpDescription = "display help for command";
-      this._helpShortFlag = "-h";
-      this._helpLongFlag = "--help";
+      this._helpFlags = '-h, --help';
+      this._helpDescription = 'display help for command';
+      this._helpShortFlag = '-h';
+      this._helpLongFlag = '--help';
       this._addImplicitHelpCommand = undefined;
-      this._helpCommandName = "help";
-      this._helpCommandnameAndArgs = "help [command]";
-      this._helpCommandDescription = "display help for command";
+      this._helpCommandName = 'help';
+      this._helpCommandnameAndArgs = 'help [command]';
+      this._helpCommandDescription = 'display help for command';
       this._helpConfiguration = {};
     }
     copyInheritedSettings(sourceCommand) {
@@ -692,7 +725,7 @@ var require_command = __commonJS((exports) => {
     }
     _getCommandAndAncestors() {
       const result = [];
-      for (let command = this;command; command = command.parent) {
+      for (let command = this; command; command = command.parent) {
         result.push(command);
       }
       return result;
@@ -700,7 +733,7 @@ var require_command = __commonJS((exports) => {
     command(nameAndArgs, actionOptsOrExecDesc, execOpts) {
       let desc = actionOptsOrExecDesc;
       let opts = execOpts;
-      if (typeof desc === "object" && desc !== null) {
+      if (typeof desc === 'object' && desc !== null) {
         opts = desc;
         desc = null;
       }
@@ -711,40 +744,34 @@ var require_command = __commonJS((exports) => {
         cmd.description(desc);
         cmd._executableHandler = true;
       }
-      if (opts.isDefault)
-        this._defaultCommandName = cmd._name;
+      if (opts.isDefault) this._defaultCommandName = cmd._name;
       cmd._hidden = !!(opts.noHelp || opts.hidden);
       cmd._executableFile = opts.executableFile || null;
-      if (args)
-        cmd.arguments(args);
+      if (args) cmd.arguments(args);
       this.commands.push(cmd);
       cmd.parent = this;
       cmd.copyInheritedSettings(this);
-      if (desc)
-        return this;
+      if (desc) return this;
       return cmd;
     }
     createCommand(name) {
       return new Command(name);
     }
     createHelp() {
-      return Object.assign(new Help, this.configureHelp());
+      return Object.assign(new Help(), this.configureHelp());
     }
     configureHelp(configuration) {
-      if (configuration === undefined)
-        return this._helpConfiguration;
+      if (configuration === undefined) return this._helpConfiguration;
       this._helpConfiguration = configuration;
       return this;
     }
     configureOutput(configuration) {
-      if (configuration === undefined)
-        return this._outputConfiguration;
+      if (configuration === undefined) return this._outputConfiguration;
       Object.assign(this._outputConfiguration, configuration);
       return this;
     }
     showHelpAfterError(displayHelp = true) {
-      if (typeof displayHelp !== "string")
-        displayHelp = !!displayHelp;
+      if (typeof displayHelp !== 'string') displayHelp = !!displayHelp;
       this._showHelpAfterError = displayHelp;
       return this;
     }
@@ -758,10 +785,8 @@ var require_command = __commonJS((exports) => {
 - specify the name in Command constructor or using .name()`);
       }
       opts = opts || {};
-      if (opts.isDefault)
-        this._defaultCommandName = cmd._name;
-      if (opts.noHelp || opts.hidden)
-        cmd._hidden = true;
+      if (opts.isDefault) this._defaultCommandName = cmd._name;
+      if (opts.noHelp || opts.hidden) cmd._hidden = true;
       this.commands.push(cmd);
       cmd.parent = this;
       return this;
@@ -771,7 +796,7 @@ var require_command = __commonJS((exports) => {
     }
     argument(name, description, fn, defaultValue) {
       const argument = this.createArgument(name, description);
-      if (typeof fn === "function") {
+      if (typeof fn === 'function') {
         argument.default(defaultValue).argParser(fn);
       } else {
         argument.default(fn);
@@ -780,9 +805,12 @@ var require_command = __commonJS((exports) => {
       return this;
     }
     arguments(names) {
-      names.trim().split(/ +/).forEach((detail) => {
-        this.argument(detail);
-      });
+      names
+        .trim()
+        .split(/ +/)
+        .forEach(detail => {
+          this.argument(detail);
+        });
       return this;
     }
     addArgument(argument) {
@@ -790,8 +818,14 @@ var require_command = __commonJS((exports) => {
       if (previousArgument && previousArgument.variadic) {
         throw new Error(`only the last argument can be variadic '${previousArgument.name()}'`);
       }
-      if (argument.required && argument.defaultValue !== undefined && argument.parseArg === undefined) {
-        throw new Error(`a default value for a required argument is never used: '${argument.name()}'`);
+      if (
+        argument.required &&
+        argument.defaultValue !== undefined &&
+        argument.parseArg === undefined
+      ) {
+        throw new Error(
+          `a default value for a required argument is never used: '${argument.name()}'`
+        );
       }
       this.registeredArguments.push(argument);
       return this;
@@ -801,8 +835,8 @@ var require_command = __commonJS((exports) => {
         this._addImplicitHelpCommand = false;
       } else {
         this._addImplicitHelpCommand = true;
-        if (typeof enableOrNameAndArgs === "string") {
-          this._helpCommandName = enableOrNameAndArgs.split(" ")[0];
+        if (typeof enableOrNameAndArgs === 'string') {
+          this._helpCommandName = enableOrNameAndArgs.split(' ')[0];
           this._helpCommandnameAndArgs = enableOrNameAndArgs;
         }
         this._helpCommandDescription = description || this._helpCommandDescription;
@@ -811,12 +845,12 @@ var require_command = __commonJS((exports) => {
     }
     _hasImplicitHelpCommand() {
       if (this._addImplicitHelpCommand === undefined) {
-        return this.commands.length && !this._actionHandler && !this._findCommand("help");
+        return this.commands.length && !this._actionHandler && !this._findCommand('help');
       }
       return this._addImplicitHelpCommand;
     }
     hook(event, listener) {
-      const allowedValues = ["preSubcommand", "preAction", "postAction"];
+      const allowedValues = ['preSubcommand', 'preAction', 'postAction'];
       if (!allowedValues.includes(event)) {
         throw new Error(`Unexpected value for event passed to hook : '${event}'.
 Expecting one of '${allowedValues.join("', '")}'`);
@@ -832,10 +866,11 @@ Expecting one of '${allowedValues.join("', '")}'`);
       if (fn) {
         this._exitCallback = fn;
       } else {
-        this._exitCallback = (err) => {
-          if (err.code !== "commander.executeSubCommandAsync") {
+        this._exitCallback = err => {
+          if (err.code !== 'commander.executeSubCommandAsync') {
             throw err;
-          } else {}
+          } else {
+          }
         };
       }
       return this;
@@ -847,7 +882,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       process2.exit(exitCode);
     }
     action(fn) {
-      const listener = (args) => {
+      const listener = args => {
         const expectedArgsCount = this.registeredArguments.length;
         const actionArgs = args.slice(0, expectedArgsCount);
         if (this._storeOptionsAsProperties) {
@@ -868,7 +903,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       try {
         return target.parseArg(value, previous);
       } catch (err) {
-        if (err.code === "commander.invalidArgument") {
+        if (err.code === 'commander.invalidArgument') {
           const message = `${invalidArgumentMessage} ${err.message}`;
           this.error(message, { exitCode: err.exitCode, code: err.code });
         }
@@ -879,12 +914,16 @@ Expecting one of '${allowedValues.join("', '")}'`);
       const oname = option.name();
       const name = option.attributeName();
       if (option.negate) {
-        const positiveLongFlag = option.long.replace(/^--no-/, "--");
+        const positiveLongFlag = option.long.replace(/^--no-/, '--');
         if (!this._findOption(positiveLongFlag)) {
-          this.setOptionValueWithSource(name, option.defaultValue === undefined ? true : option.defaultValue, "default");
+          this.setOptionValueWithSource(
+            name,
+            option.defaultValue === undefined ? true : option.defaultValue,
+            'default'
+          );
         }
       } else if (option.defaultValue !== undefined) {
-        this.setOptionValueWithSource(name, option.defaultValue, "default");
+        this.setOptionValueWithSource(name, option.defaultValue, 'default');
       }
       this.options.push(option);
       const handleOptionValue = (val, invalidValueMessage, valueSource) => {
@@ -903,30 +942,32 @@ Expecting one of '${allowedValues.join("', '")}'`);
           } else if (option.isBoolean() || option.optional) {
             val = true;
           } else {
-            val = "";
+            val = '';
           }
         }
         this.setOptionValueWithSource(name, val, valueSource);
       };
-      this.on("option:" + oname, (val) => {
+      this.on('option:' + oname, val => {
         const invalidValueMessage = `error: option '${option.flags}' argument '${val}' is invalid.`;
-        handleOptionValue(val, invalidValueMessage, "cli");
+        handleOptionValue(val, invalidValueMessage, 'cli');
       });
       if (option.envVar) {
-        this.on("optionEnv:" + oname, (val) => {
+        this.on('optionEnv:' + oname, val => {
           const invalidValueMessage = `error: option '${option.flags}' value '${val}' from env '${option.envVar}' is invalid.`;
-          handleOptionValue(val, invalidValueMessage, "env");
+          handleOptionValue(val, invalidValueMessage, 'env');
         });
       }
       return this;
     }
     _optionEx(config, flags, description, fn, defaultValue) {
-      if (typeof flags === "object" && flags instanceof Option) {
-        throw new Error("To add an Option object use addOption() instead of option() or requiredOption()");
+      if (typeof flags === 'object' && flags instanceof Option) {
+        throw new Error(
+          'To add an Option object use addOption() instead of option() or requiredOption()'
+        );
       }
       const option = this.createOption(flags, description);
       option.makeOptionMandatory(!!config.mandatory);
-      if (typeof fn === "function") {
+      if (typeof fn === 'function') {
         option.default(defaultValue).argParser(fn);
       } else if (fn instanceof RegExp) {
         const regex = fn;
@@ -965,13 +1006,15 @@ Expecting one of '${allowedValues.join("', '")}'`);
     passThroughOptions(passThrough = true) {
       this._passThroughOptions = !!passThrough;
       if (!!this.parent && passThrough && !this.parent._enablePositionalOptions) {
-        throw new Error("passThroughOptions can not be used without turning on enablePositionalOptions for parent command(s)");
+        throw new Error(
+          'passThroughOptions can not be used without turning on enablePositionalOptions for parent command(s)'
+        );
       }
       return this;
     }
     storeOptionsAsProperties(storeAsProperties = true) {
       if (this.options.length) {
-        throw new Error("call .storeOptionsAsProperties() before adding options");
+        throw new Error('call .storeOptionsAsProperties() before adding options');
       }
       this._storeOptionsAsProperties = !!storeAsProperties;
       return this;
@@ -999,7 +1042,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
     }
     getOptionValueSourceWithGlobals(key) {
       let source;
-      this._getCommandAndAncestors().forEach((cmd) => {
+      this._getCommandAndAncestors().forEach(cmd => {
         if (cmd.getOptionValueSource(key) !== undefined) {
           source = cmd.getOptionValueSource(key);
         }
@@ -1008,24 +1051,24 @@ Expecting one of '${allowedValues.join("', '")}'`);
     }
     _prepareUserArgs(argv, parseOptions) {
       if (argv !== undefined && !Array.isArray(argv)) {
-        throw new Error("first parameter to parse must be array or undefined");
+        throw new Error('first parameter to parse must be array or undefined');
       }
       parseOptions = parseOptions || {};
       if (argv === undefined) {
         argv = process2.argv;
         if (process2.versions && process2.versions.electron) {
-          parseOptions.from = "electron";
+          parseOptions.from = 'electron';
         }
       }
       this.rawArgs = argv.slice();
       let userArgs;
       switch (parseOptions.from) {
         case undefined:
-        case "node":
+        case 'node':
           this._scriptPath = argv[1];
           userArgs = argv.slice(2);
           break;
-        case "electron":
+        case 'electron':
           if (process2.defaultApp) {
             this._scriptPath = argv[1];
             userArgs = argv.slice(2);
@@ -1033,15 +1076,14 @@ Expecting one of '${allowedValues.join("', '")}'`);
             userArgs = argv.slice(1);
           }
           break;
-        case "user":
+        case 'user':
           userArgs = argv.slice(0);
           break;
         default:
           throw new Error(`unexpected parse option { from: '${parseOptions.from}' }`);
       }
-      if (!this._name && this._scriptPath)
-        this.nameFromFilename(this._scriptPath);
-      this._name = this._name || "program";
+      if (!this._name && this._scriptPath) this.nameFromFilename(this._scriptPath);
+      this._name = this._name || 'program';
       return userArgs;
     }
     parse(argv, parseOptions) {
@@ -1057,22 +1099,19 @@ Expecting one of '${allowedValues.join("', '")}'`);
     _executeSubCommand(subcommand, args) {
       args = args.slice();
       let launchWithNode = false;
-      const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
+      const sourceExt = ['.js', '.ts', '.tsx', '.mjs', '.cjs'];
       function findFile(baseDir, baseName) {
         const localBin = path.resolve(baseDir, baseName);
-        if (fs.existsSync(localBin))
-          return localBin;
-        if (sourceExt.includes(path.extname(baseName)))
-          return;
-        const foundExt = sourceExt.find((ext) => fs.existsSync(`${localBin}${ext}`));
-        if (foundExt)
-          return `${localBin}${foundExt}`;
+        if (fs.existsSync(localBin)) return localBin;
+        if (sourceExt.includes(path.extname(baseName))) return;
+        const foundExt = sourceExt.find(ext => fs.existsSync(`${localBin}${ext}`));
+        if (foundExt) return `${localBin}${foundExt}`;
         return;
       }
       this._checkForMissingMandatoryOptions();
       this._checkForConflictingOptions();
       let executableFile = subcommand._executableFile || `${this._name}-${subcommand._name}`;
-      let executableDir = this._executableDir || "";
+      let executableDir = this._executableDir || '';
       if (this._scriptPath) {
         let resolvedScriptPath;
         try {
@@ -1094,22 +1133,22 @@ Expecting one of '${allowedValues.join("', '")}'`);
       }
       launchWithNode = sourceExt.includes(path.extname(executableFile));
       let proc;
-      if (process2.platform !== "win32") {
+      if (process2.platform !== 'win32') {
         if (launchWithNode) {
           args.unshift(executableFile);
           args = incrementNodeInspectorPort(process2.execArgv).concat(args);
-          proc = childProcess.spawn(process2.argv[0], args, { stdio: "inherit" });
+          proc = childProcess.spawn(process2.argv[0], args, { stdio: 'inherit' });
         } else {
-          proc = childProcess.spawn(executableFile, args, { stdio: "inherit" });
+          proc = childProcess.spawn(executableFile, args, { stdio: 'inherit' });
         }
       } else {
         args.unshift(executableFile);
         args = incrementNodeInspectorPort(process2.execArgv).concat(args);
-        proc = childProcess.spawn(process2.execPath, args, { stdio: "inherit" });
+        proc = childProcess.spawn(process2.execPath, args, { stdio: 'inherit' });
       }
       if (!proc.killed) {
-        const signals = ["SIGUSR1", "SIGUSR2", "SIGTERM", "SIGINT", "SIGHUP"];
-        signals.forEach((signal) => {
+        const signals = ['SIGUSR1', 'SIGUSR2', 'SIGTERM', 'SIGINT', 'SIGHUP'];
+        signals.forEach(signal => {
           process2.on(signal, () => {
             if (proc.killed === false && proc.exitCode === null) {
               proc.kill(signal);
@@ -1119,27 +1158,35 @@ Expecting one of '${allowedValues.join("', '")}'`);
       }
       const exitCallback = this._exitCallback;
       if (!exitCallback) {
-        proc.on("close", process2.exit.bind(process2));
+        proc.on('close', process2.exit.bind(process2));
       } else {
-        proc.on("close", () => {
-          exitCallback(new CommanderError(process2.exitCode || 0, "commander.executeSubCommandAsync", "(close)"));
+        proc.on('close', () => {
+          exitCallback(
+            new CommanderError(
+              process2.exitCode || 0,
+              'commander.executeSubCommandAsync',
+              '(close)'
+            )
+          );
         });
       }
-      proc.on("error", (err) => {
-        if (err.code === "ENOENT") {
-          const executableDirMessage = executableDir ? `searched for local subcommand relative to directory '${executableDir}'` : "no directory for search for local subcommand, use .executableDir() to supply a custom directory";
+      proc.on('error', err => {
+        if (err.code === 'ENOENT') {
+          const executableDirMessage = executableDir
+            ? `searched for local subcommand relative to directory '${executableDir}'`
+            : 'no directory for search for local subcommand, use .executableDir() to supply a custom directory';
           const executableMissing = `'${executableFile}' does not exist
  - if '${subcommand._name}' is not meant to be an executable command, remove description parameter from '.command()' and use '.description()' instead
  - if the default executable name is not suitable, use the executableFile option to supply a custom name or path
  - ${executableDirMessage}`;
           throw new Error(executableMissing);
-        } else if (err.code === "EACCES") {
+        } else if (err.code === 'EACCES') {
           throw new Error(`'${executableFile}' not executable`);
         }
         if (!exitCallback) {
           process2.exit(1);
         } else {
-          const wrappedError = new CommanderError(1, "commander.executeSubCommandAsync", "(error)");
+          const wrappedError = new CommanderError(1, 'commander.executeSubCommandAsync', '(error)');
           wrappedError.nestedError = err;
           exitCallback(wrappedError);
         }
@@ -1148,10 +1195,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
     }
     _dispatchSubcommand(commandName, operands, unknown) {
       const subCommand = this._findCommand(commandName);
-      if (!subCommand)
-        this.help({ error: true });
+      if (!subCommand) this.help({ error: true });
       let promiseChain;
-      promiseChain = this._chainOrCallSubCommandHook(promiseChain, subCommand, "preSubcommand");
+      promiseChain = this._chainOrCallSubCommandHook(promiseChain, subCommand, 'preSubcommand');
       promiseChain = this._chainOrCall(promiseChain, () => {
         if (subCommand._executableHandler) {
           this._executeSubCommand(subCommand, operands.concat(unknown));
@@ -1169,9 +1215,11 @@ Expecting one of '${allowedValues.join("', '")}'`);
       if (subCommand && !subCommand._executableHandler) {
         subCommand.help();
       }
-      return this._dispatchSubcommand(subcommandName, [], [
-        this._helpLongFlag || this._helpShortFlag
-      ]);
+      return this._dispatchSubcommand(
+        subcommandName,
+        [],
+        [this._helpLongFlag || this._helpShortFlag]
+      );
     }
     _checkNumberOfArguments() {
       this.registeredArguments.forEach((arg, i) => {
@@ -1179,7 +1227,10 @@ Expecting one of '${allowedValues.join("', '")}'`);
           this.missingArgument(arg.name());
         }
       });
-      if (this.registeredArguments.length > 0 && this.registeredArguments[this.registeredArguments.length - 1].variadic) {
+      if (
+        this.registeredArguments.length > 0 &&
+        this.registeredArguments[this.registeredArguments.length - 1].variadic
+      ) {
         return;
       }
       if (this.args.length > this.registeredArguments.length) {
@@ -1221,7 +1272,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       this.processedArgs = processedArgs;
     }
     _chainOrCall(promise, fn) {
-      if (promise && promise.then && typeof promise.then === "function") {
+      if (promise && promise.then && typeof promise.then === 'function') {
         return promise.then(() => fn());
       }
       return fn();
@@ -1229,15 +1280,18 @@ Expecting one of '${allowedValues.join("', '")}'`);
     _chainOrCallHooks(promise, event) {
       let result = promise;
       const hooks = [];
-      this._getCommandAndAncestors().reverse().filter((cmd) => cmd._lifeCycleHooks[event] !== undefined).forEach((hookedCommand) => {
-        hookedCommand._lifeCycleHooks[event].forEach((callback) => {
-          hooks.push({ hookedCommand, callback });
+      this._getCommandAndAncestors()
+        .reverse()
+        .filter(cmd => cmd._lifeCycleHooks[event] !== undefined)
+        .forEach(hookedCommand => {
+          hookedCommand._lifeCycleHooks[event].forEach(callback => {
+            hooks.push({ hookedCommand, callback });
+          });
         });
-      });
-      if (event === "postAction") {
+      if (event === 'postAction') {
         hooks.reverse();
       }
-      hooks.forEach((hookDetail) => {
+      hooks.forEach(hookDetail => {
         result = this._chainOrCall(result, () => {
           return hookDetail.callback(hookDetail.hookedCommand, this);
         });
@@ -1247,7 +1301,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
     _chainOrCallSubCommandHook(promise, subCommand, event) {
       let result = promise;
       if (this._lifeCycleHooks[event] !== undefined) {
-        this._lifeCycleHooks[event].forEach((hook) => {
+        this._lifeCycleHooks[event].forEach(hook => {
           result = this._chainOrCall(result, () => {
             return hook(this, subCommand);
           });
@@ -1272,7 +1326,12 @@ Expecting one of '${allowedValues.join("', '")}'`);
         outputHelpIfRequested(this, unknown);
         return this._dispatchSubcommand(this._defaultCommandName, operands, unknown);
       }
-      if (this.commands.length && this.args.length === 0 && !this._actionHandler && !this._defaultCommandName) {
+      if (
+        this.commands.length &&
+        this.args.length === 0 &&
+        !this._actionHandler &&
+        !this._defaultCommandName
+      ) {
         this.help({ error: true });
       }
       outputHelpIfRequested(this, parsed.unknown);
@@ -1288,14 +1347,16 @@ Expecting one of '${allowedValues.join("', '")}'`);
         checkForUnknownOptions();
         this._processArguments();
         let promiseChain;
-        promiseChain = this._chainOrCallHooks(promiseChain, "preAction");
-        promiseChain = this._chainOrCall(promiseChain, () => this._actionHandler(this.processedArgs));
+        promiseChain = this._chainOrCallHooks(promiseChain, 'preAction');
+        promiseChain = this._chainOrCall(promiseChain, () =>
+          this._actionHandler(this.processedArgs)
+        );
         if (this.parent) {
           promiseChain = this._chainOrCall(promiseChain, () => {
             this.parent.emit(commandEvent, operands, unknown);
           });
         }
-        promiseChain = this._chainOrCallHooks(promiseChain, "postAction");
+        promiseChain = this._chainOrCallHooks(promiseChain, 'postAction');
         return promiseChain;
       }
       if (this.parent && this.parent.listenerCount(commandEvent)) {
@@ -1303,11 +1364,11 @@ Expecting one of '${allowedValues.join("', '")}'`);
         this._processArguments();
         this.parent.emit(commandEvent, operands, unknown);
       } else if (operands.length) {
-        if (this._findCommand("*")) {
-          return this._dispatchSubcommand("*", operands, unknown);
+        if (this._findCommand('*')) {
+          return this._dispatchSubcommand('*', operands, unknown);
         }
-        if (this.listenerCount("command:*")) {
-          this.emit("command:*", operands, unknown);
+        if (this.listenerCount('command:*')) {
+          this.emit('command:*', operands, unknown);
         } else if (this.commands.length) {
           this.unknownCommand();
         } else {
@@ -1323,16 +1384,15 @@ Expecting one of '${allowedValues.join("', '")}'`);
       }
     }
     _findCommand(name) {
-      if (!name)
-        return;
-      return this.commands.find((cmd) => cmd._name === name || cmd._aliases.includes(name));
+      if (!name) return;
+      return this.commands.find(cmd => cmd._name === name || cmd._aliases.includes(name));
     }
     _findOption(arg) {
-      return this.options.find((option) => option.is(arg));
+      return this.options.find(option => option.is(arg));
     }
     _checkForMissingMandatoryOptions() {
-      this._getCommandAndAncestors().forEach((cmd) => {
-        cmd.options.forEach((anOption) => {
+      this._getCommandAndAncestors().forEach(cmd => {
+        cmd.options.forEach(anOption => {
           if (anOption.mandatory && cmd.getOptionValue(anOption.attributeName()) === undefined) {
             cmd.missingMandatoryOptionValue(anOption);
           }
@@ -1340,23 +1400,27 @@ Expecting one of '${allowedValues.join("', '")}'`);
       });
     }
     _checkForConflictingLocalOptions() {
-      const definedNonDefaultOptions = this.options.filter((option) => {
+      const definedNonDefaultOptions = this.options.filter(option => {
         const optionKey = option.attributeName();
         if (this.getOptionValue(optionKey) === undefined) {
           return false;
         }
-        return this.getOptionValueSource(optionKey) !== "default";
+        return this.getOptionValueSource(optionKey) !== 'default';
       });
-      const optionsWithConflicting = definedNonDefaultOptions.filter((option) => option.conflictsWith.length > 0);
-      optionsWithConflicting.forEach((option) => {
-        const conflictingAndDefined = definedNonDefaultOptions.find((defined) => option.conflictsWith.includes(defined.attributeName()));
+      const optionsWithConflicting = definedNonDefaultOptions.filter(
+        option => option.conflictsWith.length > 0
+      );
+      optionsWithConflicting.forEach(option => {
+        const conflictingAndDefined = definedNonDefaultOptions.find(defined =>
+          option.conflictsWith.includes(defined.attributeName())
+        );
         if (conflictingAndDefined) {
           this._conflictingOption(option, conflictingAndDefined);
         }
       });
     }
     _checkForConflictingOptions() {
-      this._getCommandAndAncestors().forEach((cmd) => {
+      this._getCommandAndAncestors().forEach(cmd => {
         cmd._checkForConflictingLocalOptions();
       });
     }
@@ -1366,14 +1430,13 @@ Expecting one of '${allowedValues.join("', '")}'`);
       let dest = operands;
       const args = argv.slice();
       function maybeOption(arg) {
-        return arg.length > 1 && arg[0] === "-";
+        return arg.length > 1 && arg[0] === '-';
       }
       let activeVariadicOption = null;
       while (args.length) {
         const arg = args.shift();
-        if (arg === "--") {
-          if (dest === unknown)
-            dest.push(arg);
+        if (arg === '--') {
+          if (dest === unknown) dest.push(arg);
           dest.push(...args);
           break;
         }
@@ -1387,8 +1450,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
           if (option) {
             if (option.required) {
               const value = args.shift();
-              if (value === undefined)
-                this.optionMissingArgument(option);
+              if (value === undefined) this.optionMissingArgument(option);
               this.emit(`option:${option.name()}`, value);
             } else if (option.optional) {
               let value = null;
@@ -1403,10 +1465,10 @@ Expecting one of '${allowedValues.join("', '")}'`);
             continue;
           }
         }
-        if (arg.length > 2 && arg[0] === "-" && arg[1] !== "-") {
+        if (arg.length > 2 && arg[0] === '-' && arg[1] !== '-') {
           const option = this._findOption(`-${arg[1]}`);
           if (option) {
-            if (option.required || option.optional && this._combineFlagAndOptionalValue) {
+            if (option.required || (option.optional && this._combineFlagAndOptionalValue)) {
               this.emit(`option:${option.name()}`, arg.slice(2));
             } else {
               this.emit(`option:${option.name()}`);
@@ -1416,7 +1478,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
           }
         }
         if (/^--[^=]+=/.test(arg)) {
-          const index = arg.indexOf("=");
+          const index = arg.indexOf('=');
           const option = this._findOption(arg.slice(0, index));
           if (option && (option.required || option.optional)) {
             this.emit(`option:${option.name()}`, arg.slice(index + 1));
@@ -1426,28 +1488,28 @@ Expecting one of '${allowedValues.join("', '")}'`);
         if (maybeOption(arg)) {
           dest = unknown;
         }
-        if ((this._enablePositionalOptions || this._passThroughOptions) && operands.length === 0 && unknown.length === 0) {
+        if (
+          (this._enablePositionalOptions || this._passThroughOptions) &&
+          operands.length === 0 &&
+          unknown.length === 0
+        ) {
           if (this._findCommand(arg)) {
             operands.push(arg);
-            if (args.length > 0)
-              unknown.push(...args);
+            if (args.length > 0) unknown.push(...args);
             break;
           } else if (arg === this._helpCommandName && this._hasImplicitHelpCommand()) {
             operands.push(arg);
-            if (args.length > 0)
-              operands.push(...args);
+            if (args.length > 0) operands.push(...args);
             break;
           } else if (this._defaultCommandName) {
             unknown.push(arg);
-            if (args.length > 0)
-              unknown.push(...args);
+            if (args.length > 0) unknown.push(...args);
             break;
           }
         }
         if (this._passThroughOptions) {
           dest.push(arg);
-          if (args.length > 0)
-            dest.push(...args);
+          if (args.length > 0) dest.push(...args);
           break;
         }
         dest.push(arg);
@@ -1458,7 +1520,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       if (this._storeOptionsAsProperties) {
         const result = {};
         const len = this.options.length;
-        for (let i = 0;i < len; i++) {
+        for (let i = 0; i < len; i++) {
           const key = this.options[i].attributeName();
           result[key] = key === this._versionOptionName ? this._version : this[key];
         }
@@ -1467,12 +1529,18 @@ Expecting one of '${allowedValues.join("', '")}'`);
       return this._optionValues;
     }
     optsWithGlobals() {
-      return this._getCommandAndAncestors().reduce((combinedOptions, cmd) => Object.assign(combinedOptions, cmd.opts()), {});
+      return this._getCommandAndAncestors().reduce(
+        (combinedOptions, cmd) => Object.assign(combinedOptions, cmd.opts()),
+        {}
+      );
     }
     error(message, errorOptions) {
-      this._outputConfiguration.outputError(`${message}
-`, this._outputConfiguration.writeErr);
-      if (typeof this._showHelpAfterError === "string") {
+      this._outputConfiguration.outputError(
+        `${message}
+`,
+        this._outputConfiguration.writeErr
+      );
+      if (typeof this._showHelpAfterError === 'string') {
         this._outputConfiguration.writeErr(`${this._showHelpAfterError}
 `);
       } else if (this._showHelpAfterError) {
@@ -1482,14 +1550,17 @@ Expecting one of '${allowedValues.join("', '")}'`);
       }
       const config = errorOptions || {};
       const exitCode = config.exitCode || 1;
-      const code = config.code || "commander.error";
+      const code = config.code || 'commander.error';
       this._exit(exitCode, code, message);
     }
     _parseOptionsEnv() {
-      this.options.forEach((option) => {
+      this.options.forEach(option => {
         if (option.envVar && option.envVar in process2.env) {
           const optionKey = option.attributeName();
-          if (this.getOptionValue(optionKey) === undefined || ["default", "config", "env"].includes(this.getOptionValueSource(optionKey))) {
+          if (
+            this.getOptionValue(optionKey) === undefined ||
+            ['default', 'config', 'env'].includes(this.getOptionValueSource(optionKey))
+          ) {
             if (option.required || option.optional) {
               this.emit(`optionEnv:${option.name()}`, process2.env[option.envVar]);
             } else {
@@ -1501,110 +1572,131 @@ Expecting one of '${allowedValues.join("', '")}'`);
     }
     _parseOptionsImplied() {
       const dualHelper = new DualOptions(this.options);
-      const hasCustomOptionValue = (optionKey) => {
-        return this.getOptionValue(optionKey) !== undefined && !["default", "implied"].includes(this.getOptionValueSource(optionKey));
+      const hasCustomOptionValue = optionKey => {
+        return (
+          this.getOptionValue(optionKey) !== undefined &&
+          !['default', 'implied'].includes(this.getOptionValueSource(optionKey))
+        );
       };
-      this.options.filter((option) => option.implied !== undefined && hasCustomOptionValue(option.attributeName()) && dualHelper.valueFromOption(this.getOptionValue(option.attributeName()), option)).forEach((option) => {
-        Object.keys(option.implied).filter((impliedKey) => !hasCustomOptionValue(impliedKey)).forEach((impliedKey) => {
-          this.setOptionValueWithSource(impliedKey, option.implied[impliedKey], "implied");
+      this.options
+        .filter(
+          option =>
+            option.implied !== undefined &&
+            hasCustomOptionValue(option.attributeName()) &&
+            dualHelper.valueFromOption(this.getOptionValue(option.attributeName()), option)
+        )
+        .forEach(option => {
+          Object.keys(option.implied)
+            .filter(impliedKey => !hasCustomOptionValue(impliedKey))
+            .forEach(impliedKey => {
+              this.setOptionValueWithSource(impliedKey, option.implied[impliedKey], 'implied');
+            });
         });
-      });
     }
     missingArgument(name) {
       const message = `error: missing required argument '${name}'`;
-      this.error(message, { code: "commander.missingArgument" });
+      this.error(message, { code: 'commander.missingArgument' });
     }
     optionMissingArgument(option) {
       const message = `error: option '${option.flags}' argument missing`;
-      this.error(message, { code: "commander.optionMissingArgument" });
+      this.error(message, { code: 'commander.optionMissingArgument' });
     }
     missingMandatoryOptionValue(option) {
       const message = `error: required option '${option.flags}' not specified`;
-      this.error(message, { code: "commander.missingMandatoryOptionValue" });
+      this.error(message, { code: 'commander.missingMandatoryOptionValue' });
     }
     _conflictingOption(option, conflictingOption) {
-      const findBestOptionFromValue = (option2) => {
+      const findBestOptionFromValue = option2 => {
         const optionKey = option2.attributeName();
         const optionValue = this.getOptionValue(optionKey);
-        const negativeOption = this.options.find((target) => target.negate && optionKey === target.attributeName());
-        const positiveOption = this.options.find((target) => !target.negate && optionKey === target.attributeName());
-        if (negativeOption && (negativeOption.presetArg === undefined && optionValue === false || negativeOption.presetArg !== undefined && optionValue === negativeOption.presetArg)) {
+        const negativeOption = this.options.find(
+          target => target.negate && optionKey === target.attributeName()
+        );
+        const positiveOption = this.options.find(
+          target => !target.negate && optionKey === target.attributeName()
+        );
+        if (
+          negativeOption &&
+          ((negativeOption.presetArg === undefined && optionValue === false) ||
+            (negativeOption.presetArg !== undefined && optionValue === negativeOption.presetArg))
+        ) {
           return negativeOption;
         }
         return positiveOption || option2;
       };
-      const getErrorMessage = (option2) => {
+      const getErrorMessage = option2 => {
         const bestOption = findBestOptionFromValue(option2);
         const optionKey = bestOption.attributeName();
         const source = this.getOptionValueSource(optionKey);
-        if (source === "env") {
+        if (source === 'env') {
           return `environment variable '${bestOption.envVar}'`;
         }
         return `option '${bestOption.flags}'`;
       };
       const message = `error: ${getErrorMessage(option)} cannot be used with ${getErrorMessage(conflictingOption)}`;
-      this.error(message, { code: "commander.conflictingOption" });
+      this.error(message, { code: 'commander.conflictingOption' });
     }
     unknownOption(flag) {
-      if (this._allowUnknownOption)
-        return;
-      let suggestion = "";
-      if (flag.startsWith("--") && this._showSuggestionAfterError) {
+      if (this._allowUnknownOption) return;
+      let suggestion = '';
+      if (flag.startsWith('--') && this._showSuggestionAfterError) {
         let candidateFlags = [];
         let command = this;
         do {
-          const moreFlags = command.createHelp().visibleOptions(command).filter((option) => option.long).map((option) => option.long);
+          const moreFlags = command
+            .createHelp()
+            .visibleOptions(command)
+            .filter(option => option.long)
+            .map(option => option.long);
           candidateFlags = candidateFlags.concat(moreFlags);
           command = command.parent;
         } while (command && !command._enablePositionalOptions);
         suggestion = suggestSimilar(flag, candidateFlags);
       }
       const message = `error: unknown option '${flag}'${suggestion}`;
-      this.error(message, { code: "commander.unknownOption" });
+      this.error(message, { code: 'commander.unknownOption' });
     }
     _excessArguments(receivedArgs) {
-      if (this._allowExcessArguments)
-        return;
+      if (this._allowExcessArguments) return;
       const expected = this.registeredArguments.length;
-      const s = expected === 1 ? "" : "s";
-      const forSubcommand = this.parent ? ` for '${this.name()}'` : "";
+      const s = expected === 1 ? '' : 's';
+      const forSubcommand = this.parent ? ` for '${this.name()}'` : '';
       const message = `error: too many arguments${forSubcommand}. Expected ${expected} argument${s} but got ${receivedArgs.length}.`;
-      this.error(message, { code: "commander.excessArguments" });
+      this.error(message, { code: 'commander.excessArguments' });
     }
     unknownCommand() {
       const unknownName = this.args[0];
-      let suggestion = "";
+      let suggestion = '';
       if (this._showSuggestionAfterError) {
         const candidateNames = [];
-        this.createHelp().visibleCommands(this).forEach((command) => {
-          candidateNames.push(command.name());
-          if (command.alias())
-            candidateNames.push(command.alias());
-        });
+        this.createHelp()
+          .visibleCommands(this)
+          .forEach(command => {
+            candidateNames.push(command.name());
+            if (command.alias()) candidateNames.push(command.alias());
+          });
         suggestion = suggestSimilar(unknownName, candidateNames);
       }
       const message = `error: unknown command '${unknownName}'${suggestion}`;
-      this.error(message, { code: "commander.unknownCommand" });
+      this.error(message, { code: 'commander.unknownCommand' });
     }
     version(str, flags, description) {
-      if (str === undefined)
-        return this._version;
+      if (str === undefined) return this._version;
       this._version = str;
-      flags = flags || "-V, --version";
-      description = description || "output the version number";
+      flags = flags || '-V, --version';
+      description = description || 'output the version number';
       const versionOption = this.createOption(flags, description);
       this._versionOptionName = versionOption.attributeName();
       this.options.push(versionOption);
-      this.on("option:" + versionOption.name(), () => {
+      this.on('option:' + versionOption.name(), () => {
         this._outputConfiguration.writeOut(`${str}
 `);
-        this._exit(0, "commander.version", str);
+        this._exit(0, 'commander.version', str);
       });
       return this;
     }
     description(str, argsDescription) {
-      if (str === undefined && argsDescription === undefined)
-        return this._description;
+      if (str === undefined && argsDescription === undefined) return this._description;
       this._description = str;
       if (argsDescription) {
         this._argsDescription = argsDescription;
@@ -1612,44 +1704,47 @@ Expecting one of '${allowedValues.join("', '")}'`);
       return this;
     }
     summary(str) {
-      if (str === undefined)
-        return this._summary;
+      if (str === undefined) return this._summary;
       this._summary = str;
       return this;
     }
     alias(alias) {
-      if (alias === undefined)
-        return this._aliases[0];
+      if (alias === undefined) return this._aliases[0];
       let command = this;
-      if (this.commands.length !== 0 && this.commands[this.commands.length - 1]._executableHandler) {
+      if (
+        this.commands.length !== 0 &&
+        this.commands[this.commands.length - 1]._executableHandler
+      ) {
         command = this.commands[this.commands.length - 1];
       }
-      if (alias === command._name)
-        throw new Error("Command alias can't be the same as its name");
+      if (alias === command._name) throw new Error("Command alias can't be the same as its name");
       command._aliases.push(alias);
       return this;
     }
     aliases(aliases) {
-      if (aliases === undefined)
-        return this._aliases;
-      aliases.forEach((alias) => this.alias(alias));
+      if (aliases === undefined) return this._aliases;
+      aliases.forEach(alias => this.alias(alias));
       return this;
     }
     usage(str) {
       if (str === undefined) {
-        if (this._usage)
-          return this._usage;
-        const args = this.registeredArguments.map((arg) => {
+        if (this._usage) return this._usage;
+        const args = this.registeredArguments.map(arg => {
           return humanReadableArgName(arg);
         });
-        return [].concat(this.options.length || this._hasHelpOption ? "[options]" : [], this.commands.length ? "[command]" : [], this.registeredArguments.length ? args : []).join(" ");
+        return []
+          .concat(
+            this.options.length || this._hasHelpOption ? '[options]' : [],
+            this.commands.length ? '[command]' : [],
+            this.registeredArguments.length ? args : []
+          )
+          .join(' ');
       }
       this._usage = str;
       return this;
     }
     name(str) {
-      if (str === undefined)
-        return this._name;
+      if (str === undefined) return this._name;
       this._name = str;
       return this;
     }
@@ -1658,15 +1753,17 @@ Expecting one of '${allowedValues.join("', '")}'`);
       return this;
     }
     executableDir(path2) {
-      if (path2 === undefined)
-        return this._executableDir;
+      if (path2 === undefined) return this._executableDir;
       this._executableDir = path2;
       return this;
     }
     helpInformation(contextOptions) {
       const helper = this.createHelp();
       if (helper.helpWidth === undefined) {
-        helper.helpWidth = contextOptions && contextOptions.error ? this._outputConfiguration.getErrHelpWidth() : this._outputConfiguration.getOutHelpWidth();
+        helper.helpWidth =
+          contextOptions && contextOptions.error
+            ? this._outputConfiguration.getErrHelpWidth()
+            : this._outputConfiguration.getOutHelpWidth();
       }
       return helper.formatHelp(this, helper);
     }
@@ -1675,9 +1772,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
       const context = { error: !!contextOptions.error };
       let write;
       if (context.error) {
-        write = (arg) => this._outputConfiguration.writeErr(arg);
+        write = arg => this._outputConfiguration.writeErr(arg);
       } else {
-        write = (arg) => this._outputConfiguration.writeOut(arg);
+        write = arg => this._outputConfiguration.writeOut(arg);
       }
       context.write = contextOptions.write || write;
       context.command = this;
@@ -1685,29 +1782,31 @@ Expecting one of '${allowedValues.join("', '")}'`);
     }
     outputHelp(contextOptions) {
       let deprecatedCallback;
-      if (typeof contextOptions === "function") {
+      if (typeof contextOptions === 'function') {
         deprecatedCallback = contextOptions;
         contextOptions = undefined;
       }
       const context = this._getHelpContext(contextOptions);
-      this._getCommandAndAncestors().reverse().forEach((command) => command.emit("beforeAllHelp", context));
-      this.emit("beforeHelp", context);
+      this._getCommandAndAncestors()
+        .reverse()
+        .forEach(command => command.emit('beforeAllHelp', context));
+      this.emit('beforeHelp', context);
       let helpInformation = this.helpInformation(context);
       if (deprecatedCallback) {
         helpInformation = deprecatedCallback(helpInformation);
-        if (typeof helpInformation !== "string" && !Buffer.isBuffer(helpInformation)) {
-          throw new Error("outputHelp callback must return a string or a Buffer");
+        if (typeof helpInformation !== 'string' && !Buffer.isBuffer(helpInformation)) {
+          throw new Error('outputHelp callback must return a string or a Buffer');
         }
       }
       context.write(helpInformation);
       if (this._helpLongFlag) {
         this.emit(this._helpLongFlag);
       }
-      this.emit("afterHelp", context);
-      this._getCommandAndAncestors().forEach((command) => command.emit("afterAllHelp", context));
+      this.emit('afterHelp', context);
+      this._getCommandAndAncestors().forEach(command => command.emit('afterAllHelp', context));
     }
     helpOption(flags, description) {
-      if (typeof flags === "boolean") {
+      if (typeof flags === 'boolean') {
         this._hasHelpOption = flags;
         return this;
       }
@@ -1721,21 +1820,26 @@ Expecting one of '${allowedValues.join("', '")}'`);
     help(contextOptions) {
       this.outputHelp(contextOptions);
       let exitCode = process2.exitCode || 0;
-      if (exitCode === 0 && contextOptions && typeof contextOptions !== "function" && contextOptions.error) {
+      if (
+        exitCode === 0 &&
+        contextOptions &&
+        typeof contextOptions !== 'function' &&
+        contextOptions.error
+      ) {
         exitCode = 1;
       }
-      this._exit(exitCode, "commander.help", "(outputHelp)");
+      this._exit(exitCode, 'commander.help', '(outputHelp)');
     }
     addHelpText(position, text) {
-      const allowedValues = ["beforeAll", "before", "after", "afterAll"];
+      const allowedValues = ['beforeAll', 'before', 'after', 'afterAll'];
       if (!allowedValues.includes(position)) {
         throw new Error(`Unexpected value for position to addHelpText.
 Expecting one of '${allowedValues.join("', '")}'`);
       }
       const helpEvent = `${position}Help`;
-      this.on(helpEvent, (context) => {
+      this.on(helpEvent, context => {
         let helpStr;
-        if (typeof text === "function") {
+        if (typeof text === 'function') {
           helpStr = text({ error: context.error, command: context.command });
         } else {
           helpStr = text;
@@ -1749,20 +1853,22 @@ Expecting one of '${allowedValues.join("', '")}'`);
     }
   }
   function outputHelpIfRequested(cmd, args) {
-    const helpOption = cmd._hasHelpOption && args.find((arg) => arg === cmd._helpLongFlag || arg === cmd._helpShortFlag);
+    const helpOption =
+      cmd._hasHelpOption &&
+      args.find(arg => arg === cmd._helpLongFlag || arg === cmd._helpShortFlag);
     if (helpOption) {
       cmd.outputHelp();
-      cmd._exit(0, "commander.helpDisplayed", "(outputHelp)");
+      cmd._exit(0, 'commander.helpDisplayed', '(outputHelp)');
     }
   }
   function incrementNodeInspectorPort(args) {
-    return args.map((arg) => {
-      if (!arg.startsWith("--inspect")) {
+    return args.map(arg => {
+      if (!arg.startsWith('--inspect')) {
         return arg;
       }
       let debugOption;
-      let debugHost = "127.0.0.1";
-      let debugPort = "9229";
+      let debugHost = '127.0.0.1';
+      let debugPort = '9229';
       let match;
       if ((match = arg.match(/^(--inspect(-brk)?)$/)) !== null) {
         debugOption = match[1];
@@ -1778,7 +1884,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
         debugHost = match[3];
         debugPort = match[4];
       }
-      if (debugOption && debugPort !== "0") {
+      if (debugOption && debugPort !== '0') {
         return `${debugOption}=${debugHost}:${parseInt(debugPort) + 1}`;
       }
       return arg;
@@ -1794,7 +1900,7 @@ var require_commander = __commonJS((exports, module) => {
   var { CommanderError, InvalidArgumentError } = require_error();
   var { Help } = require_help();
   var { Option } = require_option();
-  exports = module.exports = new Command;
+  exports = module.exports = new Command();
   exports.program = exports;
   exports.Command = Command;
   exports.Option = Option;
@@ -1813,14 +1919,14 @@ class BaseCommand {
     this.options = options;
   }
   async loadConfig() {
-    throw new Error("loadConfig must be implemented by subclass");
+    throw new Error('loadConfig must be implemented by subclass');
   }
-  log(message, level = "info") {
-    if (this.options.quiet && level !== "error") {
+  log(message, level = 'info') {
+    if (this.options.quiet && level !== 'error') {
       return;
     }
     const timestamp = new Date().toISOString();
-    const prefix = level === "error" ? "ERROR" : level === "warn" ? "WARN" : "INFO";
+    const prefix = level === 'error' ? 'ERROR' : level === 'warn' ? 'WARN' : 'INFO';
     process.stdout.write(`[${timestamp}] ${prefix}: ${message}
 `);
   }
@@ -1838,34 +1944,48 @@ class BaseCommand {
 }
 
 // ../../node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js
-import * as React from "react";
-var require_use_sync_external_store_shim_development = __commonJS((exports) => {
-  (function() {
+import * as React from 'react';
+var require_use_sync_external_store_shim_development = __commonJS(exports => {
+  (function () {
     function is(x, y) {
-      return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y;
+      return (x === y && (x !== 0 || 1 / x === 1 / y)) || (x !== x && y !== y);
     }
     function useSyncExternalStore$2(subscribe, getSnapshot) {
-      didWarnOld18Alpha || React.startTransition === undefined || (didWarnOld18Alpha = true, console.error("You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."));
+      didWarnOld18Alpha ||
+        React.startTransition === undefined ||
+        ((didWarnOld18Alpha = true),
+        console.error(
+          'You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release.'
+        ));
       var value = getSnapshot();
       if (!didWarnUncachedGetSnapshot) {
         var cachedValue = getSnapshot();
-        objectIs(value, cachedValue) || (console.error("The result of getSnapshot should be cached to avoid an infinite loop"), didWarnUncachedGetSnapshot = true);
+        objectIs(value, cachedValue) ||
+          (console.error('The result of getSnapshot should be cached to avoid an infinite loop'),
+          (didWarnUncachedGetSnapshot = true));
       }
       cachedValue = useState2({
-        inst: { value, getSnapshot }
+        inst: { value, getSnapshot },
       });
-      var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
-      useLayoutEffect2(function() {
-        inst.value = value;
-        inst.getSnapshot = getSnapshot;
-        checkIfSnapshotChanged(inst) && forceUpdate({ inst });
-      }, [subscribe, value, getSnapshot]);
-      useEffect2(function() {
-        checkIfSnapshotChanged(inst) && forceUpdate({ inst });
-        return subscribe(function() {
+      var inst = cachedValue[0].inst,
+        forceUpdate = cachedValue[1];
+      useLayoutEffect2(
+        function () {
+          inst.value = value;
+          inst.getSnapshot = getSnapshot;
           checkIfSnapshotChanged(inst) && forceUpdate({ inst });
-        });
-      }, [subscribe]);
+        },
+        [subscribe, value, getSnapshot]
+      );
+      useEffect2(
+        function () {
+          checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+          return subscribe(function () {
+            checkIfSnapshotChanged(inst) && forceUpdate({ inst });
+          });
+        },
+        [subscribe]
+      );
       useDebugValue2(value);
       return value;
     }
@@ -1882,83 +2002,127 @@ var require_use_sync_external_store_shim_development = __commonJS((exports) => {
     function useSyncExternalStore$1(subscribe, getSnapshot) {
       return getSnapshot();
     }
-    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function" && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-    var objectIs = typeof Object.is === "function" ? Object.is : is, useState2 = React.useState, useEffect2 = React.useEffect, useLayoutEffect2 = React.useLayoutEffect, useDebugValue2 = React.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = typeof window === "undefined" || typeof window.document === "undefined" || typeof window.document.createElement === "undefined" ? useSyncExternalStore$1 : useSyncExternalStore$2;
-    exports.useSyncExternalStore = React.useSyncExternalStore !== undefined ? React.useSyncExternalStore : shim;
-    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop === "function" && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+      typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === 'function' &&
+      __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
+    var objectIs = typeof Object.is === 'function' ? Object.is : is,
+      useState2 = React.useState,
+      useEffect2 = React.useEffect,
+      useLayoutEffect2 = React.useLayoutEffect,
+      useDebugValue2 = React.useDebugValue,
+      didWarnOld18Alpha = false,
+      didWarnUncachedGetSnapshot = false,
+      shim =
+        typeof window === 'undefined' ||
+        typeof window.document === 'undefined' ||
+        typeof window.document.createElement === 'undefined'
+          ? useSyncExternalStore$1
+          : useSyncExternalStore$2;
+    exports.useSyncExternalStore =
+      React.useSyncExternalStore !== undefined ? React.useSyncExternalStore : shim;
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+      typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop === 'function' &&
+      __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
   })();
 });
 
 // ../../node_modules/use-sync-external-store/shim/index.js
 var require_shim = __commonJS((exports, module) => {
-  if (false) {} else {
+  if (false) {
+  } else {
     module.exports = require_use_sync_external_store_shim_development();
   }
 });
 
 // ../../node_modules/use-sync-external-store/cjs/use-sync-external-store-shim/with-selector.development.js
-import * as React2 from "react";
-var require_with_selector_development = __commonJS((exports) => {
-  (function() {
+import * as React2 from 'react';
+var require_with_selector_development = __commonJS(exports => {
+  (function () {
     function is(x, y) {
-      return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y;
+      return (x === y && (x !== 0 || 1 / x === 1 / y)) || (x !== x && y !== y);
     }
-    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function" && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-    var shim = require_shim(), objectIs = typeof Object.is === "function" ? Object.is : is, useSyncExternalStore = shim.useSyncExternalStore, useRef2 = React2.useRef, useEffect2 = React2.useEffect, useMemo2 = React2.useMemo, useDebugValue2 = React2.useDebugValue;
-    exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+      typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === 'function' &&
+      __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
+    var shim = require_shim(),
+      objectIs = typeof Object.is === 'function' ? Object.is : is,
+      useSyncExternalStore = shim.useSyncExternalStore,
+      useRef2 = React2.useRef,
+      useEffect2 = React2.useEffect,
+      useMemo2 = React2.useMemo,
+      useDebugValue2 = React2.useDebugValue;
+    exports.useSyncExternalStoreWithSelector = function (
+      subscribe,
+      getSnapshot,
+      getServerSnapshot,
+      selector,
+      isEqual
+    ) {
       var instRef = useRef2(null);
       if (instRef.current === null) {
         var inst = { hasValue: false, value: null };
         instRef.current = inst;
-      } else
-        inst = instRef.current;
-      instRef = useMemo2(function() {
-        function memoizedSelector(nextSnapshot) {
-          if (!hasMemo) {
-            hasMemo = true;
-            memoizedSnapshot = nextSnapshot;
-            nextSnapshot = selector(nextSnapshot);
-            if (isEqual !== undefined && inst.hasValue) {
-              var currentSelection = inst.value;
-              if (isEqual(currentSelection, nextSnapshot))
-                return memoizedSelection = currentSelection;
+      } else inst = instRef.current;
+      instRef = useMemo2(
+        function () {
+          function memoizedSelector(nextSnapshot) {
+            if (!hasMemo) {
+              hasMemo = true;
+              memoizedSnapshot = nextSnapshot;
+              nextSnapshot = selector(nextSnapshot);
+              if (isEqual !== undefined && inst.hasValue) {
+                var currentSelection = inst.value;
+                if (isEqual(currentSelection, nextSnapshot))
+                  return (memoizedSelection = currentSelection);
+              }
+              return (memoizedSelection = nextSnapshot);
             }
-            return memoizedSelection = nextSnapshot;
+            currentSelection = memoizedSelection;
+            if (objectIs(memoizedSnapshot, nextSnapshot)) return currentSelection;
+            var nextSelection = selector(nextSnapshot);
+            if (isEqual !== undefined && isEqual(currentSelection, nextSelection))
+              return ((memoizedSnapshot = nextSnapshot), currentSelection);
+            memoizedSnapshot = nextSnapshot;
+            return (memoizedSelection = nextSelection);
           }
-          currentSelection = memoizedSelection;
-          if (objectIs(memoizedSnapshot, nextSnapshot))
-            return currentSelection;
-          var nextSelection = selector(nextSnapshot);
-          if (isEqual !== undefined && isEqual(currentSelection, nextSelection))
-            return memoizedSnapshot = nextSnapshot, currentSelection;
-          memoizedSnapshot = nextSnapshot;
-          return memoizedSelection = nextSelection;
-        }
-        var hasMemo = false, memoizedSnapshot, memoizedSelection, maybeGetServerSnapshot = getServerSnapshot === undefined ? null : getServerSnapshot;
-        return [
-          function() {
-            return memoizedSelector(getSnapshot());
-          },
-          maybeGetServerSnapshot === null ? undefined : function() {
-            return memoizedSelector(maybeGetServerSnapshot());
-          }
-        ];
-      }, [getSnapshot, getServerSnapshot, selector, isEqual]);
+          var hasMemo = false,
+            memoizedSnapshot,
+            memoizedSelection,
+            maybeGetServerSnapshot = getServerSnapshot === undefined ? null : getServerSnapshot;
+          return [
+            function () {
+              return memoizedSelector(getSnapshot());
+            },
+            maybeGetServerSnapshot === null
+              ? undefined
+              : function () {
+                  return memoizedSelector(maybeGetServerSnapshot());
+                },
+          ];
+        },
+        [getSnapshot, getServerSnapshot, selector, isEqual]
+      );
       var value = useSyncExternalStore(subscribe, instRef[0], instRef[1]);
-      useEffect2(function() {
-        inst.hasValue = true;
-        inst.value = value;
-      }, [value]);
+      useEffect2(
+        function () {
+          inst.hasValue = true;
+          inst.value = value;
+        },
+        [value]
+      );
       useDebugValue2(value);
       return value;
     };
-    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop === "function" && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
+    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+      typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop === 'function' &&
+      __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
   })();
 });
 
 // ../../node_modules/use-sync-external-store/shim/with-selector.js
 var require_with_selector = __commonJS((exports, module) => {
-  if (false) {} else {
+  if (false) {
+  } else {
     module.exports = require_with_selector_development();
   }
 });
@@ -1966,117 +2130,213 @@ var require_with_selector = __commonJS((exports, module) => {
 // src/components/watch.tsx
 var exports_watch = {};
 __export(exports_watch, {
-  WatchComponent: () => WatchComponent
+  WatchComponent: () => WatchComponent,
 });
-import { useState, useEffect } from "react";
-import { Box as Box2, Text as Text2, useApp as useApp2 } from "ink";
-import { jsxDEV as jsxDEV2 } from "react/jsx-dev-runtime";
+import { useState, useEffect } from 'react';
+import { Box as Box2, Text as Text2, useApp as useApp2 } from 'ink';
+import { jsxDEV as jsxDEV2 } from 'react/jsx-dev-runtime';
 function WatchComponent(props) {
   const { exit } = useApp2();
   const [isRunning, setIsRunning] = useState(true);
   const [lastRun, setLastRun] = useState(null);
   const [analysisCount, setAnalysisCount] = useState(0);
   useEffect(() => {
-    if (!isRunning)
-      return;
-    const intervalMs = parseInt(props.interval ?? "5000");
+    if (!isRunning) return;
+    const intervalMs = parseInt(props.interval ?? '5000');
     const interval = setInterval(() => {
-      setLastRun(new Date);
-      setAnalysisCount((prev) => prev + 1);
+      setLastRun(new Date());
+      setAnalysisCount(prev => prev + 1);
     }, intervalMs);
     return () => clearInterval(interval);
   }, [isRunning, props.interval]);
   useEffect(() => {
-    const handleKeyPress = (data) => {
-      if (data === "q") {
+    const handleKeyPress = data => {
+      if (data === 'q') {
         setIsRunning(false);
         exit();
       }
     };
     process.stdin.setRawMode(true);
     process.stdin.resume();
-    process.stdin.on("data", handleKeyPress);
+    process.stdin.on('data', handleKeyPress);
     return () => {
       process.stdin.setRawMode(false);
       process.stdin.pause();
-      process.stdin.off("data", handleKeyPress);
+      process.stdin.off('data', handleKeyPress);
     };
   }, [exit]);
-  return /* @__PURE__ */ jsxDEV2(Box2, {
-    flexDirection: "column",
-    padding: 1,
-    children: [
-      /* @__PURE__ */ jsxDEV2(Box2, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV2(Text2, {
-          bold: true,
-          color: "blue",
-          children: "DevQuality Watch Mode"
-        }, undefined, false, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV2(Box2, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV2(Text2, {
-          children: "Monitoring for changes..."
-        }, undefined, false, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV2(Box2, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV2(Text2, {
-          dimColor: true,
-          children: "Press 'q' to quit"
-        }, undefined, false, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV2(Box2, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV2(Text2, {
-          color: "green",
-          children: [
-            "Status: ",
-            isRunning ? "Running" : "Stopped"
-          ]
-        }, undefined, true, undefined, this)
-      }, undefined, false, undefined, this),
-      lastRun && /* @__PURE__ */ jsxDEV2(Box2, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV2(Text2, {
-          children: [
-            "Last run: ",
-            lastRun.toLocaleTimeString()
-          ]
-        }, undefined, true, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV2(Box2, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV2(Text2, {
-          children: [
-            "Analyses completed: ",
-            analysisCount
-          ]
-        }, undefined, true, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV2(Box2, {
-        marginTop: 1,
-        children: /* @__PURE__ */ jsxDEV2(Text2, {
-          dimColor: true,
-          children: [
-            "Interval: ",
-            props.interval ?? "5000",
-            "ms | Debounce: ",
-            props.debounce ?? "1000",
-            "ms"
-          ]
-        }, undefined, true, undefined, this)
-      }, undefined, false, undefined, this)
-    ]
-  }, undefined, true, undefined, this);
+  return /* @__PURE__ */ jsxDEV2(
+    Box2,
+    {
+      flexDirection: 'column',
+      padding: 1,
+      children: [
+        /* @__PURE__ */ jsxDEV2(
+          Box2,
+          {
+            marginBottom: 1,
+            children: /* @__PURE__ */ jsxDEV2(
+              Text2,
+              {
+                bold: true,
+                color: 'blue',
+                children: 'DevQuality Watch Mode',
+              },
+              undefined,
+              false,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV2(
+          Box2,
+          {
+            marginBottom: 1,
+            children: /* @__PURE__ */ jsxDEV2(
+              Text2,
+              {
+                children: 'Monitoring for changes...',
+              },
+              undefined,
+              false,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV2(
+          Box2,
+          {
+            marginBottom: 1,
+            children: /* @__PURE__ */ jsxDEV2(
+              Text2,
+              {
+                dimColor: true,
+                children: "Press 'q' to quit",
+              },
+              undefined,
+              false,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV2(
+          Box2,
+          {
+            marginBottom: 1,
+            children: /* @__PURE__ */ jsxDEV2(
+              Text2,
+              {
+                color: 'green',
+                children: ['Status: ', isRunning ? 'Running' : 'Stopped'],
+              },
+              undefined,
+              true,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+        lastRun &&
+          /* @__PURE__ */ jsxDEV2(
+            Box2,
+            {
+              marginBottom: 1,
+              children: /* @__PURE__ */ jsxDEV2(
+                Text2,
+                {
+                  children: ['Last run: ', lastRun.toLocaleTimeString()],
+                },
+                undefined,
+                true,
+                undefined,
+                this
+              ),
+            },
+            undefined,
+            false,
+            undefined,
+            this
+          ),
+        /* @__PURE__ */ jsxDEV2(
+          Box2,
+          {
+            marginBottom: 1,
+            children: /* @__PURE__ */ jsxDEV2(
+              Text2,
+              {
+                children: ['Analyses completed: ', analysisCount],
+              },
+              undefined,
+              true,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV2(
+          Box2,
+          {
+            marginTop: 1,
+            children: /* @__PURE__ */ jsxDEV2(
+              Text2,
+              {
+                dimColor: true,
+                children: [
+                  'Interval: ',
+                  props.interval ?? '5000',
+                  'ms | Debounce: ',
+                  props.debounce ?? '1000',
+                  'ms',
+                ],
+              },
+              undefined,
+              true,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+      ],
+    },
+    undefined,
+    true,
+    undefined,
+    this
+  );
 }
 var init_watch = () => {};
 
 // src/commands/export.ts
 var exports_export = {};
 __export(exports_export, {
-  ExportCommand: () => ExportCommand
+  ExportCommand: () => ExportCommand,
 });
 var ExportCommand;
 var init_export = __esm(() => {
@@ -2085,10 +2345,10 @@ var init_export = __esm(() => {
       super(options);
     }
     async execute() {
-      this.log("Export functionality will be implemented in a future version.");
+      this.log('Export functionality will be implemented in a future version.');
     }
     async loadConfig() {
-      throw new Error("Export command does not load configuration");
+      throw new Error('Export command does not load configuration');
     }
   };
 });
@@ -2096,7 +2356,7 @@ var init_export = __esm(() => {
 // src/commands/history.ts
 var exports_history = {};
 __export(exports_history, {
-  HistoryCommand: () => HistoryCommand
+  HistoryCommand: () => HistoryCommand,
 });
 var HistoryCommand;
 var init_history = __esm(() => {
@@ -2105,10 +2365,10 @@ var init_history = __esm(() => {
       super(options);
     }
     async execute() {
-      this.log("History functionality will be implemented in a future version.");
+      this.log('History functionality will be implemented in a future version.');
     }
     async loadConfig() {
-      throw new Error("History command does not load configuration");
+      throw new Error('History command does not load configuration');
     }
   };
 });
@@ -2126,113 +2386,134 @@ var {
   Command,
   Argument,
   Option,
-  Help
+  Help,
 } = import__.default;
 
 // src/index.ts
-import { render } from "ink";
-import React5 from "react";
+import { render } from 'ink';
+import React5 from 'react';
 // package.json
-var version = "0.0.0";
+var version = '0.0.0';
 // ../../packages/core/node_modules/zustand/esm/vanilla.mjs
-var createStoreImpl = (createState) => {
+var createStoreImpl = createState => {
   let state;
-  const listeners = /* @__PURE__ */ new Set;
+  const listeners = /* @__PURE__ */ new Set();
   const setState = (partial, replace) => {
-    const nextState = typeof partial === "function" ? partial(state) : partial;
+    const nextState = typeof partial === 'function' ? partial(state) : partial;
     if (!Object.is(nextState, state)) {
       const previousState = state;
-      state = (replace != null ? replace : typeof nextState !== "object" || nextState === null) ? nextState : Object.assign({}, state, nextState);
-      listeners.forEach((listener) => listener(state, previousState));
+      state = (replace != null ? replace : typeof nextState !== 'object' || nextState === null)
+        ? nextState
+        : Object.assign({}, state, nextState);
+      listeners.forEach(listener => listener(state, previousState));
     }
   };
   const getState = () => state;
   const getInitialState = () => initialState;
-  const subscribe = (listener) => {
+  const subscribe = listener => {
     listeners.add(listener);
     return () => listeners.delete(listener);
   };
   const destroy = () => {
-    if ((import.meta.env ? import.meta.env.MODE : undefined) !== "production") {
-      console.warn("[DEPRECATED] The `destroy` method will be unsupported in a future version. Instead use unsubscribe function returned by subscribe. Everything will be garbage-collected if store is garbage-collected.");
+    if ((import.meta.env ? import.meta.env.MODE : undefined) !== 'production') {
+      console.warn(
+        '[DEPRECATED] The `destroy` method will be unsupported in a future version. Instead use unsubscribe function returned by subscribe. Everything will be garbage-collected if store is garbage-collected.'
+      );
     }
     listeners.clear();
   };
   const api = { setState, getState, getInitialState, subscribe, destroy };
-  const initialState = state = createState(setState, getState, api);
+  const initialState = (state = createState(setState, getState, api));
   return api;
 };
-var createStore = (createState) => createState ? createStoreImpl(createState) : createStoreImpl;
+var createStore = createState => (createState ? createStoreImpl(createState) : createStoreImpl);
 
 // ../../packages/core/node_modules/zustand/esm/index.mjs
 var import_with_selector = __toESM(require_with_selector(), 1);
-import ReactExports from "react";
+import ReactExports from 'react';
 var { useDebugValue } = ReactExports;
 var { useSyncExternalStoreWithSelector } = import_with_selector.default;
 var didWarnAboutEqualityFn = false;
-var identity = (arg) => arg;
+var identity = arg => arg;
 function useStore(api, selector = identity, equalityFn) {
-  if ((import.meta.env ? import.meta.env.MODE : undefined) !== "production" && equalityFn && !didWarnAboutEqualityFn) {
-    console.warn("[DEPRECATED] Use `createWithEqualityFn` instead of `create` or use `useStoreWithEqualityFn` instead of `useStore`. They can be imported from 'zustand/traditional'. https://github.com/pmndrs/zustand/discussions/1937");
+  if (
+    (import.meta.env ? import.meta.env.MODE : undefined) !== 'production' &&
+    equalityFn &&
+    !didWarnAboutEqualityFn
+  ) {
+    console.warn(
+      "[DEPRECATED] Use `createWithEqualityFn` instead of `create` or use `useStoreWithEqualityFn` instead of `useStore`. They can be imported from 'zustand/traditional'. https://github.com/pmndrs/zustand/discussions/1937"
+    );
     didWarnAboutEqualityFn = true;
   }
-  const slice = useSyncExternalStoreWithSelector(api.subscribe, api.getState, api.getServerState || api.getInitialState, selector, equalityFn);
+  const slice = useSyncExternalStoreWithSelector(
+    api.subscribe,
+    api.getState,
+    api.getServerState || api.getInitialState,
+    selector,
+    equalityFn
+  );
   useDebugValue(slice);
   return slice;
 }
-var createImpl = (createState) => {
-  if ((import.meta.env ? import.meta.env.MODE : undefined) !== "production" && typeof createState !== "function") {
-    console.warn("[DEPRECATED] Passing a vanilla store will be unsupported in a future version. Instead use `import { useStore } from 'zustand'`.");
+var createImpl = createState => {
+  if (
+    (import.meta.env ? import.meta.env.MODE : undefined) !== 'production' &&
+    typeof createState !== 'function'
+  ) {
+    console.warn(
+      "[DEPRECATED] Passing a vanilla store will be unsupported in a future version. Instead use `import { useStore } from 'zustand'`."
+    );
   }
-  const api = typeof createState === "function" ? createStore(createState) : createState;
+  const api = typeof createState === 'function' ? createStore(createState) : createState;
   const useBoundStore = (selector, equalityFn) => useStore(api, selector, equalityFn);
   Object.assign(useBoundStore, api);
   return useBoundStore;
 };
-var create = (createState) => createState ? createImpl(createState) : createImpl;
+var create = createState => (createState ? createImpl(createState) : createImpl);
 
 // ../../packages/core/src/detection/project-detector.ts
-import { existsSync as existsSync2 } from "node:fs";
-import { join as join2 } from "node:path";
+import { existsSync as existsSync2 } from 'node:fs';
+import { join as join2 } from 'node:path';
 
 // ../../packages/utils/src/index.ts
-import { join, dirname, basename, extname, relative } from "node:path";
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { homedir } from "node:os";
+import { join, dirname, basename, extname, relative } from 'node:path';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { homedir } from 'node:os';
 var pathUtils = {
   join,
   dirname,
   basename,
   extname,
   relative,
-  getAppDataPath: (appName) => {
+  getAppDataPath: appName => {
     const platform = process.platform;
     const home = homedir();
-    if (platform === "darwin") {
-      return join(home, "Library", "Application Support", appName);
+    if (platform === 'darwin') {
+      return join(home, 'Library', 'Application Support', appName);
     }
-    if (platform === "win32") {
-      return join(home, "AppData", "Roaming", appName);
+    if (platform === 'win32') {
+      return join(home, 'AppData', 'Roaming', appName);
     }
-    return join(home, ".local", "share", appName);
+    return join(home, '.local', 'share', appName);
   },
-  ensureDir: (dir) => {
+  ensureDir: dir => {
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }
   },
-  getConfigPath: (configName) => {
+  getConfigPath: configName => {
     return join(process.cwd(), configName);
-  }
+  },
 };
 var fileUtils = {
-  readJsonSync: (filePath) => {
-    const content = readFileSync(filePath, "utf-8");
+  readJsonSync: filePath => {
+    const content = readFileSync(filePath, 'utf-8');
     return JSON.parse(content);
   },
   writeJsonSync: (filePath, data) => {
     const content = JSON.stringify(data, null, 2);
-    writeFileSync(filePath, content, "utf-8");
+    writeFileSync(filePath, content, 'utf-8');
   },
   existsSync,
   findFileUp: (fileName, startDir = process.cwd()) => {
@@ -2245,42 +2526,42 @@ var fileUtils = {
       currentDir = dirname(currentDir);
     }
     return null;
-  }
+  },
 };
 
 // ../../packages/core/src/detection/project-detector.ts
 class ProjectDetector {
   CONFIG_FILES = [
-    "package.json",
-    "tsconfig.json",
-    "jsconfig.json",
-    "angular.json",
-    "nuxt.config.ts",
-    "next.config.js",
-    "vite.config.ts",
-    "webpack.config.js",
-    "rollup.config.js"
+    'package.json',
+    'tsconfig.json',
+    'jsconfig.json',
+    'angular.json',
+    'nuxt.config.ts',
+    'next.config.js',
+    'vite.config.ts',
+    'webpack.config.js',
+    'rollup.config.js',
   ];
   FRAMEWORK_PATTERNS = {
-    react: ["react", "react-dom", "@types/react", "next", "gatsby", "remix"],
-    vue: ["vue", "nuxt", "@nuxt/core", "quasar"],
-    angular: ["@angular/core", "@angular/common", "@angular/platform-browser"],
-    svelte: ["svelte", "svelte-kit"],
-    node: ["express", "fastify", "koa", "nestjs", "hapi"]
+    react: ['react', 'react-dom', '@types/react', 'next', 'gatsby', 'remix'],
+    vue: ['vue', 'nuxt', '@nuxt/core', 'quasar'],
+    angular: ['@angular/core', '@angular/common', '@angular/platform-browser'],
+    svelte: ['svelte', 'svelte-kit'],
+    node: ['express', 'fastify', 'koa', 'nestjs', 'hapi'],
   };
   BUILD_SYSTEMS = [
-    { name: "vite", files: ["vite.config.ts", "vite.config.js"] },
-    { name: "webpack", files: ["webpack.config.js", "webpack.config.ts"] },
-    { name: "rollup", files: ["rollup.config.js", "rollup.config.ts"] },
-    { name: "next", files: ["next.config.js", "next.config.ts"] },
-    { name: "nuxt", files: ["nuxt.config.ts", "nuxt.config.js"] },
-    { name: "angular", files: ["angular.json"] },
-    { name: "parcel", files: [".parcelrc"] }
+    { name: 'vite', files: ['vite.config.ts', 'vite.config.js'] },
+    { name: 'webpack', files: ['webpack.config.js', 'webpack.config.ts'] },
+    { name: 'rollup', files: ['rollup.config.js', 'rollup.config.ts'] },
+    { name: 'next', files: ['next.config.js', 'next.config.ts'] },
+    { name: 'nuxt', files: ['nuxt.config.ts', 'nuxt.config.js'] },
+    { name: 'angular', files: ['angular.json'] },
+    { name: 'parcel', files: ['.parcelrc'] },
   ];
   async detectProject(rootPath) {
-    const packageJsonPath = join2(rootPath, "package.json");
+    const packageJsonPath = join2(rootPath, 'package.json');
     if (!existsSync2(packageJsonPath)) {
-      throw new Error("No package.json found in project root");
+      throw new Error('No package.json found in project root');
     }
     const packageJson = this.parsePackageJson(packageJsonPath);
     const projectType = this.determineProjectType(packageJson, rootPath);
@@ -2290,17 +2571,17 @@ class ProjectDetector {
     const hasTypeScript = this.hasTypeScript(packageJson, rootPath);
     const hasTests = this.hasTests(packageJson, rootPath);
     return {
-      name: packageJson.name || "unknown-project",
-      version: packageJson.version || "1.0.0",
-      description: packageJson.description || "",
+      name: packageJson.name || 'unknown-project',
+      version: packageJson.version || '1.0.0',
+      description: packageJson.description || '',
       type: projectType,
       frameworks,
       buildSystems,
       packageManager,
       hasTypeScript,
       hasTests,
-      isMonorepo: projectType === "monorepo",
-      root: rootPath
+      isMonorepo: projectType === 'monorepo',
+      root: rootPath,
     };
   }
   parsePackageJson(packageJsonPath) {
@@ -2314,18 +2595,22 @@ class ProjectDetector {
     const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
     const depNames = Object.keys(dependencies);
     if (packageJson.workspaces || this.hasMonorepoConfig(rootPath)) {
-      return "monorepo";
+      return 'monorepo';
     }
-    const frontendFrameworks = ["react", "vue", "angular", "svelte"];
-    const hasFrontendDeps = frontendFrameworks.some((framework) => depNames.some((dep) => dep.includes(framework)));
-    const backendFrameworks = ["express", "fastify", "koa", "nestjs", "hapi"];
-    const hasBackendDeps = backendFrameworks.some((framework) => depNames.some((dep) => dep.includes(framework)));
+    const frontendFrameworks = ['react', 'vue', 'angular', 'svelte'];
+    const hasFrontendDeps = frontendFrameworks.some(framework =>
+      depNames.some(dep => dep.includes(framework))
+    );
+    const backendFrameworks = ['express', 'fastify', 'koa', 'nestjs', 'hapi'];
+    const hasBackendDeps = backendFrameworks.some(framework =>
+      depNames.some(dep => dep.includes(framework))
+    );
     if (hasFrontendDeps && hasBackendDeps) {
-      return "fullstack";
+      return 'fullstack';
     } else if (hasFrontendDeps) {
-      return "frontend";
+      return 'frontend';
     } else {
-      return "backend";
+      return 'backend';
     }
   }
   detectFrameworks(packageJson) {
@@ -2333,7 +2618,7 @@ class ProjectDetector {
     const depNames = Object.keys(dependencies);
     const frameworks = [];
     for (const [framework, patterns] of Object.entries(this.FRAMEWORK_PATTERNS)) {
-      if (patterns.some((pattern) => depNames.some((dep) => dep.includes(pattern)))) {
+      if (patterns.some(pattern => depNames.some(dep => dep.includes(pattern)))) {
         frameworks.push(framework);
       }
     }
@@ -2352,151 +2637,167 @@ class ProjectDetector {
     return buildSystems;
   }
   detectPackageManager(rootPath) {
-    if (existsSync2(join2(rootPath, "bun.lockb"))) {
-      return "bun";
+    if (existsSync2(join2(rootPath, 'bun.lockb'))) {
+      return 'bun';
     }
-    if (existsSync2(join2(rootPath, "pnpm-lock.yaml"))) {
-      return "pnpm";
+    if (existsSync2(join2(rootPath, 'pnpm-lock.yaml'))) {
+      return 'pnpm';
     }
-    if (existsSync2(join2(rootPath, "yarn.lock"))) {
-      return "yarn";
+    if (existsSync2(join2(rootPath, 'yarn.lock'))) {
+      return 'yarn';
     }
-    return "npm";
+    return 'npm';
   }
   hasTypeScript(packageJson, rootPath) {
     const hasTypeScriptDep = Object.keys({
       ...packageJson.dependencies,
-      ...packageJson.devDependencies
-    }).some((dep) => dep === "typescript" || dep.startsWith("@types/"));
-    const hasTsConfig = existsSync2(join2(rootPath, "tsconfig.json")) || existsSync2(join2(rootPath, "jsconfig.json"));
+      ...packageJson.devDependencies,
+    }).some(dep => dep === 'typescript' || dep.startsWith('@types/'));
+    const hasTsConfig =
+      existsSync2(join2(rootPath, 'tsconfig.json')) ||
+      existsSync2(join2(rootPath, 'jsconfig.json'));
     return hasTypeScriptDep || hasTsConfig;
   }
   hasTests(packageJson, rootPath) {
-    const testScripts = packageJson.scripts ? Object.keys(packageJson.scripts).filter((key) => key.includes("test") || key.includes("spec")) : [];
+    const testScripts = packageJson.scripts
+      ? Object.keys(packageJson.scripts).filter(key => key.includes('test') || key.includes('spec'))
+      : [];
     const testDeps = Object.keys({
       ...packageJson.dependencies,
-      ...packageJson.devDependencies
-    }).filter((dep) => dep.includes("jest") || dep.includes("vitest") || dep.includes("mocha") || dep.includes("cypress") || dep.includes("playwright") || dep.includes("test") || dep.includes("bun-test"));
-    const hasTestDir = existsSync2(join2(rootPath, "test")) || existsSync2(join2(rootPath, "tests")) || existsSync2(join2(rootPath, "__tests__"));
+      ...packageJson.devDependencies,
+    }).filter(
+      dep =>
+        dep.includes('jest') ||
+        dep.includes('vitest') ||
+        dep.includes('mocha') ||
+        dep.includes('cypress') ||
+        dep.includes('playwright') ||
+        dep.includes('test') ||
+        dep.includes('bun-test')
+    );
+    const hasTestDir =
+      existsSync2(join2(rootPath, 'test')) ||
+      existsSync2(join2(rootPath, 'tests')) ||
+      existsSync2(join2(rootPath, '__tests__'));
     return testScripts.length > 0 || testDeps.length > 0 || hasTestDir;
   }
   hasMonorepoConfig(rootPath) {
     const monorepoFiles = [
-      "pnpm-workspace.yaml",
-      "nx.json",
-      "turbo.json",
-      "lerna.json",
-      "rush.json"
+      'pnpm-workspace.yaml',
+      'nx.json',
+      'turbo.json',
+      'lerna.json',
+      'rush.json',
     ];
-    return monorepoFiles.some((file) => existsSync2(join2(rootPath, file)));
+    return monorepoFiles.some(file => existsSync2(join2(rootPath, file)));
   }
 }
 
 // ../../packages/core/src/detection/tool-detector.ts
-import { existsSync as existsSync3 } from "node:fs";
-import { join as join3, basename as basename3, extname as extname3 } from "node:path";
+import { existsSync as existsSync3 } from 'node:fs';
+import { join as join3, basename as basename3, extname as extname3 } from 'node:path';
 class ToolDetector {
   TOOL_CONFIGS = [
     {
-      tool: "eslint",
+      tool: 'eslint',
       configs: [
-        ".eslintrc",
-        ".eslintrc.json",
-        ".eslintrc.yaml",
-        ".eslintrc.yml",
-        ".eslintrc.js",
-        "eslint.config.js"
+        '.eslintrc',
+        '.eslintrc.json',
+        '.eslintrc.yaml',
+        '.eslintrc.yml',
+        '.eslintrc.js',
+        'eslint.config.js',
       ],
-      versionDep: "eslint"
+      versionDep: 'eslint',
     },
     {
-      tool: "prettier",
+      tool: 'prettier',
       configs: [
-        ".prettierrc",
-        ".prettierrc.json",
-        ".prettierrc.yaml",
-        ".prettierrc.yml",
-        ".prettierrc.js",
-        ".prettierrc.toml"
+        '.prettierrc',
+        '.prettierrc.json',
+        '.prettierrc.yaml',
+        '.prettierrc.yml',
+        '.prettierrc.js',
+        '.prettierrc.toml',
       ],
-      versionDep: "prettier"
+      versionDep: 'prettier',
     },
     {
-      tool: "typescript",
-      configs: ["tsconfig.json", "jsconfig.json"],
-      versionDep: "typescript"
+      tool: 'typescript',
+      configs: ['tsconfig.json', 'jsconfig.json'],
+      versionDep: 'typescript',
     },
     {
-      tool: "jest",
+      tool: 'jest',
       configs: [
-        "jest.config.js",
-        "jest.config.ts",
-        "jest.config.json",
-        "jest.config.mjs",
-        "jest.config.cjs"
+        'jest.config.js',
+        'jest.config.ts',
+        'jest.config.json',
+        'jest.config.mjs',
+        'jest.config.cjs',
       ],
-      versionDep: "jest"
+      versionDep: 'jest',
     },
     {
-      tool: "vitest",
-      configs: ["vitest.config.ts", "vitest.config.js", "vitest.workspace.ts"],
-      versionDep: "vitest"
+      tool: 'vitest',
+      configs: ['vitest.config.ts', 'vitest.config.js', 'vitest.workspace.ts'],
+      versionDep: 'vitest',
     },
     {
-      tool: "cypress",
-      configs: ["cypress.config.js", "cypress.config.ts"],
-      versionDep: "cypress"
+      tool: 'cypress',
+      configs: ['cypress.config.js', 'cypress.config.ts'],
+      versionDep: 'cypress',
     },
     {
-      tool: "playwright",
-      configs: ["playwright.config.js", "playwright.config.ts"],
-      versionDep: "@playwright/test"
+      tool: 'playwright',
+      configs: ['playwright.config.js', 'playwright.config.ts'],
+      versionDep: '@playwright/test',
     },
     {
-      tool: "webpack",
+      tool: 'webpack',
       configs: [
-        "webpack.config.js",
-        "webpack.config.ts",
-        "webpack.config.mjs",
-        "webpack.config.cjs"
+        'webpack.config.js',
+        'webpack.config.ts',
+        'webpack.config.mjs',
+        'webpack.config.cjs',
       ],
-      versionDep: "webpack"
+      versionDep: 'webpack',
     },
     {
-      tool: "vite",
-      configs: ["vite.config.js", "vite.config.ts"],
-      versionDep: "vite"
+      tool: 'vite',
+      configs: ['vite.config.js', 'vite.config.ts'],
+      versionDep: 'vite',
     },
     {
-      tool: "rollup",
-      configs: ["rollup.config.js", "rollup.config.ts"],
-      versionDep: "rollup"
+      tool: 'rollup',
+      configs: ['rollup.config.js', 'rollup.config.ts'],
+      versionDep: 'rollup',
     },
     {
-      tool: "next",
-      configs: ["next.config.js", "next.config.ts", "next.config.mjs"],
-      versionDep: "next"
+      tool: 'next',
+      configs: ['next.config.js', 'next.config.ts', 'next.config.mjs'],
+      versionDep: 'next',
     },
     {
-      tool: "nuxt",
-      configs: ["nuxt.config.ts", "nuxt.config.js"],
-      versionDep: "nuxt"
+      tool: 'nuxt',
+      configs: ['nuxt.config.ts', 'nuxt.config.js'],
+      versionDep: 'nuxt',
     },
     {
-      tool: "tailwind",
-      configs: ["tailwind.config.js", "tailwind.config.ts"],
-      versionDep: "tailwindcss"
+      tool: 'tailwind',
+      configs: ['tailwind.config.js', 'tailwind.config.ts'],
+      versionDep: 'tailwindcss',
     },
     {
-      tool: "postcss",
-      configs: ["postcss.config.js", "postcss.config.ts", "postcss.config.mjs"],
-      versionDep: "postcss"
+      tool: 'postcss',
+      configs: ['postcss.config.js', 'postcss.config.ts', 'postcss.config.mjs'],
+      versionDep: 'postcss',
     },
     {
-      tool: "babel",
-      configs: ["babel.config.js", "babel.config.json", ".babelrc", ".babelrc.js"],
-      versionDep: "@babel/core"
-    }
+      tool: 'babel',
+      configs: ['babel.config.js', 'babel.config.json', '.babelrc', '.babelrc.js'],
+      versionDep: '@babel/core',
+    },
   ];
   async detectTools(rootPath) {
     const detectedTools = [];
@@ -2521,7 +2822,7 @@ class ToolDetector {
               path: configPath,
               format: this.getConfigFormat(configFile),
               tool: toolConfig.tool,
-              config: configContent
+              config: configContent,
             });
           } catch (error) {
             console.warn(`Failed to parse config file ${configPath}:`, error);
@@ -2541,12 +2842,12 @@ class ToolDetector {
       const configContent = this.parseConfigFile(configPath);
       return {
         name: toolConfig.tool,
-        version: version2 || "unknown",
+        version: version2 || 'unknown',
         configPath,
         configFormat: this.getConfigFormat(basename3(configPath)),
         enabled: true,
         priority: this.getToolPriority(toolConfig.tool),
-        config: configContent
+        config: configContent,
       };
     } catch (error) {
       console.warn(`Failed to detect tool ${toolConfig.tool}:`, error);
@@ -2565,40 +2866,36 @@ class ToolDetector {
   parseConfigFile(configPath) {
     const format = this.getConfigFormat(basename3(configPath));
     switch (format) {
-      case "json":
+      case 'json':
         return fileUtils.readJsonSync(configPath);
-      case "js":
-      case "ts":
+      case 'js':
+      case 'ts':
         return { _type: format, _path: configPath };
-      case "yaml":
-      case "yml":
+      case 'yaml':
+      case 'yml':
         return { _type: format, _path: configPath };
       default:
-        return { _type: "unknown", _path: configPath };
+        return { _type: 'unknown', _path: configPath };
     }
   }
   getConfigFormat(filename) {
     const ext = extname3(filename).toLowerCase();
     switch (ext) {
-      case ".json":
-        return "json";
-      case ".js":
-        return "js";
-      case ".ts":
-        return "ts";
-      case ".yaml":
-      case ".yml":
-        return "yaml";
+      case '.json':
+        return 'json';
+      case '.js':
+        return 'js';
+      case '.ts':
+        return 'ts';
+      case '.yaml':
+      case '.yml':
+        return 'yaml';
       default:
-        if (filename.endsWith(".json"))
-          return "json";
-        if (filename.endsWith(".js"))
-          return "js";
-        if (filename.endsWith(".ts"))
-          return "ts";
-        if (filename.endsWith(".yaml") || filename.endsWith(".yml"))
-          return "yaml";
-        return "json";
+        if (filename.endsWith('.json')) return 'json';
+        if (filename.endsWith('.js')) return 'js';
+        if (filename.endsWith('.ts')) return 'ts';
+        if (filename.endsWith('.yaml') || filename.endsWith('.yml')) return 'yaml';
+        return 'json';
     }
   }
   extractVersion(packageJson, depName) {
@@ -2606,7 +2903,7 @@ class ToolDetector {
       ...packageJson.dependencies,
       ...packageJson.devDependencies,
       ...packageJson.peerDependencies,
-      ...packageJson.optionalDependencies
+      ...packageJson.optionalDependencies,
     };
     return allDeps[depName] || null;
   }
@@ -2626,12 +2923,12 @@ class ToolDetector {
       postcss: 7,
       babel: 8,
       cypress: 9,
-      playwright: 9
+      playwright: 9,
     };
     return priorities[toolName] || 99;
   }
   loadPackageJson(rootPath) {
-    const packageJsonPath = join3(rootPath, "package.json");
+    const packageJsonPath = join3(rootPath, 'package.json');
     if (!existsSync3(packageJsonPath)) {
       return {};
     }
@@ -2648,67 +2945,67 @@ class ToolDetector {
 class DependencyChecker {
   COMPATIBILITY_MATRIX = {
     typescript: {
-      minimum: "4.9.0",
-      recommended: "5.3.3",
-      incompatible: ["<4.9.0"]
+      minimum: '4.9.0',
+      recommended: '5.3.3',
+      incompatible: ['<4.9.0'],
     },
     eslint: {
-      minimum: "8.0.0",
-      recommended: "8.57.0",
-      incompatible: ["<8.0.0"]
+      minimum: '8.0.0',
+      recommended: '8.57.0',
+      incompatible: ['<8.0.0'],
     },
     prettier: {
-      minimum: "2.0.0",
-      recommended: "3.0.0",
-      incompatible: ["<2.0.0"]
+      minimum: '2.0.0',
+      recommended: '3.0.0',
+      incompatible: ['<2.0.0'],
     },
     jest: {
-      minimum: "29.0.0",
-      recommended: "29.7.0",
-      incompatible: ["<29.0.0"]
+      minimum: '29.0.0',
+      recommended: '29.7.0',
+      incompatible: ['<29.0.0'],
     },
     vitest: {
-      minimum: "0.34.0",
-      recommended: "1.0.0",
-      incompatible: ["<0.34.0"]
+      minimum: '0.34.0',
+      recommended: '1.0.0',
+      incompatible: ['<0.34.0'],
     },
     webpack: {
-      minimum: "5.0.0",
-      recommended: "5.89.0",
-      incompatible: ["<5.0.0"]
+      minimum: '5.0.0',
+      recommended: '5.89.0',
+      incompatible: ['<5.0.0'],
     },
     vite: {
-      minimum: "4.0.0",
-      recommended: "5.0.0",
-      incompatible: ["<4.0.0"]
+      minimum: '4.0.0',
+      recommended: '5.0.0',
+      incompatible: ['<4.0.0'],
     },
     react: {
-      minimum: "16.8.0",
-      recommended: "18.2.0",
-      incompatible: ["<16.8.0"]
+      minimum: '16.8.0',
+      recommended: '18.2.0',
+      incompatible: ['<16.8.0'],
     },
     next: {
-      minimum: "13.0.0",
-      recommended: "14.0.0",
-      incompatible: ["<13.0.0"]
-    }
+      minimum: '13.0.0',
+      recommended: '14.0.0',
+      incompatible: ['<13.0.0'],
+    },
   };
   VERSION_CONFLICTS = {
-    "typescript@<4.9.0": ["next@>=13.0.0", "react@>=18.0.0"],
-    "typescript@>=5.0.0": ["some-old-framework@<2.0.0"],
-    "react@<16.8.0": ["react-hooks@>=1.0.0"],
-    "react@>=18.0.0": ["some-old-library@<1.0.0"],
-    "webpack@<5.0.0": ["webpack-dev-server@>=4.0.0"],
-    "vite@<3.0.0": ["@vitejs/plugin-react@>=2.0.0"]
+    'typescript@<4.9.0': ['next@>=13.0.0', 'react@>=18.0.0'],
+    'typescript@>=5.0.0': ['some-old-framework@<2.0.0'],
+    'react@<16.8.0': ['react-hooks@>=1.0.0'],
+    'react@>=18.0.0': ['some-old-library@<1.0.0'],
+    'webpack@<5.0.0': ['webpack-dev-server@>=4.0.0'],
+    'vite@<3.0.0': ['@vitejs/plugin-react@>=2.0.0'],
   };
   async detectDependencies(rootPath) {
     const packageJson = this.loadPackageJson(rootPath);
     const dependencies = [];
     const depTypes = [
-      "dependencies",
-      "devDependencies",
-      "peerDependencies",
-      "optionalDependencies"
+      'dependencies',
+      'devDependencies',
+      'peerDependencies',
+      'optionalDependencies',
     ];
     for (const depType of depTypes) {
       if (packageJson[depType]) {
@@ -2720,7 +3017,7 @@ class DependencyChecker {
             version: version2,
             type: depType,
             compatibility,
-            issues
+            issues,
           });
         }
       }
@@ -2732,7 +3029,7 @@ class DependencyChecker {
     const recommendations = [];
     let compatible = true;
     for (const dep of deps) {
-      if (dep.compatibility === "incompatible") {
+      if (dep.compatibility === 'incompatible') {
         compatible = false;
         issues.push(...dep.issues);
       }
@@ -2747,32 +3044,32 @@ class DependencyChecker {
     return {
       compatible,
       issues: [...new Set(issues)],
-      recommendations: [...new Set(recommendations)]
+      recommendations: [...new Set(recommendations)],
     };
   }
   getMinimumVersion(tool) {
-    return this.COMPATIBILITY_MATRIX[tool]?.minimum || "0.0.0";
+    return this.COMPATIBILITY_MATRIX[tool]?.minimum || '0.0.0';
   }
   getRecommendedVersion(tool) {
-    return this.COMPATIBILITY_MATRIX[tool]?.recommended || "latest";
+    return this.COMPATIBILITY_MATRIX[tool]?.recommended || 'latest';
   }
   checkDependencyCompatibility(name, version2) {
     const matrix = this.COMPATIBILITY_MATRIX[name];
     if (!matrix) {
-      return "unknown";
+      return 'unknown';
     }
     const cleanVersion = this.cleanVersion(version2);
     const minVersion = matrix.minimum;
     const incompatibleVersions = matrix.incompatible || [];
     for (const incompatible of incompatibleVersions) {
       if (this.satisfiesVersion(cleanVersion, incompatible)) {
-        return "incompatible";
+        return 'incompatible';
       }
     }
     if (this.compareVersions(cleanVersion, minVersion) < 0) {
-      return "incompatible";
+      return 'incompatible';
     }
-    return "compatible";
+    return 'compatible';
   }
   getCompatibilityIssues(name, version2) {
     const issues = [];
@@ -2789,16 +3086,18 @@ class DependencyChecker {
   }
   checkVersionConflicts(deps) {
     const conflicts = [];
-    const depMap = new Map(deps.map((d) => [d.name, d.version]));
+    const depMap = new Map(deps.map(d => [d.name, d.version]));
     for (const [conflictPattern, conflictingDeps] of Object.entries(this.VERSION_CONFLICTS)) {
-      const [depName, versionRange] = conflictPattern.split("@");
+      const [depName, versionRange] = conflictPattern.split('@');
       const currentDep = depMap.get(depName);
       if (currentDep && this.satisfiesVersion(currentDep, versionRange)) {
         for (const conflictingDep of conflictingDeps) {
-          const [conflictingName, conflictingRange] = conflictingDep.split("@");
+          const [conflictingName, conflictingRange] = conflictingDep.split('@');
           const conflictingVersion = depMap.get(conflictingName);
           if (conflictingVersion && this.satisfiesVersion(conflictingVersion, conflictingRange)) {
-            conflicts.push(`Version conflict: ${depName}@${currentDep} conflicts with ${conflictingName}@${conflictingVersion}`);
+            conflicts.push(
+              `Version conflict: ${depName}@${currentDep} conflicts with ${conflictingName}@${conflictingVersion}`
+            );
           }
         }
       }
@@ -2809,7 +3108,7 @@ class DependencyChecker {
     const recommendations = [];
     for (const dep of deps) {
       const matrix = this.COMPATIBILITY_MATRIX[dep.name];
-      if (matrix && dep.compatibility === "incompatible") {
+      if (matrix && dep.compatibility === 'incompatible') {
         const recommended = matrix.recommended;
         recommendations.push(`Upgrade ${dep.name} from ${dep.version} to ${recommended}`);
       }
@@ -2817,34 +3116,37 @@ class DependencyChecker {
     return recommendations;
   }
   cleanVersion(version2) {
-    return version2.replace(/^[\^~]/, "").replace(/-.*$/, "").split(" ")[0];
+    return version2
+      .replace(/^[\^~]/, '')
+      .replace(/-.*$/, '')
+      .split(' ')[0];
   }
   compareVersions(version1, version2) {
-    const v1 = version1.split(".").map(Number);
-    const v2 = version2.split(".").map(Number);
-    for (let i = 0;i < Math.max(v1.length, v2.length); i++) {
+    const v1 = version1.split('.').map(Number);
+    const v2 = version2.split('.').map(Number);
+    for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
       const num1 = v1[i] || 0;
       const num2 = v2[i] || 0;
-      if (num1 > num2)
-        return 1;
-      if (num1 < num2)
-        return -1;
+      if (num1 > num2) return 1;
+      if (num1 < num2) return -1;
     }
     return 0;
   }
   satisfiesVersion(version2, range) {
     const cleanVersion = this.cleanVersion(version2);
-    if (range.startsWith(">=")) {
+    if (range.startsWith('>=')) {
       return this.compareVersions(cleanVersion, range.substring(2)) >= 0;
-    } else if (range.startsWith(">")) {
+    } else if (range.startsWith('>')) {
       return this.compareVersions(cleanVersion, range.substring(1)) > 0;
-    } else if (range.startsWith("<=")) {
+    } else if (range.startsWith('<=')) {
       return this.compareVersions(cleanVersion, range.substring(2)) <= 0;
-    } else if (range.startsWith("<")) {
+    } else if (range.startsWith('<')) {
       return this.compareVersions(cleanVersion, range.substring(1)) < 0;
-    } else if (range.includes("-")) {
-      const [min, max] = range.split("-");
-      return this.compareVersions(cleanVersion, min) >= 0 && this.compareVersions(cleanVersion, max) <= 0;
+    } else if (range.includes('-')) {
+      const [min, max] = range.split('-');
+      return (
+        this.compareVersions(cleanVersion, min) >= 0 && this.compareVersions(cleanVersion, max) <= 0
+      );
     } else {
       return cleanVersion === range;
     }
@@ -2860,44 +3162,39 @@ class DependencyChecker {
 }
 
 // ../../packages/core/src/detection/structure-analyzer.ts
-import { existsSync as existsSync4, readdirSync as readdirSync3, readFileSync as readFileSync4 } from "node:fs";
-import { join as join4, relative as relative2 } from "node:path";
+import {
+  existsSync as existsSync4,
+  readdirSync as readdirSync3,
+  readFileSync as readFileSync4,
+} from 'node:fs';
+import { join as join4, relative as relative2 } from 'node:path';
 class StructureAnalyzer {
   MONOREPO_PATTERNS = {
-    npm: ["package.json", "workspaces"],
-    yarn: ["package.json", "workspaces"],
-    pnpm: ["pnpm-workspace.yaml"],
-    nx: ["nx.json"],
-    turbo: ["turbo.json"],
-    lerna: ["lerna.json"],
-    rush: ["rush.json"]
+    npm: ['package.json', 'workspaces'],
+    yarn: ['package.json', 'workspaces'],
+    pnpm: ['pnpm-workspace.yaml'],
+    nx: ['nx.json'],
+    turbo: ['turbo.json'],
+    lerna: ['lerna.json'],
+    rush: ['rush.json'],
   };
   SOURCE_PATTERNS = [
-    "src",
-    "lib",
-    "source",
-    "app",
-    "components",
-    "pages",
-    "views",
-    "services",
-    "utils",
-    "helpers",
-    "hooks",
-    "types",
-    "interfaces"
+    'src',
+    'lib',
+    'source',
+    'app',
+    'components',
+    'pages',
+    'views',
+    'services',
+    'utils',
+    'helpers',
+    'hooks',
+    'types',
+    'interfaces',
   ];
-  TEST_PATTERNS = [
-    "test",
-    "tests",
-    "__tests__",
-    "spec",
-    "specs",
-    "e2e",
-    "integration",
-    "unit"
-  ];
-  CONFIG_PATTERNS = ["config", "configs", ".config", "configuration", "conf"];
+  TEST_PATTERNS = ['test', 'tests', '__tests__', 'spec', 'specs', 'e2e', 'integration', 'unit'];
+  CONFIG_PATTERNS = ['config', 'configs', '.config', 'configuration', 'conf'];
   async analyzeStructure(rootPath) {
     const isMonorepo = this.detectMonorepo(rootPath);
     const workspaceType = isMonorepo ? await this.detectMonorepoType(rootPath) : null;
@@ -2911,7 +3208,7 @@ class StructureAnalyzer {
       packages,
       sourceDirectories,
       testDirectories,
-      configDirectories
+      configDirectories,
     });
     return {
       isMonorepo,
@@ -2920,35 +3217,34 @@ class StructureAnalyzer {
       sourceDirectories,
       testDirectories,
       configDirectories,
-      complexity
+      complexity,
     };
   }
   async detectMonorepoType(rootPath) {
     for (const [type, patterns] of Object.entries(this.MONOREPO_PATTERNS)) {
-      if (type === "npm" || type === "yarn")
-        continue;
+      if (type === 'npm' || type === 'yarn') continue;
       for (const pattern of patterns) {
         if (existsSync4(join4(rootPath, pattern))) {
           return type;
         }
       }
     }
-    const packageJsonPath = join4(rootPath, "package.json");
+    const packageJsonPath = join4(rootPath, 'package.json');
     if (existsSync4(packageJsonPath)) {
       try {
         const pkgJson = fileUtils.readJsonSync(packageJsonPath);
         if (pkgJson.workspaces) {
           const packageManager = this.detectPackageManager(rootPath);
-          return packageManager === "yarn" ? "yarn" : "npm";
+          return packageManager === 'yarn' ? 'yarn' : 'npm';
         }
       } catch (error) {
-        console.warn("Failed to read package.json for monorepo type detection:", error);
+        console.warn('Failed to read package.json for monorepo type detection:', error);
       }
     }
     return null;
   }
   detectMonorepo(rootPath) {
-    const packageJsonPath = join4(rootPath, "package.json");
+    const packageJsonPath = join4(rootPath, 'package.json');
     if (existsSync4(packageJsonPath)) {
       try {
         const pkgJson = fileUtils.readJsonSync(packageJsonPath);
@@ -2956,21 +3252,21 @@ class StructureAnalyzer {
           return true;
         }
       } catch (error) {
-        console.warn("Failed to read package.json:", error);
+        console.warn('Failed to read package.json:', error);
       }
     }
     const monorepoFiles = [
-      "pnpm-workspace.yaml",
-      "nx.json",
-      "turbo.json",
-      "lerna.json",
-      "rush.json"
+      'pnpm-workspace.yaml',
+      'nx.json',
+      'turbo.json',
+      'lerna.json',
+      'rush.json',
     ];
-    return monorepoFiles.some((file) => existsSync4(join4(rootPath, file)));
+    return monorepoFiles.some(file => existsSync4(join4(rootPath, file)));
   }
   async detectPackages(rootPath) {
     const packages = [];
-    const packageJsonPath = join4(rootPath, "package.json");
+    const packageJsonPath = join4(rootPath, 'package.json');
     if (existsSync4(packageJsonPath)) {
       try {
         const pkgJson = fileUtils.readJsonSync(packageJsonPath);
@@ -2984,16 +3280,20 @@ class StructureAnalyzer {
         }
       } catch (error) {}
     }
-    const pnpmWorkspacePath = join4(rootPath, "pnpm-workspace.yaml");
+    const pnpmWorkspacePath = join4(rootPath, 'pnpm-workspace.yaml');
     if (existsSync4(pnpmWorkspacePath)) {
       try {
-        const content = readFileSync4(pnpmWorkspacePath, "utf-8");
+        const content = readFileSync4(pnpmWorkspacePath, 'utf-8');
         const packagesMatch = content.match(/packages:\s*\n((?:\s*-\s*[^\n]+\n?)*)/);
         if (packagesMatch) {
-          const packageLines = packagesMatch[1].split(`
-`).filter((line) => line.trim());
+          const packageLines = packagesMatch[1]
+            .split(
+              `
+`
+            )
+            .filter(line => line.trim());
           for (const line of packageLines) {
-            const packagePath = line.replace(/^\s*-\s*/, "").trim();
+            const packagePath = line.replace(/^\s*-\s*/, '').trim();
             if (packagePath) {
               packages.push(packagePath);
             }
@@ -3002,22 +3302,22 @@ class StructureAnalyzer {
       } catch (error) {}
     }
     const allPackageDirs = await this.findPackageDirectories(rootPath);
-    packages.push(...allPackageDirs.filter((dir) => dir !== "."));
+    packages.push(...allPackageDirs.filter(dir => dir !== '.'));
     return [...new Set(packages)];
   }
   async findPackageDirectories(rootPath) {
     const packageDirs = [];
-    const scanDirectory = (dir) => {
+    const scanDirectory = dir => {
       const entries = readdirSync3(dir, { withFileTypes: true });
       for (const entry of entries) {
         if (entry.isDirectory()) {
           const fullPath = join4(dir, entry.name);
-          const packageJsonPath = join4(fullPath, "package.json");
+          const packageJsonPath = join4(fullPath, 'package.json');
           if (existsSync4(packageJsonPath)) {
             const relativePath = relative2(rootPath, fullPath);
             packageDirs.push(relativePath);
           }
-          if (entry.name !== "node_modules") {
+          if (entry.name !== 'node_modules') {
             scanDirectory(fullPath);
           }
         }
@@ -3029,17 +3329,23 @@ class StructureAnalyzer {
   async findDirectoriesByPatterns(rootPath, patterns) {
     const directories = [];
     const scanDirectory = (dir, currentDepth = 0) => {
-      if (currentDepth > 3)
-        return;
+      if (currentDepth > 3) return;
       const entries = readdirSync3(dir, { withFileTypes: true });
       for (const entry of entries) {
         if (entry.isDirectory()) {
           const fullPath = join4(dir, entry.name);
           const relativePath = relative2(rootPath, fullPath);
-          if (patterns.some((pattern) => entry.name === pattern || entry.name.includes(pattern) || entry.name.toLowerCase().includes(pattern.toLowerCase()))) {
+          if (
+            patterns.some(
+              pattern =>
+                entry.name === pattern ||
+                entry.name.includes(pattern) ||
+                entry.name.toLowerCase().includes(pattern.toLowerCase())
+            )
+          ) {
             directories.push(relativePath);
           }
-          if (entry.name !== "node_modules" && !entry.name.startsWith(".")) {
+          if (entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
             scanDirectory(fullPath, currentDepth + 1);
           }
         }
@@ -3049,26 +3355,26 @@ class StructureAnalyzer {
     return [...new Set(directories)];
   }
   detectPackageManager(rootPath) {
-    const packageJsonPath = join4(rootPath, "package.json");
+    const packageJsonPath = join4(rootPath, 'package.json');
     if (!existsSync4(packageJsonPath)) {
-      return "npm";
+      return 'npm';
     }
-    if (existsSync4(join4(rootPath, "bun.lockb"))) {
-      return "bun";
+    if (existsSync4(join4(rootPath, 'bun.lockb'))) {
+      return 'bun';
     }
-    if (existsSync4(join4(rootPath, "pnpm-lock.yaml"))) {
-      return "pnpm";
+    if (existsSync4(join4(rootPath, 'pnpm-lock.yaml'))) {
+      return 'pnpm';
     }
-    if (existsSync4(join4(rootPath, "yarn.lock"))) {
-      return "yarn";
+    if (existsSync4(join4(rootPath, 'yarn.lock'))) {
+      return 'yarn';
     }
-    if (existsSync4(join4(rootPath, "bun.lock"))) {
-      return "bun";
+    if (existsSync4(join4(rootPath, 'bun.lock'))) {
+      return 'bun';
     }
-    if (existsSync4(join4(rootPath, "package-lock.json"))) {
-      return "npm";
+    if (existsSync4(join4(rootPath, 'package-lock.json'))) {
+      return 'npm';
     }
-    return "npm";
+    return 'npm';
   }
   calculateComplexity(structure) {
     let score = 0;
@@ -3097,23 +3403,23 @@ class StructureAnalyzer {
     } else if (structure.configDirectories.length > 1) {
       score += 1;
     }
-    if (structure.workspaceType === "nx" || structure.workspaceType === "rush") {
+    if (structure.workspaceType === 'nx' || structure.workspaceType === 'rush') {
       score += 2;
-    } else if (structure.workspaceType === "turbo" || structure.workspaceType === "lerna") {
+    } else if (structure.workspaceType === 'turbo' || structure.workspaceType === 'lerna') {
       score += 1;
     }
     if (score >= 8) {
-      return "complex";
+      return 'complex';
     } else if (score >= 4) {
-      return "medium";
+      return 'medium';
     } else {
-      return "simple";
+      return 'simple';
     }
   }
 }
 
 // ../../packages/core/src/detection/detection-cache.ts
-import { existsSync as existsSync5, statSync as statSync3 } from "fs";
+import { existsSync as existsSync5, statSync as statSync3 } from 'fs';
 
 class DetectionCache {
   fileCache;
@@ -3123,10 +3429,10 @@ class DetectionCache {
   defaultTTL;
   maxCacheSize;
   constructor(options = {}) {
-    this.fileCache = new Map;
-    this.configCache = new Map;
-    this.dependencyCache = new Map;
-    this.resultCache = new Map;
+    this.fileCache = new Map();
+    this.configCache = new Map();
+    this.dependencyCache = new Map();
+    this.resultCache = new Map();
     this.defaultTTL = options.ttl ?? 5 * 60 * 1000;
     this.maxCacheSize = options.maxSize ?? 1000;
   }
@@ -3155,7 +3461,7 @@ class DetectionCache {
     this.fileCache.set(filePath, {
       data: content,
       timestamp: Date.now(),
-      mtime: stats.mtimeMs
+      mtime: stats.mtimeMs,
     });
   }
   getCachedConfig(key) {
@@ -3173,7 +3479,7 @@ class DetectionCache {
     this.ensureCacheSize(this.configCache);
     this.configCache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
   getCachedDependencies(rootPath) {
@@ -3191,7 +3497,7 @@ class DetectionCache {
     this.ensureCacheSize(this.dependencyCache);
     this.dependencyCache.set(rootPath, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
   getCachedResult(rootPath) {
@@ -3224,7 +3530,7 @@ class DetectionCache {
     this.resultCache.set(rootPath, {
       data: result,
       timestamp: Date.now(),
-      mtime
+      mtime,
     });
   }
   invalidate(rootPath) {
@@ -3251,20 +3557,20 @@ class DetectionCache {
     return {
       fileCache: {
         size: this.fileCache.size,
-        maxSize: this.maxCacheSize
+        maxSize: this.maxCacheSize,
       },
       configCache: {
         size: this.configCache.size,
-        maxSize: this.maxCacheSize
+        maxSize: this.maxCacheSize,
       },
       dependencyCache: {
         size: this.dependencyCache.size,
-        maxSize: this.maxCacheSize
+        maxSize: this.maxCacheSize,
       },
       resultCache: {
         size: this.resultCache.size,
-        maxSize: this.maxCacheSize
-      }
+        maxSize: this.maxCacheSize,
+      },
     };
   }
   ensureCacheSize(cache) {
@@ -3285,11 +3591,11 @@ class AutoConfigurationDetectionEngine {
   structureAnalyzer;
   cache;
   constructor(cache) {
-    this.projectDetector = new ProjectDetector;
-    this.toolDetector = new ToolDetector;
-    this.dependencyChecker = new DependencyChecker;
-    this.structureAnalyzer = new StructureAnalyzer;
-    this.cache = cache ?? new DetectionCache;
+    this.projectDetector = new ProjectDetector();
+    this.toolDetector = new ToolDetector();
+    this.dependencyChecker = new DependencyChecker();
+    this.structureAnalyzer = new StructureAnalyzer();
+    this.cache = cache ?? new DetectionCache();
   }
   async detectProject(rootPath) {
     return this.projectDetector.detectProject(rootPath);
@@ -3317,11 +3623,25 @@ class AutoConfigurationDetectionEngine {
         this.toolDetector.detectTools(rootPath),
         this.toolDetector.detectConfigs(rootPath),
         this.dependencyChecker.detectDependencies(rootPath),
-        this.structureAnalyzer.analyzeStructure(rootPath)
+        this.structureAnalyzer.analyzeStructure(rootPath),
       ]);
       const compatibility = await this.dependencyChecker.checkCompatibility(dependencies);
-      const issues = this.generateIssues(project, tools, configs, dependencies, structure, compatibility);
-      const recommendations = this.generateRecommendations(project, tools, configs, dependencies, structure, compatibility);
+      const issues = this.generateIssues(
+        project,
+        tools,
+        configs,
+        dependencies,
+        structure,
+        compatibility
+      );
+      const recommendations = this.generateRecommendations(
+        project,
+        tools,
+        configs,
+        dependencies,
+        structure,
+        compatibility
+      );
       const result = {
         project,
         tools,
@@ -3330,7 +3650,7 @@ class AutoConfigurationDetectionEngine {
         structure,
         issues,
         recommendations,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
       this.cache.setCachedResult(rootPath, result);
       return result;
@@ -3350,59 +3670,59 @@ class AutoConfigurationDetectionEngine {
   }
   generateIssues(project, tools, configs, dependencies, structure, compatibility) {
     const issues = [];
-    if (project.type === "unknown") {
-      issues.push("Could not determine project type");
+    if (project.type === 'unknown') {
+      issues.push('Could not determine project type');
     }
-    const enabledTools = tools.filter((t) => t.enabled);
+    const enabledTools = tools.filter(t => t.enabled);
     if (enabledTools.length === 0) {
-      issues.push("No development tools detected");
+      issues.push('No development tools detected');
     }
     if (compatibility.issues.length > 0) {
       issues.push(...compatibility.issues);
     }
     if (structure.sourceDirectories.length === 0) {
-      issues.push("No source directories found");
+      issues.push('No source directories found');
     }
     if (structure.testDirectories.length === 0) {
-      issues.push("No test directories found - consider adding tests");
+      issues.push('No test directories found - consider adding tests');
     }
-    const hasLinting = tools.some((t) => t.name === "eslint" && t.enabled);
-    const hasFormatting = tools.some((t) => t.name === "prettier" && t.enabled);
+    const hasLinting = tools.some(t => t.name === 'eslint' && t.enabled);
+    const hasFormatting = tools.some(t => t.name === 'prettier' && t.enabled);
     if (!hasLinting) {
-      issues.push("No linting tool detected - consider adding ESLint");
+      issues.push('No linting tool detected - consider adding ESLint');
     }
     if (!hasFormatting) {
-      issues.push("No formatting tool detected - consider adding Prettier");
+      issues.push('No formatting tool detected - consider adding Prettier');
     }
     return issues;
   }
   generateRecommendations(project, tools, configs, dependencies, structure, compatibility) {
     const recommendations = [];
     recommendations.push(...compatibility.recommendations);
-    const toolNames = tools.map((t) => t.name);
-    if (!toolNames.includes("typescript") && project.hasTypeScript) {
-      recommendations.push("Add TypeScript configuration");
+    const toolNames = tools.map(t => t.name);
+    if (!toolNames.includes('typescript') && project.hasTypeScript) {
+      recommendations.push('Add TypeScript configuration');
     }
-    if (!toolNames.includes("vitest") && !toolNames.includes("jest")) {
-      recommendations.push("Add a testing framework (Vitest or Jest)");
+    if (!toolNames.includes('vitest') && !toolNames.includes('jest')) {
+      recommendations.push('Add a testing framework (Vitest or Jest)');
     }
-    if (!toolNames.includes("eslint")) {
-      recommendations.push("Add ESLint for code linting and quality checks");
+    if (!toolNames.includes('eslint')) {
+      recommendations.push('Add ESLint for code linting and quality checks');
     }
-    if (!toolNames.includes("prettier")) {
-      recommendations.push("Add Prettier for consistent code formatting");
+    if (!toolNames.includes('prettier')) {
+      recommendations.push('Add Prettier for consistent code formatting');
     }
-    if (structure.complexity === "complex" && !structure.isMonorepo) {
-      recommendations.push("Consider converting to monorepo structure for better organization");
+    if (structure.complexity === 'complex' && !structure.isMonorepo) {
+      recommendations.push('Consider converting to monorepo structure for better organization');
     }
-    if (structure.packages.length > 5 && structure.workspaceType === "npm") {
-      recommendations.push("Consider using pnpm or yarn workspaces for better performance");
+    if (structure.packages.length > 5 && structure.workspaceType === 'npm') {
+      recommendations.push('Consider using pnpm or yarn workspaces for better performance');
     }
-    if (toolNames.includes("eslint") && !toolNames.includes("prettier")) {
-      recommendations.push("Add Prettier for consistent code formatting");
+    if (toolNames.includes('eslint') && !toolNames.includes('prettier')) {
+      recommendations.push('Add Prettier for consistent code formatting');
     }
     if (structure.testDirectories.length === 0) {
-      recommendations.push("Set up testing structure with unit and integration tests");
+      recommendations.push('Set up testing structure with unit and integration tests');
     }
     return recommendations;
   }
@@ -3411,24 +3731,24 @@ class AutoConfigurationDetectionEngine {
 // ../../packages/core/src/index.ts
 var useCoreStore = create((set, get) => ({
   currentProject: null,
-  plugins: new Map,
+  plugins: new Map(),
   isLoading: false,
   error: null,
   actions: {
-    setProject: (project) => set({ currentProject: project }),
-    registerPlugin: (plugin) => {
+    setProject: project => set({ currentProject: project }),
+    registerPlugin: plugin => {
       const plugins = new Map(get().plugins);
       plugins.set(plugin.name, plugin);
       set({ plugins });
     },
-    setLoading: (loading) => set({ isLoading: loading }),
-    setError: (error) => set({ error }),
-    clearError: () => set({ error: null })
-  }
+    setLoading: loading => set({ isLoading: loading }),
+    setError: error => set({ error }),
+    clearError: () => set({ error: null }),
+  },
 }));
 
 class PluginManager {
-  plugins = new Map;
+  plugins = new Map();
   register(plugin) {
     this.plugins.set(plugin.name, plugin);
   }
@@ -3453,10 +3773,10 @@ class PluginManager {
     return plugin.validate(config);
   }
 }
-var pluginManager = new PluginManager;
+var pluginManager = new PluginManager();
 
 // src/commands/setup.ts
-import { writeFileSync as writeFileSync2, existsSync as existsSync6 } from "node:fs";
+import { writeFileSync as writeFileSync2, existsSync as existsSync6 } from 'node:fs';
 
 class SetupCommand extends BaseCommand {
   constructor(options) {
@@ -3466,10 +3786,10 @@ class SetupCommand extends BaseCommand {
     return this.options;
   }
   async execute() {
-    this.log("Setting up DevQuality CLI...");
-    const configPath = this.options.config ?? ".dev-quality.json";
+    this.log('Setting up DevQuality CLI...');
+    const configPath = this.options.config ?? '.dev-quality.json';
     if (existsSync6(configPath) && !this.setupOptions.force) {
-      this.log("Configuration file already exists. Use --force to overwrite.");
+      this.log('Configuration file already exists. Use --force to overwrite.');
       return;
     }
     const config = await this.createConfiguration();
@@ -3477,22 +3797,26 @@ class SetupCommand extends BaseCommand {
       await this.interactiveSetup();
     }
     this.saveConfiguration(config, configPath);
-    this.log("DevQuality CLI setup completed successfully!");
+    this.log('DevQuality CLI setup completed successfully!');
   }
   async createConfiguration() {
-    const detectionEngine = new AutoConfigurationDetectionEngine;
+    const detectionEngine = new AutoConfigurationDetectionEngine();
     const rootPath = process.cwd();
     try {
-      this.log("Auto-detecting project configuration...");
+      this.log('Auto-detecting project configuration...');
       const detectionResult = await detectionEngine.detectAll(rootPath);
-      this.log(`Detected project: ${detectionResult.project.name} (${detectionResult.project.type})`);
-      this.log(`Found ${detectionResult.tools.length} tools and ${detectionResult.dependencies.length} dependencies`);
-      const tools = detectionResult.tools.map((tool) => ({
+      this.log(
+        `Detected project: ${detectionResult.project.name} (${detectionResult.project.type})`
+      );
+      this.log(
+        `Found ${detectionResult.tools.length} tools and ${detectionResult.dependencies.length} dependencies`
+      );
+      const tools = detectionResult.tools.map(tool => ({
         name: tool.name,
         version: tool.version,
         enabled: tool.enabled,
         config: tool.config,
-        priority: tool.priority
+        priority: tool.priority,
       }));
       if (tools.length === 0) {
         tools.push(...this.getDefaultTools());
@@ -3505,17 +3829,17 @@ class SetupCommand extends BaseCommand {
         frameworks: detectionResult.project.frameworks,
         tools,
         paths: {
-          source: detectionResult.structure.sourceDirectories[0] ?? "./src",
-          tests: detectionResult.structure.testDirectories[0] ?? "./tests",
-          config: detectionResult.structure.configDirectories[0] ?? "./configs",
-          output: "./output"
+          source: detectionResult.structure.sourceDirectories[0] ?? './src',
+          tests: detectionResult.structure.testDirectories[0] ?? './tests',
+          config: detectionResult.structure.configDirectories[0] ?? './configs',
+          output: './output',
         },
         settings: {
           verbose: false,
           quiet: false,
           json: false,
-          cache: true
-        }
+          cache: true,
+        },
       };
     } catch (error) {
       this.log(`Auto-detection failed: ${error}. Using default configuration.`);
@@ -3523,21 +3847,21 @@ class SetupCommand extends BaseCommand {
     }
   }
   createDefaultConfiguration() {
-    const packageJsonPath = pathUtils.getConfigPath("package.json");
-    let projectName = "my-project";
-    let projectVersion = "1.0.0";
-    let projectDescription = "A project analyzed by DevQuality";
-    let projectType = "backend";
+    const packageJsonPath = pathUtils.getConfigPath('package.json');
+    let projectName = 'my-project';
+    let projectVersion = '1.0.0';
+    let projectDescription = 'A project analyzed by DevQuality';
+    let projectType = 'backend';
     if (existsSync6(packageJsonPath)) {
       try {
         const packageJson = fileUtils.readJsonSync(packageJsonPath);
         projectName = packageJson.name ?? projectName;
         projectVersion = packageJson.version ?? projectVersion;
         projectDescription = packageJson.description ?? projectDescription;
-        if (packageJson.dependencies?.["react"] || packageJson.devDependencies?.["react"]) {
-          projectType = "frontend";
+        if (packageJson.dependencies?.['react'] || packageJson.devDependencies?.['react']) {
+          projectType = 'frontend';
         } else if (packageJson.workspaces) {
-          projectType = "monorepo";
+          projectType = 'monorepo';
         }
       } catch (error) {
         this.logVerbose(`Could not read package.json: ${error}`);
@@ -3551,59 +3875,59 @@ class SetupCommand extends BaseCommand {
       frameworks: [],
       tools: this.getDefaultTools(),
       paths: {
-        source: "./src",
-        tests: "./tests",
-        config: "./configs",
-        output: "./output"
+        source: './src',
+        tests: './tests',
+        config: './configs',
+        output: './output',
       },
       settings: {
         verbose: false,
         quiet: false,
         json: false,
-        cache: true
-      }
+        cache: true,
+      },
     };
   }
   getDefaultTools() {
     return [
       {
-        name: "typescript",
-        version: "5.3.3",
+        name: 'typescript',
+        version: '5.3.3',
         enabled: true,
         config: {},
-        priority: 1
+        priority: 1,
       },
       {
-        name: "eslint",
-        version: "latest",
+        name: 'eslint',
+        version: 'latest',
         enabled: true,
         config: {},
-        priority: 2
+        priority: 2,
       },
       {
-        name: "prettier",
-        version: "latest",
+        name: 'prettier',
+        version: 'latest',
         enabled: true,
         config: {},
-        priority: 3
-      }
+        priority: 3,
+      },
     ];
   }
   async interactiveSetup() {
-    this.log("Interactive setup mode - coming soon!");
-    this.log("For now, using default configuration.");
+    this.log('Interactive setup mode - coming soon!');
+    this.log('For now, using default configuration.');
   }
   saveConfiguration(config, configPath) {
     try {
       const content = JSON.stringify(config, null, 2);
-      writeFileSync2(configPath, content, "utf-8");
+      writeFileSync2(configPath, content, 'utf-8');
       this.log(`Configuration saved to: ${configPath}`);
     } catch (error) {
       throw new Error(`Failed to save configuration: ${error}`);
     }
   }
   async loadConfig() {
-    const path = this.options.config ?? ".dev-quality.json";
+    const path = this.options.config ?? '.dev-quality.json';
     if (!existsSync6(path)) {
       throw new Error(`Configuration file not found: ${path}`);
     }
@@ -3636,60 +3960,60 @@ class ConfigCommand extends BaseCommand {
   async showConfig() {
     try {
       const config = await this.loadConfig();
-      this.log("Current configuration:");
+      this.log('Current configuration:');
       process.stdout.write(this.formatOutput(config));
     } catch {
-      this.log(`No configuration found. Run 'dev-quality setup' to create one.`, "warn");
+      this.log(`No configuration found. Run 'dev-quality setup' to create one.`, 'warn');
     }
   }
   async editConfig() {
-    this.log("Edit configuration - opening in default editor...");
-    this.log("This feature will be implemented in a future version.");
+    this.log('Edit configuration - opening in default editor...');
+    this.log('This feature will be implemented in a future version.');
   }
   async resetConfig() {
-    const configPath = this.options.config ?? ".dev-quality.json";
-    this.log("Resetting configuration to defaults...");
+    const configPath = this.options.config ?? '.dev-quality.json';
+    this.log('Resetting configuration to defaults...');
     const defaultConfig = {
-      name: "my-project",
-      version: "1.0.0",
-      description: "A project analyzed by DevQuality",
-      type: "backend",
+      name: 'my-project',
+      version: '1.0.0',
+      description: 'A project analyzed by DevQuality',
+      type: 'backend',
       frameworks: [],
       tools: [
         {
-          name: "typescript",
-          version: "5.3.3",
+          name: 'typescript',
+          version: '5.3.3',
           enabled: true,
           config: {},
-          priority: 1
+          priority: 1,
         },
         {
-          name: "eslint",
-          version: "latest",
+          name: 'eslint',
+          version: 'latest',
           enabled: true,
           config: {},
-          priority: 2
+          priority: 2,
         },
         {
-          name: "prettier",
-          version: "latest",
+          name: 'prettier',
+          version: 'latest',
           enabled: true,
           config: {},
-          priority: 3
-        }
+          priority: 3,
+        },
       ],
       paths: {
-        source: "./src",
-        tests: "./tests",
-        config: "./configs",
-        output: "./output"
+        source: './src',
+        tests: './tests',
+        config: './configs',
+        output: './output',
       },
       settings: {
         verbose: false,
         quiet: false,
         json: false,
-        cache: true
-      }
+        cache: true,
+      },
     };
     try {
       fileUtils.writeJsonSync(configPath, defaultConfig);
@@ -3699,7 +4023,7 @@ class ConfigCommand extends BaseCommand {
     }
   }
   async loadConfig() {
-    const path = this.options.config ?? ".dev-quality.json";
+    const path = this.options.config ?? '.dev-quality.json';
     try {
       const config = fileUtils.readJsonSync(path);
       this.config = config;
@@ -3716,15 +4040,15 @@ class AnalyzeCommand extends BaseCommand {
     super(options);
   }
   async execute() {
-    this.log("Starting code quality analysis...");
+    this.log('Starting code quality analysis...');
     try {
       const config = await this.loadConfig();
       const toolsToRun = this.getToolsToRun(config);
       if (toolsToRun.length === 0) {
-        this.log("No tools configured or enabled for analysis.", "warn");
+        this.log('No tools configured or enabled for analysis.', 'warn');
         return;
       }
-      this.log(`Running analysis with tools: ${toolsToRun.join(", ")}`);
+      this.log(`Running analysis with tools: ${toolsToRun.join(', ')}`);
       const results = [];
       for (const toolName of toolsToRun) {
         this.logVerbose(`Running ${toolName} analysis...`);
@@ -3734,16 +4058,16 @@ class AnalyzeCommand extends BaseCommand {
           if (result.success) {
             this.log(`${toolName} analysis completed successfully`);
           } else {
-            this.log(`${toolName} analysis failed`, "warn");
+            this.log(`${toolName} analysis failed`, 'warn');
           }
         } catch (error) {
-          this.log(`${toolName} analysis error: ${error}`, "error");
+          this.log(`${toolName} analysis error: ${error}`, 'error');
           results.push({
             tool: toolName,
             success: false,
             data: { error: error instanceof Error ? error.message : String(error) },
             timestamp: new Date().toISOString(),
-            duration: 0
+            duration: 0,
           });
           if (this.options.failOnError) {
             throw new Error(`Analysis failed for tool: ${toolName}`);
@@ -3754,25 +4078,30 @@ class AnalyzeCommand extends BaseCommand {
       const summary = this.generateSummary(results);
       this.log(`Analysis completed: ${summary}`);
     } catch (error) {
-      this.log(`Analysis failed: ${error instanceof Error ? error.message : error}`, "error");
+      this.log(`Analysis failed: ${error instanceof Error ? error.message : error}`, 'error');
       throw error;
     }
   }
   getToolsToRun(config) {
     const analyzeOptions = this.options;
     if (analyzeOptions.tools) {
-      return analyzeOptions.tools.split(",").map((tool) => tool.trim());
+      return analyzeOptions.tools.split(',').map(tool => tool.trim());
     }
-    return config.tools?.filter((tool) => tool.enabled)?.map((tool) => tool.name)?.sort((a, b) => {
-      const toolA = config.tools.find((t) => t.name === a);
-      const toolB = config.tools.find((t) => t.name === b);
-      return (toolA?.priority ?? 999) - (toolB?.priority ?? 999);
-    }) ?? [];
+    return (
+      config.tools
+        ?.filter(tool => tool.enabled)
+        ?.map(tool => tool.name)
+        ?.sort((a, b) => {
+          const toolA = config.tools.find(t => t.name === a);
+          const toolB = config.tools.find(t => t.name === b);
+          return (toolA?.priority ?? 999) - (toolB?.priority ?? 999);
+        }) ?? []
+    );
   }
   async runToolAnalysis(toolName) {
     const startTime = Date.now();
     this.logVerbose(`Simulating ${toolName} analysis...`);
-    await new Promise((resolve) => setTimeout(resolve, 100 + Math.random() * 200));
+    await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
     const success = Math.random() > 0.2;
     const result = {
       tool: toolName,
@@ -3781,19 +4110,19 @@ class AnalyzeCommand extends BaseCommand {
         issues: success ? Math.floor(Math.random() * 10) : Math.floor(Math.random() * 20) + 10,
         warnings: success ? Math.floor(Math.random() * 5) : Math.floor(Math.random() * 15) + 5,
         suggestions: Math.floor(Math.random() * 8),
-        filesAnalyzed: Math.floor(Math.random() * 100) + 10
+        filesAnalyzed: Math.floor(Math.random() * 100) + 10,
       },
       timestamp: new Date().toISOString(),
-      duration: Date.now() - startTime
+      duration: Date.now() - startTime,
     };
     return result;
   }
   async outputResults(results) {
     const analyzeOptions = this.options;
     if (analyzeOptions.output) {
-      const { writeFileSync: writeFileSync3 } = await import("node:fs");
+      const { writeFileSync: writeFileSync3 } = await import('node:fs');
       const content = this.formatOutput(results);
-      writeFileSync3(analyzeOptions.output, content, "utf-8");
+      writeFileSync3(analyzeOptions.output, content, 'utf-8');
       this.log(`Results saved to: ${analyzeOptions.output}`);
     } else {
       process.stdout.write(this.formatOutput(results));
@@ -3801,15 +4130,15 @@ class AnalyzeCommand extends BaseCommand {
   }
   generateSummary(results) {
     const total = results.length;
-    const passed = results.filter((r) => r.success).length;
+    const passed = results.filter(r => r.success).length;
     const failed = total - passed;
     return `${passed}/${total} tools passed, ${failed} failed`;
   }
   async loadConfig() {
-    const path = this.options.config ?? ".dev-quality.json";
+    const path = this.options.config ?? '.dev-quality.json';
     try {
-      const { readFileSync: readFileSync5 } = await import("node:fs");
-      const content = readFileSync5(path, "utf-8");
+      const { readFileSync: readFileSync5 } = await import('node:fs');
+      const content = readFileSync5(path, 'utf-8');
       const config = JSON.parse(content);
       this.config = config;
       return config;
@@ -3828,74 +4157,77 @@ class ReportCommand extends BaseCommand {
     return this.options;
   }
   async execute() {
-    this.log("Generating quality report...");
+    this.log('Generating quality report...');
     try {
       const config = await this.loadConfig();
-      const reportType = this.reportOptions.type ?? "summary";
-      const reportFormat = this.reportOptions.format ?? "html";
+      const reportType = this.reportOptions.type ?? 'summary';
+      const reportFormat = this.reportOptions.format ?? 'html';
       this.log(`Generating ${reportType} report in ${reportFormat} format...`);
       const reportData = await this.generateReportData(config);
       await this.outputReport(reportData, reportFormat);
-      this.log("Report generated successfully!");
+      this.log('Report generated successfully!');
     } catch (error) {
-      this.log(`Report generation failed: ${error instanceof Error ? error.message : error}`, "error");
+      this.log(
+        `Report generation failed: ${error instanceof Error ? error.message : error}`,
+        'error'
+      );
       throw error;
     }
   }
   async generateReportData(config) {
     const mockAnalysisResults = [
       {
-        tool: "typescript",
+        tool: 'typescript',
         success: true,
         data: { issues: 2, warnings: 1, suggestions: 3 },
         timestamp: new Date().toISOString(),
-        duration: 150
+        duration: 150,
       },
       {
-        tool: "eslint",
+        tool: 'eslint',
         success: true,
         data: { issues: 5, warnings: 8, suggestions: 12 },
         timestamp: new Date().toISOString(),
-        duration: 320
+        duration: 320,
       },
       {
-        tool: "prettier",
+        tool: 'prettier',
         success: true,
         data: { issues: 0, warnings: 0, suggestions: 0 },
         timestamp: new Date().toISOString(),
-        duration: 80
-      }
+        duration: 80,
+      },
     ];
     return {
       project: config,
       results: mockAnalysisResults,
       summary: {
         total: mockAnalysisResults.length,
-        passed: mockAnalysisResults.filter((r) => r.success).length,
-        failed: mockAnalysisResults.filter((r) => !r.success).length,
-        warnings: mockAnalysisResults.reduce((sum, r) => sum + r.data.warnings, 0)
+        passed: mockAnalysisResults.filter(r => r.success).length,
+        failed: mockAnalysisResults.filter(r => !r.success).length,
+        warnings: mockAnalysisResults.reduce((sum, r) => sum + r.data.warnings, 0),
       },
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
     };
   }
   async outputReport(reportData, format) {
-    let content = "";
+    let content = '';
     switch (format) {
-      case "html":
+      case 'html':
         content = this.generateHtmlReport(reportData);
         break;
-      case "md":
+      case 'md':
         content = this.generateMarkdownReport(reportData);
         break;
-      case "json":
+      case 'json':
         content = JSON.stringify(reportData, null, 2);
         break;
       default:
         throw new Error(`Unsupported report format: ${format}`);
     }
     if (this.reportOptions.output) {
-      const { writeFileSync: writeFileSync3 } = await import("node:fs");
-      writeFileSync3(this.reportOptions.output, content, "utf-8");
+      const { writeFileSync: writeFileSync3 } = await import('node:fs');
+      writeFileSync3(this.reportOptions.output, content, 'utf-8');
       this.log(`Report saved to: ${this.reportOptions.output}`);
     } else {
       process.stdout.write(content);
@@ -3948,15 +4280,19 @@ class ReportCommand extends BaseCommand {
 
     <div class="results">
         <h2>Tool Results</h2>
-        ${data.results.map((result) => `
-            <div class="result ${result.success ? "success" : "failed"}">
+        ${data.results
+          .map(
+            result => `
+            <div class="result ${result.success ? 'success' : 'failed'}">
                 <h3>${result.tool}</h3>
-                <p><strong>Status:</strong> ${result.success ? "✅ Passed" : "❌ Failed"}</p>
+                <p><strong>Status:</strong> ${result.success ? '✅ Passed' : '❌ Failed'}</p>
                 <p><strong>Duration:</strong> ${result.duration}ms</p>
                 <p><strong>Issues:</strong> ${result.data.issues}</p>
                 <p><strong>Warnings:</strong> ${result.data.warnings}</p>
             </div>
-        `).join("")}
+        `
+          )
+          .join('')}
     </div>
 </body>
 </html>`;
@@ -3977,22 +4313,26 @@ class ReportCommand extends BaseCommand {
 
 ## Tool Results
 
-${data.results.map((result) => `
+${data.results
+  .map(
+    result => `
 ### ${result.tool}
 
-**Status:** ${result.success ? "✅ Passed" : "❌ Failed"}
+**Status:** ${result.success ? '✅ Passed' : '❌ Failed'}
 **Duration:** ${result.duration}ms
 **Issues:** ${result.data.issues}
 **Warnings:** ${result.data.warnings}
 **Suggestions:** ${result.data.suggestions}
-`).join("")}
+`
+  )
+  .join('')}
 `;
   }
   async loadConfig() {
-    const path = this.options.config ?? ".dev-quality.json";
+    const path = this.options.config ?? '.dev-quality.json';
     try {
-      const { readFileSync: readFileSync5 } = await import("node:fs");
-      const content = readFileSync5(path, "utf-8");
+      const { readFileSync: readFileSync5 } = await import('node:fs');
+      const content = readFileSync5(path, 'utf-8');
       const config = JSON.parse(content);
       this.config = config;
       return config;
@@ -4003,9 +4343,9 @@ ${data.results.map((result) => `
 }
 
 // src/components/app.tsx
-import React3 from "react";
-import { Box, Text, useApp } from "ink";
-import { jsxDEV } from "react/jsx-dev-runtime";
+import React3 from 'react';
+import { Box, Text, useApp } from 'ink';
+import { jsxDEV } from 'react/jsx-dev-runtime';
 function App() {
   const { exit } = useApp();
   React3.useEffect(() => {
@@ -4014,177 +4354,362 @@ function App() {
     }, 5000);
     return () => clearTimeout(timer);
   }, [exit]);
-  return /* @__PURE__ */ jsxDEV(Box, {
-    flexDirection: "column",
-    padding: 1,
-    children: [
-      /* @__PURE__ */ jsxDEV(Box, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV(Text, {
-          bold: true,
-          color: "blue",
-          children: [
-            "DevQuality CLI v",
-            version
-          ]
-        }, undefined, true, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV(Box, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV(Text, {
-          children: "Code Quality Analysis and Reporting Tool"
-        }, undefined, false, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV(Box, {
-        marginBottom: 1,
-        children: /* @__PURE__ */ jsxDEV(Text, {
-          dimColor: true,
-          children: "Use 'dev-quality --help' for available commands"
-        }, undefined, false, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ jsxDEV(Box, {
-        marginBottom: 1,
-        children: [
-          /* @__PURE__ */ jsxDEV(Text, {
-            color: "green",
-            children: "✓"
-          }, undefined, false, undefined, this),
-          /* @__PURE__ */ jsxDEV(Text, {
-            children: " TypeScript configured"
-          }, undefined, false, undefined, this)
-        ]
-      }, undefined, true, undefined, this),
-      /* @__PURE__ */ jsxDEV(Box, {
-        marginBottom: 1,
-        children: [
-          /* @__PURE__ */ jsxDEV(Text, {
-            color: "green",
-            children: "✓"
-          }, undefined, false, undefined, this),
-          /* @__PURE__ */ jsxDEV(Text, {
-            children: " Commander.js CLI framework ready"
-          }, undefined, false, undefined, this)
-        ]
-      }, undefined, true, undefined, this),
-      /* @__PURE__ */ jsxDEV(Box, {
-        marginBottom: 1,
-        children: [
-          /* @__PURE__ */ jsxDEV(Text, {
-            color: "green",
-            children: "✓"
-          }, undefined, false, undefined, this),
-          /* @__PURE__ */ jsxDEV(Text, {
-            children: " Ink interactive components available"
-          }, undefined, false, undefined, this)
-        ]
-      }, undefined, true, undefined, this),
-      /* @__PURE__ */ jsxDEV(Box, {
-        marginTop: 1,
-        children: /* @__PURE__ */ jsxDEV(Text, {
-          dimColor: true,
-          children: "Starting interactive mode... (auto-exit in 5 seconds)"
-        }, undefined, false, undefined, this)
-      }, undefined, false, undefined, this)
-    ]
-  }, undefined, true, undefined, this);
+  return /* @__PURE__ */ jsxDEV(
+    Box,
+    {
+      flexDirection: 'column',
+      padding: 1,
+      children: [
+        /* @__PURE__ */ jsxDEV(
+          Box,
+          {
+            marginBottom: 1,
+            children: /* @__PURE__ */ jsxDEV(
+              Text,
+              {
+                bold: true,
+                color: 'blue',
+                children: ['DevQuality CLI v', version],
+              },
+              undefined,
+              true,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV(
+          Box,
+          {
+            marginBottom: 1,
+            children: /* @__PURE__ */ jsxDEV(
+              Text,
+              {
+                children: 'Code Quality Analysis and Reporting Tool',
+              },
+              undefined,
+              false,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV(
+          Box,
+          {
+            marginBottom: 1,
+            children: /* @__PURE__ */ jsxDEV(
+              Text,
+              {
+                dimColor: true,
+                children: "Use 'dev-quality --help' for available commands",
+              },
+              undefined,
+              false,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV(
+          Box,
+          {
+            marginBottom: 1,
+            children: [
+              /* @__PURE__ */ jsxDEV(
+                Text,
+                {
+                  color: 'green',
+                  children: '✓',
+                },
+                undefined,
+                false,
+                undefined,
+                this
+              ),
+              /* @__PURE__ */ jsxDEV(
+                Text,
+                {
+                  children: ' TypeScript configured',
+                },
+                undefined,
+                false,
+                undefined,
+                this
+              ),
+            ],
+          },
+          undefined,
+          true,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV(
+          Box,
+          {
+            marginBottom: 1,
+            children: [
+              /* @__PURE__ */ jsxDEV(
+                Text,
+                {
+                  color: 'green',
+                  children: '✓',
+                },
+                undefined,
+                false,
+                undefined,
+                this
+              ),
+              /* @__PURE__ */ jsxDEV(
+                Text,
+                {
+                  children: ' Commander.js CLI framework ready',
+                },
+                undefined,
+                false,
+                undefined,
+                this
+              ),
+            ],
+          },
+          undefined,
+          true,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV(
+          Box,
+          {
+            marginBottom: 1,
+            children: [
+              /* @__PURE__ */ jsxDEV(
+                Text,
+                {
+                  color: 'green',
+                  children: '✓',
+                },
+                undefined,
+                false,
+                undefined,
+                this
+              ),
+              /* @__PURE__ */ jsxDEV(
+                Text,
+                {
+                  children: ' Ink interactive components available',
+                },
+                undefined,
+                false,
+                undefined,
+                this
+              ),
+            ],
+          },
+          undefined,
+          true,
+          undefined,
+          this
+        ),
+        /* @__PURE__ */ jsxDEV(
+          Box,
+          {
+            marginTop: 1,
+            children: /* @__PURE__ */ jsxDEV(
+              Text,
+              {
+                dimColor: true,
+                children: 'Starting interactive mode... (auto-exit in 5 seconds)',
+              },
+              undefined,
+              false,
+              undefined,
+              this
+            ),
+          },
+          undefined,
+          false,
+          undefined,
+          this
+        ),
+      ],
+    },
+    undefined,
+    true,
+    undefined,
+    this
+  );
 }
 
 // src/index.ts
-var program2 = new Command;
-program2.name("dev-quality").description("DevQuality CLI tool for code quality analysis and reporting").version(version, "-v, --version", "Display the version number").helpOption("-h, --help", "Display help for command").allowUnknownOption(false).configureHelp({
-  sortSubcommands: true,
-  subcommandTerm: (command) => command.name()
-});
-program2.option("--verbose", "Enable verbose output", false);
-program2.option("--quiet", "Suppress all output except errors", false);
-program2.option("--json", "Output results as JSON", false);
-program2.option("--config <path>", "Path to configuration file", ".dev-quality.json");
-program2.option("--no-cache", "Disable caching", false);
-program2.command("setup").description("Initialize DevQuality for your project").option("-f, --force", "Force overwrite existing configuration", false).option("-i, --interactive", "Interactive setup mode", true).action(async (options) => {
-  try {
-    const setupCommand = new SetupCommand(options);
-    await setupCommand.execute();
-  } catch (error) {
-    process.stderr.write(`Setup failed: ${error instanceof Error ? error.message : error}
+var program2 = new Command();
+program2
+  .name('dev-quality')
+  .description('DevQuality CLI tool for code quality analysis and reporting')
+  .version(version, '-v, --version', 'Display the version number')
+  .helpOption('-h, --help', 'Display help for command')
+  .allowUnknownOption(false)
+  .configureHelp({
+    sortSubcommands: true,
+    subcommandTerm: command => command.name(),
+  });
+program2.option('--verbose', 'Enable verbose output', false);
+program2.option('--quiet', 'Suppress all output except errors', false);
+program2.option('--json', 'Output results as JSON', false);
+program2.option('--config <path>', 'Path to configuration file', '.dev-quality.json');
+program2.option('--no-cache', 'Disable caching', false);
+program2
+  .command('setup')
+  .description('Initialize DevQuality for your project')
+  .option('-f, --force', 'Force overwrite existing configuration', false)
+  .option('-i, --interactive', 'Interactive setup mode', true)
+  .action(async options => {
+    try {
+      const setupCommand = new SetupCommand(options);
+      await setupCommand.execute();
+    } catch (error) {
+      process.stderr.write(`Setup failed: ${error instanceof Error ? error.message : error}
 `);
-    process.exit(1);
-  }
-});
-program2.command("config").description("Manage DevQuality configuration").option("-s, --show", "Show current configuration", false).option("-e, --edit", "Edit configuration", false).option("-r, --reset", "Reset to default configuration", false).action(async (options) => {
-  try {
-    const configCommand = new ConfigCommand(options);
-    await configCommand.execute();
-  } catch (error) {
-    process.stderr.write(`Config command failed: ${error instanceof Error ? error.message : error}
+      process.exit(1);
+    }
+  });
+program2
+  .command('config')
+  .description('Manage DevQuality configuration')
+  .option('-s, --show', 'Show current configuration', false)
+  .option('-e, --edit', 'Edit configuration', false)
+  .option('-r, --reset', 'Reset to default configuration', false)
+  .action(async options => {
+    try {
+      const configCommand = new ConfigCommand(options);
+      await configCommand.execute();
+    } catch (error) {
+      process.stderr.write(`Config command failed: ${error instanceof Error ? error.message : error}
 `);
-    process.exit(1);
-  }
-});
-program2.command("analyze").alias("a").description("Analyze code quality using configured tools").option("-t, --tools <tools>", "Comma-separated list of tools to run").option("-o, --output <path>", "Output file path for results").option("-f, --format <format>", "Output format (json, html, md)", "json").option("--fail-on-error", "Exit with error code on analysis failures", false).action(async (options) => {
-  try {
-    const analyzeCommand = new AnalyzeCommand(options);
-    await analyzeCommand.execute();
-  } catch (error) {
-    process.stderr.write(`Analysis failed: ${error instanceof Error ? error.message : error}
+      process.exit(1);
+    }
+  });
+program2
+  .command('analyze')
+  .alias('a')
+  .description('Analyze code quality using configured tools')
+  .option('-t, --tools <tools>', 'Comma-separated list of tools to run')
+  .option('-o, --output <path>', 'Output file path for results')
+  .option('-f, --format <format>', 'Output format (json, html, md)', 'json')
+  .option('--fail-on-error', 'Exit with error code on analysis failures', false)
+  .action(async options => {
+    try {
+      const analyzeCommand = new AnalyzeCommand(options);
+      await analyzeCommand.execute();
+    } catch (error) {
+      process.stderr.write(`Analysis failed: ${error instanceof Error ? error.message : error}
 `);
-    process.exit(1);
-  }
-});
-program2.command("report").alias("r").description("Generate comprehensive quality reports").option("-t, --type <type>", "Report type (summary, detailed, comparison)", "summary").option("-o, --output <path>", "Output file path for report").option("-f, --format <format>", "Report format (html, md, json)", "html").option("--include-history", "Include historical data in report", false).action(async (options) => {
-  try {
-    const reportCommand = new ReportCommand(options);
-    await reportCommand.execute();
-  } catch (error) {
-    process.stderr.write(`Report generation failed: ${error instanceof Error ? error.message : error}
+      process.exit(1);
+    }
+  });
+program2
+  .command('report')
+  .alias('r')
+  .description('Generate comprehensive quality reports')
+  .option('-t, --type <type>', 'Report type (summary, detailed, comparison)', 'summary')
+  .option('-o, --output <path>', 'Output file path for report')
+  .option('-f, --format <format>', 'Report format (html, md, json)', 'html')
+  .option('--include-history', 'Include historical data in report', false)
+  .action(async options => {
+    try {
+      const reportCommand = new ReportCommand(options);
+      await reportCommand.execute();
+    } catch (error) {
+      process.stderr
+        .write(`Report generation failed: ${error instanceof Error ? error.message : error}
 `);
-    process.exit(1);
-  }
-});
-program2.command("quick").alias("q").description("Quick analysis with default settings").action(async () => {
-  try {
-    const analyzeCommand = new AnalyzeCommand({ quick: true });
-    await analyzeCommand.execute();
-  } catch (error) {
-    process.stderr.write(`Quick analysis failed: ${error instanceof Error ? error.message : error}
+      process.exit(1);
+    }
+  });
+program2
+  .command('quick')
+  .alias('q')
+  .description('Quick analysis with default settings')
+  .action(async () => {
+    try {
+      const analyzeCommand = new AnalyzeCommand({ quick: true });
+      await analyzeCommand.execute();
+    } catch (error) {
+      process.stderr.write(`Quick analysis failed: ${error instanceof Error ? error.message : error}
 `);
-    process.exit(1);
-  }
-});
-program2.command("watch").alias("w").description("Watch for changes and run analysis automatically").option("-d, --debounce <ms>", "Debounce time in milliseconds", "1000").option("-i, --interval <ms>", "Check interval in milliseconds", "5000").action(async (options) => {
-  try {
-    const { render: render2 } = await import("ink");
-    const { WatchComponent: WatchComponent2 } = await Promise.resolve().then(() => (init_watch(), exports_watch));
-    render2(React5.createElement(WatchComponent2, options));
-  } catch (error) {
-    process.stderr.write(`Watch mode failed: ${error instanceof Error ? error.message : error}
+      process.exit(1);
+    }
+  });
+program2
+  .command('watch')
+  .alias('w')
+  .description('Watch for changes and run analysis automatically')
+  .option('-d, --debounce <ms>', 'Debounce time in milliseconds', '1000')
+  .option('-i, --interval <ms>', 'Check interval in milliseconds', '5000')
+  .action(async options => {
+    try {
+      const { render: render2 } = await import('ink');
+      const { WatchComponent: WatchComponent2 } = await Promise.resolve().then(
+        () => (init_watch(), exports_watch)
+      );
+      render2(React5.createElement(WatchComponent2, options));
+    } catch (error) {
+      process.stderr.write(`Watch mode failed: ${error instanceof Error ? error.message : error}
 `);
-    process.exit(1);
-  }
-});
-program2.command("export").description("Export analysis results to various formats").option("-i, --input <path>", "Input file path (JSON results)").option("-o, --output <path>", "Output file path").option("-f, --format <format>", "Export format (csv, xml, pdf)", "csv").action(async (options) => {
-  try {
-    const { ExportCommand: ExportCommand2 } = await Promise.resolve().then(() => (init_export(), exports_export));
-    const exportCommand = new ExportCommand2(options);
-    await exportCommand.execute();
-  } catch (error) {
-    process.stderr.write(`Export failed: ${error instanceof Error ? error.message : error}
+      process.exit(1);
+    }
+  });
+program2
+  .command('export')
+  .description('Export analysis results to various formats')
+  .option('-i, --input <path>', 'Input file path (JSON results)')
+  .option('-o, --output <path>', 'Output file path')
+  .option('-f, --format <format>', 'Export format (csv, xml, pdf)', 'csv')
+  .action(async options => {
+    try {
+      const { ExportCommand: ExportCommand2 } = await Promise.resolve().then(
+        () => (init_export(), exports_export)
+      );
+      const exportCommand = new ExportCommand2(options);
+      await exportCommand.execute();
+    } catch (error) {
+      process.stderr.write(`Export failed: ${error instanceof Error ? error.message : error}
 `);
-    process.exit(1);
-  }
-});
-program2.command("history").description("View analysis history and trends").option("-n, --limit <number>", "Number of history entries to show", "10").option("--plot", "Show trend visualization", false).action(async (options) => {
-  try {
-    const { HistoryCommand: HistoryCommand2 } = await Promise.resolve().then(() => (init_history(), exports_history));
-    const historyCommand = new HistoryCommand2(options);
-    await historyCommand.execute();
-  } catch (error) {
-    process.stderr.write(`History command failed: ${error instanceof Error ? error.message : error}
+      process.exit(1);
+    }
+  });
+program2
+  .command('history')
+  .description('View analysis history and trends')
+  .option('-n, --limit <number>', 'Number of history entries to show', '10')
+  .option('--plot', 'Show trend visualization', false)
+  .action(async options => {
+    try {
+      const { HistoryCommand: HistoryCommand2 } = await Promise.resolve().then(
+        () => (init_history(), exports_history)
+      );
+      const historyCommand = new HistoryCommand2(options);
+      await historyCommand.execute();
+    } catch (error) {
+      process.stderr
+        .write(`History command failed: ${error instanceof Error ? error.message : error}
 `);
-    process.exit(1);
-  }
-});
-program2.on("command:*", () => {
-  process.stderr.write(`Invalid command: ${program2.args.join(" ")}
+      process.exit(1);
+    }
+  });
+program2.on('command:*', () => {
+  process.stderr.write(`Invalid command: ${program2.args.join(' ')}
 See --help for a list of available commands.
 `);
   process.exit(1);
@@ -4194,6 +4719,4 @@ if (process.argv.length === 2) {
 } else {
   program2.parse();
 }
-export {
-  program2 as program
-};
+export { program2 as program };

@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { AutoConfigurationDetectionEngine } from '../../src/detection/detection-engine';
 import { join } from 'node:path';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { createTestDir, cleanupTestDir } from '../test-utils';
 
 describe('AutoConfigurationDetectionEngine', () => {
   let engine: AutoConfigurationDetectionEngine;
@@ -9,7 +10,11 @@ describe('AutoConfigurationDetectionEngine', () => {
 
   beforeEach(() => {
     engine = new AutoConfigurationDetectionEngine();
-    testDir = join(process.cwd(), 'test-detection-engine-' + Date.now());
+    testDir = createTestDir('test-detection-engine');
+  });
+
+  afterEach(() => {
+    cleanupTestDir(testDir);
   });
 
   describe('detectAll', () => {

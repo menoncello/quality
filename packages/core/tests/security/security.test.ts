@@ -5,12 +5,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync, chmodSync } from 'fs';
-import { tmpdir } from 'os';
+import { writeFileSync, mkdirSync, chmodSync } from 'fs';
 import { join } from 'path';
 import { AutoConfigurationDetectionEngine } from '../../src/detection/detection-engine';
 import { ProjectDetector } from '../../src/detection/project-detector';
 import { ToolDetector } from '../../src/detection/tool-detector';
+import { createTestDir, cleanupTestDir } from '../test-utils';
 
 describe('Security Tests - Configuration File Injection (SEC-001)', () => {
   let testDir: string;
@@ -19,16 +19,14 @@ describe('Security Tests - Configuration File Injection (SEC-001)', () => {
   let toolDetector: ToolDetector;
 
   beforeEach(() => {
-    testDir = mkdtempSync(join(tmpdir(), 'security-test-'));
+    testDir = createTestDir('security-test');
     engine = new AutoConfigurationDetectionEngine();
     projectDetector = new ProjectDetector();
     toolDetector = new ToolDetector();
   });
 
   afterEach(() => {
-    if (testDir) {
-      rmSync(testDir, { recursive: true, force: true });
-    }
+    cleanupTestDir(testDir);
   });
 
   /**
@@ -365,13 +363,11 @@ describe('Input Validation Security', () => {
   let testDir: string;
 
   beforeEach(() => {
-    testDir = mkdtempSync(join(tmpdir(), 'validation-test-'));
+    testDir = createTestDir('validation-test');
   });
 
   afterEach(() => {
-    if (testDir) {
-      rmSync(testDir, { recursive: true, force: true });
-    }
+    cleanupTestDir(testDir);
   });
 
   it('should validate and sanitize file paths', async () => {

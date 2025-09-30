@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { DependencyChecker } from '../../src/detection/dependency-checker';
 import { join } from 'node:path';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { createTestDir, cleanupTestDir } from '../test-utils';
 
 describe('DependencyChecker', () => {
   let checker: DependencyChecker;
@@ -9,7 +10,11 @@ describe('DependencyChecker', () => {
 
   beforeEach(() => {
     checker = new DependencyChecker();
-    testDir = join(process.cwd(), 'test-deps-' + Date.now());
+    testDir = createTestDir('test-deps');
+  });
+
+  afterEach(() => {
+    cleanupTestDir(testDir);
   });
 
   describe('detectDependencies', () => {

@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { ToolDetector } from '../../src/detection/tool-detector';
 import { join } from 'node:path';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { createTestDir, cleanupTestDir } from '../test-utils';
 
 describe('ToolDetector', () => {
   let detector: ToolDetector;
@@ -9,7 +10,11 @@ describe('ToolDetector', () => {
 
   beforeEach(() => {
     detector = new ToolDetector();
-    testDir = join(process.cwd(), 'test-tools-' + Date.now());
+    testDir = createTestDir('test-tools');
+  });
+
+  afterEach(() => {
+    cleanupTestDir(testDir);
   });
 
   describe('detectTools', () => {

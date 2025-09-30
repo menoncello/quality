@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { ProjectDetector } from '../../src/detection/project-detector';
 import { join } from 'node:path';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { createTestDir, cleanupTestDir } from '../test-utils';
 
 describe('ProjectDetector', () => {
   let detector: ProjectDetector;
@@ -9,7 +10,11 @@ describe('ProjectDetector', () => {
 
   beforeEach(() => {
     detector = new ProjectDetector();
-    testDir = join(process.cwd(), 'test-project-' + Date.now());
+    testDir = createTestDir('test-project');
+  });
+
+  afterEach(() => {
+    cleanupTestDir(testDir);
   });
 
   describe('detectProject', () => {

@@ -4,15 +4,12 @@ import { existsSync, writeFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 
 describe('CLI Entry Point', () => {
-  let mockStdoutWrite: ReturnType<typeof vi.spyOn>;
-  let mockStderrWrite: ReturnType<typeof vi.spyOn>;
-  let mockProcessExit: ReturnType<typeof vi.spyOn>;
   const testConfigPath = join(process.cwd(), '.test-config-cli.json');
 
   beforeEach(() => {
-    mockStdoutWrite = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-    mockStderrWrite = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    mockProcessExit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
     const mockConfig = {
       name: 'test-project',
@@ -61,7 +58,6 @@ describe('CLI Entry Point', () => {
     });
 
     it('should have version option', () => {
-      const opts = program.opts();
       expect(program.options).toBeDefined();
     });
 
