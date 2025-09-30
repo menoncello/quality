@@ -19,7 +19,7 @@ jobs:
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1
       with:
-        bun-version: latest
+        bun-version: 1.2.23
 
     - name: Install dependencies
       run: bun install --frozen-lockfile
@@ -44,7 +44,7 @@ jobs:
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1
       with:
-        bun-version: latest
+        bun-version: 1.2.23
 
     - name: Run security audit
       run: |
@@ -64,7 +64,7 @@ jobs:
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1
       with:
-        bun-version: latest
+        bun-version: 1.2.23
 
     - name: Install dependencies
       run: bun install --frozen-lockfile
