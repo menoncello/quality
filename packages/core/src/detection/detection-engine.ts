@@ -115,8 +115,8 @@ export class AutoConfigurationDetectionEngine implements DetectionEngine {
   private generateIssues(
     project: any,
     tools: any[],
-    configs: any[],
-    dependencies: any[],
+    _configs: any[],
+    _dependencies: any[],
     structure: any,
     compatibility: any
   ): string[] {
