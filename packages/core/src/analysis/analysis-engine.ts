@@ -6,8 +6,7 @@ import type {
   AnalysisResult,
   ResultSummary,
   AIPrompt,
-  Logger,
-  ProjectConfiguration
+  Logger
 } from '../plugins/analysis-plugin.js';
 import { PluginManager } from '../plugins/plugin-manager.js';
 import { PluginSandbox } from '../plugins/plugin-sandbox.js';
@@ -142,7 +141,7 @@ export class AnalysisEngine extends EventEmitter {
       );
 
       // Aggregate results
-      const aggregatedResult = await this.aggregateResults(results, projectId);
+      await this.aggregateResults(results, projectId);
 
       // Create final analysis result
       const analysisResult: AnalysisResult = {
@@ -361,7 +360,6 @@ export class AnalysisEngine extends EventEmitter {
     }
 
     // Get execution order
-    const executionOrder = this.dependencyResolver.resolveExecutionOrder();
     const parallelGroups = this.dependencyResolver.getParallelGroups();
 
     const results: ToolResult[] = [];
@@ -507,7 +505,7 @@ export class AnalysisEngine extends EventEmitter {
   /**
    * Aggregate results from multiple plugins
    */
-  private async aggregateResults(results: ToolResult[], projectId: string): Promise<any> {
+  private async aggregateResults(results: ToolResult[], _projectId: string): Promise<any> {
     // This would be implemented by the ResultAggregator
     // For now, return basic aggregation
     return {
