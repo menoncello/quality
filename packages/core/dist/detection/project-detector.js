@@ -2,17 +2,6 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileUtils } from '@dev-quality/utils';
 export class ProjectDetector {
-    CONFIG_FILES = [
-        'package.json',
-        'tsconfig.json',
-        'jsconfig.json',
-        'angular.json',
-        'nuxt.config.ts',
-        'next.config.js',
-        'vite.config.ts',
-        'webpack.config.js',
-        'rollup.config.js',
-    ];
     FRAMEWORK_PATTERNS = {
         react: ['react', 'react-dom', '@types/react', 'next', 'gatsby', 'remix'],
         vue: ['vue', 'nuxt', '@nuxt/core', 'quasar'],

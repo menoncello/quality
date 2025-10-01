@@ -1,6 +1,5 @@
 import { DetectedProject } from './types';
 export declare class ProjectDetector {
-    private readonly CONFIG_FILES;
     private readonly FRAMEWORK_PATTERNS;
     private readonly BUILD_SYSTEMS;
     detectProject(rootPath: string): Promise<DetectedProject>;
@@ -13,4 +12,3 @@ export declare class ProjectDetector {
     private hasTests;
     private hasMonorepoConfig;
 }
-//# sourceMappingURL=project-detector.d.ts.map

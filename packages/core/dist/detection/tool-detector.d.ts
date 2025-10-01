@@ -11,4 +11,3 @@ export declare class ToolDetector {
     private getToolPriority;
     private loadPackageJson;
 }
-//# sourceMappingURL=tool-detector.d.ts.map

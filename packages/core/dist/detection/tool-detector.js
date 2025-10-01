@@ -186,7 +186,6 @@ export class ToolDetector {
                 // For now, return basic info
                 return { _type: format, _path: configPath };
             case 'yaml':
-            case 'yml':
                 // For YAML configs, we'd need a YAML parser
                 // For now, return basic info
                 return { _type: format, _path: configPath };

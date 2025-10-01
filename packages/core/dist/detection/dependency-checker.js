@@ -65,13 +65,15 @@ export class DependencyChecker {
     async detectDependencies(rootPath) {
         const packageJson = this.loadPackageJson(rootPath);
         const dependencies = [];
+        // Map package.json types to DependencyInfo types
+        const depTypeMap = {
+            dependencies: 'dependency',
+            devDependencies: 'devDependency',
+            peerDependencies: 'peerDependency',
+            optionalDependencies: 'devDependency', // Treat optional as dev
+        };
         // Process all dependency types
-        const depTypes = [
-            'dependencies',
-            'devDependencies',
-            'peerDependencies',
-            'optionalDependencies',
-        ];
+        const depTypes = Object.keys(depTypeMap);
         for (const depType of depTypes) {
             if (packageJson[depType]) {
                 for (const [name, version] of Object.entries(packageJson[depType])) {
@@ -80,7 +82,7 @@ export class DependencyChecker {
                     dependencies.push({
                         name,
                         version: version,
-                        type: depType,
+                        type: depTypeMap[depType],
                         compatibility,
                         issues,
                     });
@@ -159,10 +161,14 @@ export class DependencyChecker {
         const depMap = new Map(deps.map(d => [d.name, d.version]));
         for (const [conflictPattern, conflictingDeps] of Object.entries(this.VERSION_CONFLICTS)) {
             const [depName, versionRange] = conflictPattern.split('@');
+            if (!depName || !versionRange)
+                continue;
             const currentDep = depMap.get(depName);
             if (currentDep && this.satisfiesVersion(currentDep, versionRange)) {
                 for (const conflictingDep of conflictingDeps) {
                     const [conflictingName, conflictingRange] = conflictingDep.split('@');
+                    if (!conflictingName || !conflictingRange)
+                        continue;
                     const conflictingVersion = depMap.get(conflictingName);
                     if (conflictingVersion && this.satisfiesVersion(conflictingVersion, conflictingRange)) {
                         conflicts.push(`Version conflict: ${depName}@${currentDep} conflicts with ${conflictingName}@${conflictingVersion}`);
@@ -185,10 +191,10 @@ export class DependencyChecker {
     }
     cleanVersion(version) {
         // Remove npm version prefixes and suffixes
-        return version
+        return (version
             .replace(/^[\^~]/, '')
             .replace(/-.*$/, '')
-            .split(' ')[0];
+            .split(' ')[0] || '0.0.0');
     }
     compareVersions(version1, version2) {
         const v1 = version1.split('.').map(Number);
@@ -220,6 +226,8 @@ export class DependencyChecker {
         else if (range.includes('-')) {
             // Handle range like "1.0.0-2.0.0"
             const [min, max] = range.split('-');
+            if (!min || !max)
+                return false;
             return (this.compareVersions(cleanVersion, min) >= 0 && this.compareVersions(cleanVersion, max) <= 0);
         }
         else {

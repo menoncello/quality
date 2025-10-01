@@ -44,23 +44,17 @@ export class StructureAnalyzer {
         const sourceDirectories = await this.findDirectoriesByPatterns(rootPath, this.SOURCE_PATTERNS);
         const testDirectories = await this.findDirectoriesByPatterns(rootPath, this.TEST_PATTERNS);
         const configDirectories = await this.findDirectoriesByPatterns(rootPath, this.CONFIG_PATTERNS);
-        const complexity = this.calculateComplexity({
+        const structure = {
             isMonorepo,
             workspaceType,
             packages,
             sourceDirectories,
             testDirectories,
             configDirectories,
-        });
-        return {
-            isMonorepo,
-            workspaceType,
-            packages,
-            sourceDirectories,
-            testDirectories,
-            configDirectories,
-            complexity,
+            complexity: 'simple',
         };
+        structure.complexity = this.calculateComplexity(structure);
+        return structure;
     }
     async detectMonorepoType(rootPath) {
         // Check for specific monorepo tools FIRST (turbo, nx, lerna, pnpm, rush)
@@ -144,7 +138,7 @@ export class StructureAnalyzer {
             try {
                 const content = readFileSync(pnpmWorkspacePath, 'utf-8');
                 const packagesMatch = content.match(/packages:\s*\n((?:\s*-\s*[^\n]+\n?)*)/);
-                if (packagesMatch) {
+                if (packagesMatch && packagesMatch[1]) {
                     const packageLines = packagesMatch[1].split('\n').filter(line => line.trim());
                     for (const line of packageLines) {
                         const packagePath = line.replace(/^\s*-\s*/, '').trim();

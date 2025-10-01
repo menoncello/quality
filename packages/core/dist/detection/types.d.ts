@@ -1,4 +1,4 @@
-import { ProjectConfiguration } from '@dev-quality/types';
+import type { ProjectConfiguration } from '@dev-quality/types';
 export interface DetectedProject {
     name: string;
     version: string;
@@ -36,7 +36,7 @@ export interface DependencyInfo {
 }
 export interface ProjectStructure {
     isMonorepo: boolean;
-    workspaceType: 'npm' | 'yarn' | 'pnpm' | 'nx' | 'turbo' | 'lerna' | null;
+    workspaceType: 'npm' | 'yarn' | 'pnpm' | 'nx' | 'turbo' | 'lerna' | 'rush' | null;
     packages: string[];
     sourceDirectories: string[];
     testDirectories: string[];
@@ -85,4 +85,3 @@ export interface StructureAnalyzer {
     detectMonorepoType(rootPath: string): Promise<ProjectStructure['workspaceType']>;
     calculateComplexity(structure: ProjectStructure): 'simple' | 'medium' | 'complex';
 }
-//# sourceMappingURL=types.d.ts.map

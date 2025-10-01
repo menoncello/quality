@@ -2,16 +2,19 @@ import { ProjectDetector } from './project-detector';
 import { ToolDetector } from './tool-detector';
 import { DependencyChecker } from './dependency-checker';
 import { StructureAnalyzer } from './structure-analyzer';
+import { DetectionCache } from './detection-cache';
 export class AutoConfigurationDetectionEngine {
     projectDetector;
     toolDetector;
     dependencyChecker;
     structureAnalyzer;
-    constructor() {
+    cache;
+    constructor(cache) {
         this.projectDetector = new ProjectDetector();
         this.toolDetector = new ToolDetector();
         this.dependencyChecker = new DependencyChecker();
         this.structureAnalyzer = new StructureAnalyzer();
+        this.cache = cache ?? new DetectionCache();
     }
     async detectProject(rootPath) {
         return this.projectDetector.detectProject(rootPath);
@@ -30,6 +33,11 @@ export class AutoConfigurationDetectionEngine {
     }
     async detectAll(rootPath) {
         try {
+            // Check cache first
+            const cachedResult = this.cache.getCachedResult(rootPath);
+            if (cachedResult) {
+                return cachedResult;
+            }
             const [project, tools, configs, dependencies, structure] = await Promise.all([
                 this.projectDetector.detectProject(rootPath),
                 this.toolDetector.detectTools(rootPath),
@@ -40,7 +48,7 @@ export class AutoConfigurationDetectionEngine {
             const compatibility = await this.dependencyChecker.checkCompatibility(dependencies);
             const issues = this.generateIssues(project, tools, configs, dependencies, structure, compatibility);
             const recommendations = this.generateRecommendations(project, tools, configs, dependencies, structure, compatibility);
-            return {
+            const result = {
                 project,
                 tools,
                 configs,
@@ -50,12 +58,32 @@ export class AutoConfigurationDetectionEngine {
                 recommendations,
                 timestamp: new Date().toISOString(),
             };
+            // Cache the result
+            this.cache.setCachedResult(rootPath, result);
+            return result;
         }
         catch (error) {
             throw new Error(`Detection failed: ${error}`);
         }
     }
-    generateIssues(project, tools, configs, dependencies, structure, compatibility) {
+    /**
+     * Clear cache for a specific path or all caches
+     */
+    clearCache(rootPath) {
+        if (rootPath) {
+            this.cache.invalidate(rootPath);
+        }
+        else {
+            this.cache.clear();
+        }
+    }
+    /**
+     * Get cache statistics
+     */
+    getCacheStats() {
+        return this.cache.getStats();
+    }
+    generateIssues(project, tools, _configs, _dependencies, structure, compatibility) {
         const issues = [];
         // Project type issues
         if (project.type === 'unknown') {
@@ -88,7 +116,7 @@ export class AutoConfigurationDetectionEngine {
         }
         return issues;
     }
-    generateRecommendations(project, tools, configs, dependencies, structure, compatibility) {
+    generateRecommendations(project, tools, _configs, _dependencies, structure, compatibility) {
         const recommendations = [];
         // Add compatibility recommendations
         recommendations.push(...compatibility.recommendations);

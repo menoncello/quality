@@ -49,4 +49,9 @@ export { ProjectDetector } from './detection/project-detector';
 export { ToolDetector } from './detection/tool-detector';
 export { DependencyChecker } from './detection/dependency-checker';
 export { StructureAnalyzer } from './detection/structure-analyzer';
+export { DetectionCache } from './detection/detection-cache';
+// Plugin System exports
+export * from './plugins/index.js';
+// Analysis Engine exports
+export * from './analysis/index.js';
 //# sourceMappingURL=index.js.map
