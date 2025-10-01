@@ -101,3 +101,9 @@ export type {
 } from './detection/types';
 
 export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };
+
+// Plugin System exports
+export * from './plugins/index.js';
+
+// Analysis Engine exports
+export * from './analysis/index.js';
