@@ -27,6 +27,8 @@ export { ProjectDetector } from './detection/project-detector';
 export { ToolDetector } from './detection/tool-detector';
 export { DependencyChecker } from './detection/dependency-checker';
 export { StructureAnalyzer } from './detection/structure-analyzer';
+export { DetectionCache } from './detection/detection-cache';
 export type { DetectedProject, DetectedTool, ConfigFile, DependencyInfo, ProjectStructure, DetectionResult, DetectionEngine, ConfigAnalyzer, DependencyChecker as DependencyCheckerInterface, StructureAnalyzer as StructureAnalyzerInterface, } from './detection/types';
 export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };
-//# sourceMappingURL=index.d.ts.map
+export * from './plugins/index.js';
+export * from './analysis/index.js';

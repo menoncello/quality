@@ -2531,17 +2531,6 @@ var fileUtils = {
 
 // ../../packages/core/src/detection/project-detector.ts
 class ProjectDetector {
-  CONFIG_FILES = [
-    'package.json',
-    'tsconfig.json',
-    'jsconfig.json',
-    'angular.json',
-    'nuxt.config.ts',
-    'next.config.js',
-    'vite.config.ts',
-    'webpack.config.js',
-    'rollup.config.js',
-  ];
   FRAMEWORK_PATTERNS = {
     react: ['react', 'react-dom', '@types/react', 'next', 'gatsby', 'remix'],
     vue: ['vue', 'nuxt', '@nuxt/core', 'quasar'],
@@ -2695,7 +2684,7 @@ class ProjectDetector {
 
 // ../../packages/core/src/detection/tool-detector.ts
 import { existsSync as existsSync3 } from 'node:fs';
-import { join as join3, basename as basename3, extname as extname3 } from 'node:path';
+import { join as join3, basename as basename2, extname as extname2 } from 'node:path';
 class ToolDetector {
   TOOL_CONFIGS = [
     {
@@ -2844,7 +2833,7 @@ class ToolDetector {
         name: toolConfig.tool,
         version: version2 || 'unknown',
         configPath,
-        configFormat: this.getConfigFormat(basename3(configPath)),
+        configFormat: this.getConfigFormat(basename2(configPath)),
         enabled: true,
         priority: this.getToolPriority(toolConfig.tool),
         config: configContent,
@@ -2864,7 +2853,7 @@ class ToolDetector {
     return null;
   }
   parseConfigFile(configPath) {
-    const format = this.getConfigFormat(basename3(configPath));
+    const format = this.getConfigFormat(basename2(configPath));
     switch (format) {
       case 'json':
         return fileUtils.readJsonSync(configPath);
@@ -2872,14 +2861,13 @@ class ToolDetector {
       case 'ts':
         return { _type: format, _path: configPath };
       case 'yaml':
-      case 'yml':
         return { _type: format, _path: configPath };
       default:
         return { _type: 'unknown', _path: configPath };
     }
   }
   getConfigFormat(filename) {
-    const ext = extname3(filename).toLowerCase();
+    const ext = extname2(filename).toLowerCase();
     switch (ext) {
       case '.json':
         return 'json';
@@ -3001,12 +2989,13 @@ class DependencyChecker {
   async detectDependencies(rootPath) {
     const packageJson = this.loadPackageJson(rootPath);
     const dependencies = [];
-    const depTypes = [
-      'dependencies',
-      'devDependencies',
-      'peerDependencies',
-      'optionalDependencies',
-    ];
+    const depTypeMap = {
+      dependencies: 'dependency',
+      devDependencies: 'devDependency',
+      peerDependencies: 'peerDependency',
+      optionalDependencies: 'devDependency',
+    };
+    const depTypes = Object.keys(depTypeMap);
     for (const depType of depTypes) {
       if (packageJson[depType]) {
         for (const [name, version2] of Object.entries(packageJson[depType])) {
@@ -3015,7 +3004,7 @@ class DependencyChecker {
           dependencies.push({
             name,
             version: version2,
-            type: depType,
+            type: depTypeMap[depType],
             compatibility,
             issues,
           });
@@ -3089,10 +3078,12 @@ class DependencyChecker {
     const depMap = new Map(deps.map(d => [d.name, d.version]));
     for (const [conflictPattern, conflictingDeps] of Object.entries(this.VERSION_CONFLICTS)) {
       const [depName, versionRange] = conflictPattern.split('@');
+      if (!depName || !versionRange) continue;
       const currentDep = depMap.get(depName);
       if (currentDep && this.satisfiesVersion(currentDep, versionRange)) {
         for (const conflictingDep of conflictingDeps) {
           const [conflictingName, conflictingRange] = conflictingDep.split('@');
+          if (!conflictingName || !conflictingRange) continue;
           const conflictingVersion = depMap.get(conflictingName);
           if (conflictingVersion && this.satisfiesVersion(conflictingVersion, conflictingRange)) {
             conflicts.push(
@@ -3116,10 +3107,12 @@ class DependencyChecker {
     return recommendations;
   }
   cleanVersion(version2) {
-    return version2
-      .replace(/^[\^~]/, '')
-      .replace(/-.*$/, '')
-      .split(' ')[0];
+    return (
+      version2
+        .replace(/^[\^~]/, '')
+        .replace(/-.*$/, '')
+        .split(' ')[0] || '0.0.0'
+    );
   }
   compareVersions(version1, version2) {
     const v1 = version1.split('.').map(Number);
@@ -3144,6 +3137,7 @@ class DependencyChecker {
       return this.compareVersions(cleanVersion, range.substring(1)) < 0;
     } else if (range.includes('-')) {
       const [min, max] = range.split('-');
+      if (!min || !max) return false;
       return (
         this.compareVersions(cleanVersion, min) >= 0 && this.compareVersions(cleanVersion, max) <= 0
       );
@@ -3162,11 +3156,7 @@ class DependencyChecker {
 }
 
 // ../../packages/core/src/detection/structure-analyzer.ts
-import {
-  existsSync as existsSync4,
-  readdirSync as readdirSync3,
-  readFileSync as readFileSync4,
-} from 'node:fs';
+import { existsSync as existsSync4, readdirSync, readFileSync as readFileSync2 } from 'node:fs';
 import { join as join4, relative as relative2 } from 'node:path';
 class StructureAnalyzer {
   MONOREPO_PATTERNS = {
@@ -3202,23 +3192,17 @@ class StructureAnalyzer {
     const sourceDirectories = await this.findDirectoriesByPatterns(rootPath, this.SOURCE_PATTERNS);
     const testDirectories = await this.findDirectoriesByPatterns(rootPath, this.TEST_PATTERNS);
     const configDirectories = await this.findDirectoriesByPatterns(rootPath, this.CONFIG_PATTERNS);
-    const complexity = this.calculateComplexity({
+    const structure = {
       isMonorepo,
       workspaceType,
       packages,
       sourceDirectories,
       testDirectories,
       configDirectories,
-    });
-    return {
-      isMonorepo,
-      workspaceType,
-      packages,
-      sourceDirectories,
-      testDirectories,
-      configDirectories,
-      complexity,
+      complexity: 'simple',
     };
+    structure.complexity = this.calculateComplexity(structure);
+    return structure;
   }
   async detectMonorepoType(rootPath) {
     for (const [type, patterns] of Object.entries(this.MONOREPO_PATTERNS)) {
@@ -3283,9 +3267,9 @@ class StructureAnalyzer {
     const pnpmWorkspacePath = join4(rootPath, 'pnpm-workspace.yaml');
     if (existsSync4(pnpmWorkspacePath)) {
       try {
-        const content = readFileSync4(pnpmWorkspacePath, 'utf-8');
+        const content = readFileSync2(pnpmWorkspacePath, 'utf-8');
         const packagesMatch = content.match(/packages:\s*\n((?:\s*-\s*[^\n]+\n?)*)/);
-        if (packagesMatch) {
+        if (packagesMatch && packagesMatch[1]) {
           const packageLines = packagesMatch[1]
             .split(
               `
@@ -3308,7 +3292,7 @@ class StructureAnalyzer {
   async findPackageDirectories(rootPath) {
     const packageDirs = [];
     const scanDirectory = dir => {
-      const entries = readdirSync3(dir, { withFileTypes: true });
+      const entries = readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
         if (entry.isDirectory()) {
           const fullPath = join4(dir, entry.name);
@@ -3330,7 +3314,7 @@ class StructureAnalyzer {
     const directories = [];
     const scanDirectory = (dir, currentDepth = 0) => {
       if (currentDepth > 3) return;
-      const entries = readdirSync3(dir, { withFileTypes: true });
+      const entries = readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
         if (entry.isDirectory()) {
           const fullPath = join4(dir, entry.name);
@@ -3419,7 +3403,7 @@ class StructureAnalyzer {
 }
 
 // ../../packages/core/src/detection/detection-cache.ts
-import { existsSync as existsSync5, statSync as statSync3 } from 'fs';
+import { existsSync as existsSync5, statSync } from 'fs';
 
 class DetectionCache {
   fileCache;
@@ -3444,7 +3428,7 @@ class DetectionCache {
     if (!cached) {
       return null;
     }
-    const stats = statSync3(filePath);
+    const stats = statSync(filePath);
     const currentMtime = stats.mtimeMs;
     if (cached.mtime !== currentMtime) {
       this.fileCache.delete(filePath);
@@ -3457,7 +3441,7 @@ class DetectionCache {
       return;
     }
     this.ensureCacheSize(this.fileCache);
-    const stats = statSync3(filePath);
+    const stats = statSync(filePath);
     this.fileCache.set(filePath, {
       data: content,
       timestamp: Date.now(),
@@ -3507,7 +3491,7 @@ class DetectionCache {
     }
     const packageJsonPath = `${rootPath}/package.json`;
     if (existsSync5(packageJsonPath)) {
-      const stats = statSync3(packageJsonPath);
+      const stats = statSync(packageJsonPath);
       if (cached.mtime && cached.mtime !== stats.mtimeMs) {
         this.resultCache.delete(rootPath);
         return null;
@@ -3521,10 +3505,10 @@ class DetectionCache {
   }
   setCachedResult(rootPath, result) {
     this.ensureCacheSize(this.resultCache);
-    let mtime;
+    let mtime = 0;
     const packageJsonPath = `${rootPath}/package.json`;
     if (existsSync5(packageJsonPath)) {
-      const stats = statSync3(packageJsonPath);
+      const stats = statSync(packageJsonPath);
       mtime = stats.mtimeMs;
     }
     this.resultCache.set(rootPath, {
@@ -3668,7 +3652,7 @@ class AutoConfigurationDetectionEngine {
   getCacheStats() {
     return this.cache.getStats();
   }
-  generateIssues(project, tools, configs, dependencies, structure, compatibility) {
+  generateIssues(project, tools, _configs, _dependencies, structure, compatibility) {
     const issues = [];
     if (project.type === 'unknown') {
       issues.push('Could not determine project type');
@@ -3696,7 +3680,7 @@ class AutoConfigurationDetectionEngine {
     }
     return issues;
   }
-  generateRecommendations(project, tools, configs, dependencies, structure, compatibility) {
+  generateRecommendations(project, tools, _configs, _dependencies, structure, compatibility) {
     const recommendations = [];
     recommendations.push(...compatibility.recommendations);
     const toolNames = tools.map(t => t.name);
@@ -4137,8 +4121,8 @@ class AnalyzeCommand extends BaseCommand {
   async loadConfig() {
     const path = this.options.config ?? '.dev-quality.json';
     try {
-      const { readFileSync: readFileSync5 } = await import('node:fs');
-      const content = readFileSync5(path, 'utf-8');
+      const { readFileSync: readFileSync3 } = await import('node:fs');
+      const content = readFileSync3(path, 'utf-8');
       const config = JSON.parse(content);
       this.config = config;
       return config;
@@ -4331,8 +4315,8 @@ ${data.results
   async loadConfig() {
     const path = this.options.config ?? '.dev-quality.json';
     try {
-      const { readFileSync: readFileSync5 } = await import('node:fs');
-      const content = readFileSync5(path, 'utf-8');
+      const { readFileSync: readFileSync3 } = await import('node:fs');
+      const content = readFileSync3(path, 'utf-8');
       const config = JSON.parse(content);
       this.config = config;
       return config;
