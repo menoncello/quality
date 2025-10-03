@@ -33,4 +33,5 @@ export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisRes
 export * from './plugins/index.js';
 export * from './analysis/index.js';
 export * from './types/coverage.js';
+export type { Issue, ToolResult, CoverageData, AnalysisContext } from './plugins/analysis-plugin.js';
 //# sourceMappingURL=index.d.ts.map

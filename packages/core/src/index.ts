@@ -110,3 +110,6 @@ export * from './analysis/index.js';
 
 // Coverage Analysis exports
 export * from './types/coverage.js';
+
+// Additional type exports for CLI compatibility
+export type { Issue, ToolResult, CoverageData, AnalysisContext } from './plugins/analysis-plugin.js';
