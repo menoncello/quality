@@ -475,9 +475,9 @@ export class ExportService {
         xmlLines.push(`    </testcase>`);
       } else if (issue.type === 'warning') {
         xmlLines.push(`    <testcase name="${testCaseName}" classname="${className}" time="0">`);
-        xmlLines.push(`      <failure message="${this.escapeXml(issue.message)}">`);
+        xmlLines.push(`      <failure message="${this.escapeXml(issue['message'])}">`);
         xmlLines.push(
-          `        ${this.escapeXml(`Tool: ${issue.toolName}, Line: ${issue.lineNumber}, Rule: ${issue.ruleId ?? 'N/A'}`)}`
+          `        ${this.escapeXml(`Tool: ${issue['toolName']}, Line: ${issue['lineNumber']}, Rule: ${issue['ruleId'] ?? 'N/A'}`)}`
         );
         xmlLines.push(`      </failure>`);
         xmlLines.push(`    </testcase>`);
