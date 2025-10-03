@@ -19,7 +19,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "bun build src/index.ts --outdir=dist --target=node --format=esm --external react --external react-dom --external ink --external react-devtools-core",
+    "build": "tsc --build",
     "dev": "bun run build --watch",
     "start": "bun run dist/index.js",
     "test": "bun test",
