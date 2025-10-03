@@ -1,5 +1,6 @@
 import type { AnalysisPlugin, ToolConfiguration, Logger } from './analysis-plugin.js';
-import type { PluginRegistry, PluginSource, PluginRegistryEntry } from './plugin-registry.js';
+import type { PluginRegistry, PluginRegistryEntry } from './plugin-registry.js';
+import { PluginSource } from './plugin-registry.js';
 import type { PluginLoader as BasePluginLoader } from './plugin-loader.js';
 
 /**

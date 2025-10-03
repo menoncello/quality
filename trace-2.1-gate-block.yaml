@@ -1,0 +1,13 @@
+trace:
+  totals:
+    requirements: 6
+    full: 3
+    partial: 2
+    none: 1
+  planning_ref: 'qa.qaLocation/assessments/2.1-test-design-20251003.md'
+  uncovered:
+    - ac: 'AC6'
+      reason: 'No test coverage for quality scoring algorithm and recommendation engine'
+    - ac: 'AC3'
+      reason: 'Missing tests for historical comparison and trend analysis functionality'
+  notes: 'See qa.qaLocation/assessments/2.1-trace-20251003.md'

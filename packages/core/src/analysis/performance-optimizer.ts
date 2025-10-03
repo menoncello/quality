@@ -125,12 +125,35 @@ export class PerformanceOptimizer {
     total: 0
   };
   private defaultConfig: PerformanceOptimizerConfig = {
-    maxConcurrency: 10,
-    maxMemoryUsage: 1024 * 1024 * 1024, // 1GB
-    taskTimeout: 30000,
-    optimizationThreshold: 1000,
-    enableAutoOptimization: true,
-    monitoringInterval: 5000
+    caching: {
+      enabled: true,
+      ttl: 300000,
+      maxSize: 1000,
+      strategy: 'lru'
+    },
+    parallelization: {
+      maxConcurrency: 10,
+      enableWorkStealing: true,
+      loadBalancing: 'least-busy'
+    },
+    resourceManagement: {
+      memoryLimit: 1024 * 1024 * 1024, // 1GB
+      cpuThreshold: 80,
+      enableThrottling: true,
+      throttlingThreshold: 90
+    },
+    incremental: {
+      enabled: true,
+      changeDetection: 'file-hash',
+      batchSize: 100,
+      enableSelectiveAnalysis: true
+    },
+    monitoring: {
+      enableProfiling: true,
+      sampleRate: 0.1,
+      trackMemoryUsage: true,
+      trackExecutionTime: true
+    }
   };
 
   constructor(config: PerformanceOptimizerConfig, logger: Logger) {
@@ -432,7 +455,7 @@ export class PerformanceOptimizer {
       this.monitor.averagePerformance = this.taskMetrics.length > 0
         ? this.taskMetrics.reduce((sum, m) => sum + m.executionTime, 0) / this.taskMetrics.length
         : 0;
-    }, this.defaultConfig.monitoringInterval);
+    }, 5000);
 
     return this.monitor;
   }
@@ -492,8 +515,8 @@ export class PerformanceOptimizer {
    */
   updateConfig(newConfig: any): void {
     // Check for invalid configuration patterns
-    if (newConfig.optimizationThresholds) {
-      const thresholds = newConfig.optimizationThresholds;
+    if (newConfig.resourceManagement) {
+      const thresholds = newConfig.resourceManagement;
       if (thresholds.slowTaskThreshold <= 0 ||
           thresholds.memoryThreshold <= 0 ||
           thresholds.cpuThreshold > 100 ||
@@ -512,15 +535,7 @@ export class PerformanceOptimizer {
    * Reset to default configuration
    */
   resetToDefaults(): void {
-    this.defaultConfig = {
-      maxConcurrency: 10,
-      maxMemoryUsage: 1024 * 1024 * 1024,
-      taskTimeout: 30000,
-      optimizationThreshold: 1000,
-      enableAutoOptimization: true,
-      enableMetrics: true,
-      monitoringInterval: 5000
-    };
+    this.config = this.defaultConfig;
   }
 
   /**
@@ -584,11 +599,12 @@ export class PerformanceOptimizer {
   validateConfig(config: PerformanceOptimizerConfig): boolean {
     try {
       return (
-        config.maxConcurrency > 0 &&
-        config.maxMemoryUsage > 0 &&
-        config.taskTimeout > 0 &&
-        config.optimizationThreshold >= 0 &&
-        config.monitoringInterval >= 1000
+        config.parallelization.maxConcurrency > 0 &&
+        config.resourceManagement.memoryLimit > 0 &&
+        config.resourceManagement.cpuThreshold > 0 &&
+        config.resourceManagement.cpuThreshold <= 100 &&
+        config.monitoring.sampleRate >= 0 &&
+        config.monitoring.sampleRate <= 1
       );
     } catch {
       return false;

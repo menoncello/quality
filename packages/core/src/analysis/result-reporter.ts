@@ -235,7 +235,7 @@ export class ResultReporter {
     );
 
     return {
-      title: options.title || 'Code Quality Analysis Report',
+      title: 'Code Quality Analysis Report',
       overallScore: `${score}%`,
       grade,
       keyMetrics: {
@@ -264,11 +264,8 @@ export class ResultReporter {
   ): string {
     const report = {
       metadata: {
-        title: options.title || 'Code Quality Analysis Report',
-        description: options.description,
-        author: options.author,
-        version: options.version,
-        timestamp: options.timestamp || new Date(),
+        title: 'Code Quality Analysis Report',
+        description: 'Comprehensive code quality analysis results',
         generatedAt: new Date(),
         format: 'json',
         version: '1.0'

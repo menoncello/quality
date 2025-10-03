@@ -174,7 +174,7 @@ export class TaskScheduler extends EventEmitter {
       const mockPlugin: AnalysisPlugin = {
         name: taskId,
         version: '1.0.0',
-        description: `Mock plugin for ${taskId}`,
+        initialize: async () => {},
         execute: async (context: AnalysisContext) => {
           // MockPlugin execute() called for task ${taskId}
           // Add small delay to ensure executionTime > 0
@@ -218,17 +218,35 @@ export class TaskScheduler extends EventEmitter {
         },
         supportsIncremental: () => false,
         supportsCache: () => false,
-        getMetrics: () => ({}),
+        getMetrics: () => ({
+          executionCount: 0,
+          totalExecutionTime: 0,
+          averageExecutionTime: 0,
+          successCount: 0,
+          errorCount: 0
+        }),
         validateConfig: () => ({ valid: true, errors: [], warnings: [] }),
-        getDefaultConfig: () => ({}),
+        getDefaultConfig: () => ({
+          name: 'mock-plugin',
+          enabled: true,
+          config: {}
+        }),
         cleanup: () => Promise.resolve()
       };
 
       const mockContext: AnalysisContext = {
-        projectId: 'test-project',
         projectPath: '/test',
-        options: {},
-        startTime: Date.now(),
+        logger: {
+          error: () => {},
+          warn: () => {},
+          info: () => {},
+          debug: () => {}
+        },
+        config: {
+          name: 'test',
+          version: '1.0.0',
+          tools: []
+        },
         signal: undefined
       };
 
@@ -1164,13 +1182,6 @@ export class TaskScheduler extends EventEmitter {
       this.logger.error('Error during shutdown:', error);
       // Don't throw, just log the error
     }
-  }
-
-  /**
-   * Sleep utility for delays
-   */
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**

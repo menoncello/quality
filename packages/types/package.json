@@ -19,6 +19,7 @@
     "build": "tsc --build",
     "dev": "bun run build --watch",
     "test": "bun test",
+    "test:claude": "CLAUDECODE=1 bun test",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

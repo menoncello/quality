@@ -32,4 +32,5 @@ export type { DetectedProject, DetectedTool, ConfigFile, DependencyInfo, Project
 export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };
 export * from './plugins/index.js';
 export * from './analysis/index.js';
+export * from './types/coverage.js';
 //# sourceMappingURL=index.d.ts.map

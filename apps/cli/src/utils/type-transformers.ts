@@ -6,6 +6,7 @@ import type {
   Issue as CLIIssue,
   AnalysisResult as CLIAnalysisResult,
   ExtendedToolResult,
+  AIPrompt,
 } from '../types/analysis';
 import type { Issue as CoreIssue, AnalysisResult as CoreAnalysisResult } from '@dev-quality/core';
 
@@ -66,19 +67,30 @@ export function transformCoreAnalysisResultToCLI(
 ): CLIAnalysisResult {
   // Handle the interface differences between core and CLI AnalysisResult
   // Use type assertions to access properties that may not exist in the interface
-  const coreResultAny = coreResult as _any;
+  const coreResultUnknown = coreResult as unknown as Record<string, unknown>;
+
   return {
-    id: coreResultAny.id ?? `analysis-${Date.now()}`,
-    projectId: coreResultAny.projectId ?? 'unknown-project',
+    id: (coreResultUnknown?.['id'] as string) ?? `analysis-${Date.now()}`,
+    projectId: (coreResultUnknown?.['projectId'] as string) ?? 'unknown-project',
     timestamp:
       typeof coreResult.timestamp === 'string' ? coreResult.timestamp : new Date().toISOString(),
-    duration: coreResultAny.duration ?? 0,
-    overallScore: coreResultAny.overallScore ?? 0,
-    toolResults: (coreResultAny.toolResults ?? []).map((toolResult: any) => ({
-      ...toolResult,
-      issues: transformCoreIssuesToCLI(toolResult.issues),
-    })) as ExtendedToolResult[],
-    summary: coreResultAny.summary ?? {
+    duration: (coreResultUnknown?.['duration'] as number) ?? 0,
+    overallScore: (coreResultUnknown?.['overallScore'] as number) ?? 0,
+    toolResults: ((coreResultUnknown?.['toolResults'] as Array<Record<string, unknown>>) ?? []).map(
+      (toolResult: Record<string, unknown>) => ({
+        ...toolResult,
+        issues: transformCoreIssuesToCLI(toolResult['issues'] as CoreIssue[]),
+      })
+    ) as ExtendedToolResult[],
+    summary: (coreResultUnknown?.['summary'] as {
+      totalIssues: number;
+      totalErrors: number;
+      totalWarnings: number;
+      totalFixable: number;
+      overallScore: number;
+      toolCount: number;
+      executionTime: number;
+    }) ?? {
       totalIssues: 0,
       totalErrors: 0,
       totalWarnings: 0,
@@ -87,6 +99,6 @@ export function transformCoreAnalysisResultToCLI(
       toolCount: 0,
       executionTime: 0,
     },
-    aiPrompts: coreResultAny.aiPrompts ?? [],
+    aiPrompts: (coreResultUnknown?.['aiPrompts'] as AIPrompt[]) ?? [],
   };
 }

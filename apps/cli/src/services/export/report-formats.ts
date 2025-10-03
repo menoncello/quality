@@ -5,7 +5,7 @@
 import type { ExportFormat } from '../../types/export';
 
 // Base export options that all formats share
-interface BaseExportOptions {
+export interface BaseExportOptions {
   includeSummary: boolean;
   includeIssues: boolean;
   includeMetrics: boolean;
@@ -13,29 +13,29 @@ interface BaseExportOptions {
 }
 
 // Format-specific options
-interface JSONExportOptions extends BaseExportOptions {
+export interface JSONExportOptions extends BaseExportOptions {
   prettyPrint: boolean;
   includeRawData: boolean;
 }
 
-interface TextExportOptions extends BaseExportOptions {
+export interface TextExportOptions extends BaseExportOptions {
   maxMessageLength: number;
   includeTimestamps: boolean;
 }
 
-interface CSVExportOptions extends BaseExportOptions {
+export interface CSVExportOptions extends BaseExportOptions {
   includeHeaders: boolean;
   delimiter: string;
   quoteFields: boolean;
 }
 
-interface MarkdownExportOptions extends BaseExportOptions {
+export interface MarkdownExportOptions extends BaseExportOptions {
   includeTableOfContents: boolean;
   includeSeverityIcons: boolean;
   maxMessageLength: number;
 }
 
-interface JUnitExportOptions {
+export interface JUnitExportOptions {
   includeSummary: false;
   includeIssues: true;
   includeMetrics: false;

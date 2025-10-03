@@ -5,7 +5,7 @@
  * to address traceability gaps and improve test coverage.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'bun:test';
 import { ESLintAdapter } from '../plugins/builtin/eslint-adapter.js';
 import { PrettierAdapter } from '../plugins/builtin/prettier-adapter.js';
 import { TypeScriptAdapter } from '../plugins/builtin/typescript-adapter.js';
@@ -84,6 +84,11 @@ describe('Built-in Tool Adapters', () => {
     });
 
     it('should handle missing ESLint gracefully', async () => {
+      // Mock executeCommand to simulate ESLint not being available
+      const mockExecuteCommand = vi.spyOn(adapter as any, 'executeCommand').mockRejectedValue(
+        new Error('ESLint not found')
+      );
+
       // Initialize adapter first
       await adapter.initialize(adapter.getDefaultConfig());
 
@@ -99,6 +104,9 @@ describe('Built-in Tool Adapters', () => {
       // Should handle missing ESLint gracefully
       expect(result.toolName).toBe('eslint');
       expect(result.status).toBe('error'); // ESLint not available
+
+      // Restore mock
+      mockExecuteCommand.mockRestore();
     });
 
     it('should check if ESLint is available', async () => {

@@ -3,6 +3,7 @@ import { AnalyzeCommand } from '../../src/commands/analyze';
 import { ProjectConfiguration } from '@dev-quality/types';
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
+import type { AnalysisResult } from '../../src/types';
 
 describe('AnalyzeCommand', () => {
   let mockStdoutWrite: ReturnType<typeof vi.spyOn>;
@@ -38,6 +39,45 @@ describe('AnalyzeCommand', () => {
   beforeEach(() => {
     mockStdoutWrite = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    // Mock the runToolAnalysis method to avoid delays
+    vi.spyOn(AnalyzeCommand.prototype, 'runToolAnalysis' as any).mockImplementation(
+      async (toolName: string, config: ProjectConfiguration): Promise<AnalysisResult> => {
+        return {
+          id: `${toolName}-mock-${Date.now()}`,
+          projectId: config.name ?? 'test-project',
+          timestamp: new Date().toISOString(),
+          duration: 10,
+          overallScore: 85,
+          toolResults: [
+            {
+              toolName,
+              executionTime: 10,
+              status: 'success',
+              issues: [],
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 85,
+              },
+            },
+          ],
+          summary: {
+            totalIssues: 0,
+            totalErrors: 0,
+            totalWarnings: 0,
+            totalFixable: 0,
+            overallScore: 85,
+            toolCount: 1,
+            executionTime: 10,
+          },
+          aiPrompts: [],
+        };
+      }
+    );
 
     writeFileSync(testConfigPath, JSON.stringify(mockConfig), 'utf-8');
   });
@@ -79,6 +119,7 @@ describe('AnalyzeCommand', () => {
     it('should run analysis successfully', async () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -90,6 +131,7 @@ describe('AnalyzeCommand', () => {
     it('should analyze only enabled tools', async () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -105,6 +147,7 @@ describe('AnalyzeCommand', () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
         tools: 'typescript',
+        noDashboard: true,
       });
 
       await command.execute();
@@ -118,6 +161,7 @@ describe('AnalyzeCommand', () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
         tools: 'typescript,eslint',
+        noDashboard: true,
       });
 
       await command.execute();
@@ -138,6 +182,7 @@ describe('AnalyzeCommand', () => {
 
       const command = new AnalyzeCommand({
         config: testConfigPath,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -154,6 +199,7 @@ describe('AnalyzeCommand', () => {
         config: testConfigPath,
         output: testOutputPath,
         json: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -167,6 +213,7 @@ describe('AnalyzeCommand', () => {
     it('should handle configuration loading errors', async () => {
       const command = new AnalyzeCommand({
         config: './non-existent-config.json',
+        noDashboard: true,
       });
 
       await expect(command.execute()).rejects.toThrow('Failed to load configuration');
@@ -177,6 +224,7 @@ describe('AnalyzeCommand', () => {
     it('should run tools in priority order', async () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -192,6 +240,7 @@ describe('AnalyzeCommand', () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
         failOnError: false,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -202,6 +251,7 @@ describe('AnalyzeCommand', () => {
     it('should generate analysis summary', async () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -217,6 +267,7 @@ describe('AnalyzeCommand', () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
         json: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -234,6 +285,7 @@ describe('AnalyzeCommand', () => {
         config: testConfigPath,
         output: testOutputPath,
         json: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -251,6 +303,7 @@ describe('AnalyzeCommand', () => {
         config: testConfigPath,
         output: testOutputPath,
         json: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -269,6 +322,7 @@ describe('AnalyzeCommand', () => {
         config: testConfigPath,
         output: testOutputPath,
         json: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -286,6 +340,7 @@ describe('AnalyzeCommand', () => {
         config: testConfigPath,
         output: testOutputPath,
         json: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -303,6 +358,7 @@ describe('AnalyzeCommand', () => {
         config: testConfigPath,
         output: testOutputPath,
         json: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -338,6 +394,7 @@ describe('AnalyzeCommand', () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
         verbose: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -353,6 +410,7 @@ describe('AnalyzeCommand', () => {
       const command = new AnalyzeCommand({
         config: testConfigPath,
         quiet: true,
+        noDashboard: true,
       });
 
       await command.execute();
@@ -369,6 +427,7 @@ describe('AnalyzeCommand', () => {
         config: testConfigPath,
         quiet: true,
         output: testOutputPath,
+        noDashboard: true,
       });
 
       await command.execute();

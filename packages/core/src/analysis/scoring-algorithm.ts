@@ -1,6 +1,8 @@
 import type {
   NormalizedResult,
-  NormalizedIssue,
+  NormalizedIssue
+} from './result-normalizer.js';
+import type {
   AggregatedCoverage,
   AggregatedPerformance,
   AggregatedSummary,

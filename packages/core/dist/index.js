@@ -54,4 +54,6 @@ export { DetectionCache } from './detection/detection-cache';
 export * from './plugins/index.js';
 // Analysis Engine exports
 export * from './analysis/index.js';
+// Coverage Analysis exports
+export * from './types/coverage.js';
 //# sourceMappingURL=index.js.map

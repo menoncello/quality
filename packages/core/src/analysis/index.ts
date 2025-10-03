@@ -100,3 +100,11 @@ export type {
   CLIConfiguration,
   CLIOutputFormat
 } from '../cli/cli-integration.js';
+
+// Coverage analysis
+export { CoverageAnalysisEngine } from './coverage-analysis-engine.js';
+export type {
+  CoverageReport,
+  CoverageSummary,
+  CoverageConfiguration
+} from '../types/coverage.js';

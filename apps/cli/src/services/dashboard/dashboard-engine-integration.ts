@@ -7,6 +7,7 @@ import type {
   AnalysisProgress,
   AnalysisContext,
   ToolResult,
+  AnalysisResult as CoreAnalysisResult,
 } from '@dev-quality/core';
 import type { AnalysisResult } from '../../types';
 import type { ProjectConfiguration } from '@dev-quality/types';
@@ -139,7 +140,11 @@ export class DashboardEngineIntegration {
           },
         },
         signal: undefined,
-        config: config as _any, // Type assertion to handle config interface differences
+        config: {
+          name: config?.name || 'Project',
+          version: config?.version || '1.0.0',
+          tools: config?.tools || [],
+        },
       };
 
       // Execute analysis
@@ -155,7 +160,7 @@ export class DashboardEngineIntegration {
 
       return {
         success: true,
-        result: transformCoreAnalysisResultToCLI(result as _any), // Type assertion for interface differences
+        result: transformCoreAnalysisResultToCLI(result as unknown as CoreAnalysisResult), // Type assertion for interface differences
       };
     } catch (error) {
       return {
