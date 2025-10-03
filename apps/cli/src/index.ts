@@ -70,6 +70,13 @@ program
   .option('-o, --output <path>', 'Output file path for results')
   .option('-f, --format <format>', 'Output format (json, html, md)', 'json')
   .option('--fail-on-error', 'Exit with error code on analysis failures', false)
+  .option('-d, --dashboard', 'Show interactive dashboard', false)
+  .option('--no-dashboard', 'Disable interactive dashboard')
+  .option('--export <format>', 'Export results to specified format (json, txt, csv, md, junit)')
+  .option('--filter <filter>', 'Apply filter to results (e.g., severity:error)')
+  .option('--sort-by <field>', 'Sort results by field (score, severity, file, tool)')
+  .option('--max-items <number>', 'Maximum number of items to display')
+  .option('--quick', 'Quick analysis with minimal output', false)
   .action(async options => {
     try {
       const analyzeCommand = new AnalyzeCommand(options);
@@ -112,6 +119,27 @@ program
       process.stderr.write(
         `Quick analysis failed: ${error instanceof Error ? error.message : error}\n`
       );
+      process.exit(1);
+    }
+  });
+
+program
+  .command('dashboard')
+  .alias('d')
+  .description('Launch interactive quality dashboard')
+  .option('-i, --input <path>', 'Load analysis results from file')
+  .option('-t, --tools <tools>', 'Comma-separated list of tools to run')
+  .option('--filter <filter>', 'Apply filter to results (e.g., severity:error)')
+  .option('--sort-by <field>', 'Sort results by field (score, severity, file, tool)')
+  .option('--max-items <number>', 'Maximum number of items to display')
+  .option('--auto-analyze', 'Automatically run analysis on startup', true)
+  .action(async options => {
+    try {
+      const { DashboardCommand } = await import('./commands/dashboard');
+      const dashboardCommand = new DashboardCommand(options);
+      await dashboardCommand.execute();
+    } catch (error) {
+      process.stderr.write(`Dashboard failed: ${error instanceof Error ? error.message : error}\n`);
       process.exit(1);
     }
   });
@@ -177,10 +205,9 @@ program.on('command:*', () => {
   process.exit(1);
 });
 
-if (process.argv.length === 2) {
-  render(React.createElement(App));
-} else {
-  program.parse();
-}
-
 export { program };
+
+// Export a function to start the interactive mode separately for tests
+export function startInteractiveMode() {
+  render(React.createElement(App));
+}

@@ -116,3 +116,135 @@
 3. **Configuration Validation:** Validate all configuration inputs
 4. **Performance Optimization:** Cache results and avoid redundant operations
 5. **Testability:** Design components for easy unit testing
+
+## CLI Dashboard Development Standards
+
+### **TypeScript Configuration Requirements**
+
+- **strictNullChecks:** MUST be enabled in tsconfig.json for proper type safety
+- **Strict Mode:** Enable all strict type checking options for dashboard components
+- **Interface Consistency:** Ensure all AnalysisResult interfaces match between packages
+
+### **Ink Component Standards**
+
+- **Property Validation:** Only use documented Ink component properties
+- **Forbidden Properties:** NEVER use `marginLeft` or `backgroundColor` on Text components
+- **Styling Approach:** Use Ink's built-in styling props: `padding`, `margin`, `color`, `dimColor`
+- **Component API:** Always check Ink documentation before using component properties
+
+```typescript
+// ❌ WRONG - Properties don't exist
+<Text marginLeft={2} backgroundColor="blue">Content</Text>
+
+// ✅ CORRECT - Use proper Ink properties
+<Box paddingLeft={2}>
+  <Text color="blue">Content</Text>
+</Box>
+```
+
+### **State Management Standards**
+
+- **Interface Synchronization:** Store interfaces must match component usage patterns
+- **Property Existence:** Ensure all accessed properties exist in store interface
+- **Type Safety:** Store state must be strongly typed, no dynamic property access
+
+```typescript
+// ❌ WRONG - Property doesn't exist in interface
+const currentView = useDashboardStore(state => state.currentView);
+
+// ✅ CORRECT - Property exists in interface
+interface DashboardStore {
+  currentView: 'dashboard' | 'issue-list' | 'issue-details';
+  // ... other properties
+}
+const currentView = useDashboardStore(state => state.currentView);
+```
+
+### **Variable Management Standards**
+
+- **Unused Variables:** All unused variables must be prefixed with underscore `_`
+- **Destructuring:** Use underscore prefix for unused destructured properties
+- **Function Parameters:** Unused parameters must be prefixed with underscore
+
+```typescript
+// ❌ WRONG - Unused variables not prefixed
+const { selectedIssue, setAnalyzing } = useDashboardStore();
+const handleClick = (index, item, value) => { /* only uses index */ };
+
+// ✅ CORRECT - Unused variables prefixed
+const { selectedIssue: _selectedIssue, setAnalyzing: _setAnalyzing } = useDashboardStore();
+const handleClick = (index, _item, _value) => { /* only uses index */ };
+```
+
+### **Dashboard-Specific Anti-patterns**
+
+1. **Interface Mismatch:** Store properties not matching component usage
+2. **Ink Property Abuse:** Using non-existent styling properties
+3. **Type Confusion:** Date objects assigned to string properties
+4. **Console Logging:** Direct console statements in dashboard components
+5. **Mock Type Issues:** Mock engines not implementing proper interfaces
+
+### **Dashboard Development Workflow**
+
+1. **Interface First:** Define all store interfaces before implementation
+2. **Component Validation:** Verify Ink component properties in documentation
+3. **Type Checking:** Run TypeScript compilation after each component
+4. **Store Testing:** Test store state management with mock data
+5. **Integration Testing:** Verify dashboard components with real analysis results
+
+### **Error Prevention Patterns**
+
+#### **Ink Component Validation**
+```typescript
+// Always verify component properties in Ink docs
+// Common safe properties for Text component:
+interface TextProps {
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  color?: ColorName;
+  backgroundColor?: never; // Not supported on Text
+  marginLeft?: never;     // Not supported on Text
+}
+```
+
+#### **Store Interface Design**
+```typescript
+// Design store interfaces to match component needs
+interface DashboardStore {
+  // Core state properties
+  currentResult: AnalysisResult | null;
+  filteredIssues: Issue[];
+  selectedIssue: Issue | null;
+  isAnalyzing: boolean;
+
+  // UI state properties
+  currentView: DashboardView;
+  currentPage: number;
+  itemsPerPage: number;
+
+  // Action methods
+  setCurrentView: (view: DashboardView) => void;
+  setSelectedIssue: (issue: Issue | null) => void;
+  // ... other methods
+}
+```
+
+#### **Date vs String Handling**
+```typescript
+// ❌ WRONG - Date assigned to string property
+const timestamp: string = new Date();
+
+// ✅ CORRECT - Proper date to string conversion
+const timestamp: string = new Date().toISOString();
+const displayDate: string = new Date().toLocaleDateString();
+```
+
+### **Quality Gates for Dashboard Development**
+
+- **TypeScript Compilation:** Must compile with strictNullChecks enabled
+- **ESLint Compliance:** Zero unused variable violations
+- **Ink Component Validation:** All component properties verified against documentation
+- **Interface Consistency:** Store interfaces match component usage patterns
+- **No Console Statements:** All logging through proper utilities

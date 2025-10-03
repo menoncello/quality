@@ -208,7 +208,7 @@ export class ResourceManager extends EventEmitter {
     const cpuStatus = this.getResourceStatus(
       this.stats.cpu.usage,
       this.config.cpu.warningThreshold,
-      this.config.cpu.criticalThreshold
+      this.config.cpu.warningThreshold
     );
 
     const allocationsByType = new Map<string, number>();

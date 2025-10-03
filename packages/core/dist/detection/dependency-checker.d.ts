@@ -19,3 +19,4 @@ export declare class DependencyChecker {
     private satisfiesVersion;
     private loadPackageJson;
 }
+//# sourceMappingURL=dependency-checker.d.ts.map

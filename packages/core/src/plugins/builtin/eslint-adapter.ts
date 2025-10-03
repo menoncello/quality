@@ -6,6 +6,7 @@ import type {
   ToolConfiguration,
   Issue
 } from '../analysis-plugin.js';
+import fs from 'fs';
 
 /**
  * ESLint tool adapter for JavaScript/TypeScript linting
@@ -183,7 +184,23 @@ Usage:
     const args: string[] = [];
 
     if (useLocalESLint) {
-      args.push(require.resolve('eslint/bin/eslint.js'));
+      try {
+        args.push(require.resolve('eslint/bin/eslint.js'));
+      } catch {
+        // Fallback for newer ESLint versions or different installations
+        try {
+          const eslintPath = require.resolve('eslint');
+          const basePath = eslintPath.replace(/\/lib\/api\.js$/, '');
+          const eslintBin = `${basePath}/bin/eslint.js`;
+          if (fs.existsSync(eslintBin)) {
+            args.push(eslintBin);
+          } else {
+            args.push('eslint'); // Global fallback
+          }
+        } catch {
+          args.push('eslint'); // Global fallback
+        }
+      }
     }
 
     // Add configuration options

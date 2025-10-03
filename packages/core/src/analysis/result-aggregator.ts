@@ -1,9 +1,15 @@
 import type {
   NormalizedResult,
   NormalizedIssue,
-  NormalizedMetrics,
-  Logger
+  NormalizedMetrics
 } from './result-normalizer.js';
+
+export interface Logger {
+  info(message: string, ...args: any[]): void;
+  warn(message: string, ...args: any[]): void;
+  error(message: string, ...args: any[]): void;
+  debug(message: string, ...args: any[]): void;
+}
 import type {
   AnalysisResult,
   ResultSummary,
@@ -677,7 +683,7 @@ export class ResultAggregator {
     return {
       toolName: normalizedResult.toolName,
       executionTime: normalizedResult.executionTime,
-      status: normalizedResult.status,
+      status: normalizedResult.status as 'error' | 'success' | 'warning',
       issues: normalizedResult.issues.map(issue => ({
         id: issue.id,
         type: issue.severity,

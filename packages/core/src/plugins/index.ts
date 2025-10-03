@@ -12,7 +12,10 @@ export type {
   CacheInterface,
   Logger,
   ToolConfiguration,
-  ProjectConfiguration
+  ProjectConfiguration,
+  AnalysisResult,
+  ResultSummary,
+  AIPrompt
 } from './analysis-plugin.js';
 
 // Plugin management

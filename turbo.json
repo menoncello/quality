@@ -1,0 +1,128 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "globalDependencies": [
+    "**/.env.*local",
+    "tsconfig.json",
+    "tsconfig.*.json"
+  ],
+  "globalEnv": [
+    "NODE_ENV",
+    "TURBO_UI"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "cache": true,
+      "inputs": ["src/**", "package.json"]
+    },
+    "build:cli": {
+      "dependsOn": ["@dev-quality/types#build", "@dev-quality/utils#build", "@dev-quality/core#build"],
+      "outputs": ["dist/**"],
+      "cache": true,
+      "inputs": ["src/**", "package.json"]
+    },
+    "build:packages": {
+      "outputs": ["dist/**"],
+      "cache": true,
+      "inputs": ["src/**", "package.json"]
+    },
+    "build:all": {
+      "dependsOn": ["@dev-quality/types#build", "@dev-quality/utils#build", "@dev-quality/core#build", "@dev-quality/cli#build"],
+      "outputs": ["dist/**"],
+      "cache": true,
+      "inputs": ["src/**", "package.json"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": false,
+      "inputs": ["src/**", "tests/**", "package.json"],
+      "passThroughEnv": ["NODE_ENV"]
+    },
+    "test:cli": {
+      "dependsOn": ["build:cli"],
+      "outputs": [],
+      "cache": false,
+      "inputs": ["src/**", "tests/**", "package.json"],
+      "passThroughEnv": ["NODE_ENV"]
+    },
+    "test:all": {
+      "dependsOn": ["@dev-quality/types#build", "@dev-quality/utils#build", "@dev-quality/core#build", "@dev-quality/cli#build"],
+      "outputs": [],
+      "cache": false,
+      "inputs": ["src/**", "tests/**", "package.json"],
+      "passThroughEnv": ["NODE_ENV"]
+    },
+    "lint": {
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "package.json", "eslint.config.js", ".eslintrc.*"]
+    },
+    "lint:cli": {
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "package.json", "eslint.config.js", ".eslintrc.*"]
+    },
+    "lint:all": {
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "package.json", "eslint.config.js", ".eslintrc.*"],
+      "dependsOn": ["@dev-quality/types#build", "@dev-quality/utils#build", "@dev-quality/core#build"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
+    },
+    "typecheck:cli": {
+      "dependsOn": ["build:cli"],
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
+    },
+    "typecheck:all": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
+    },
+    "format": {
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "package.json"]
+    },
+    "format:check": {
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "package.json"]
+    },
+    "format:all": {
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "package.json"]
+    },
+    "quality": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": false,
+      "inputs": ["src/**", "tests/**", "package.json"]
+    },
+    "quality:fix": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": false,
+      "inputs": ["src/**", "tests/**", "package.json"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "inputs": ["src/**", "package.json"]
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
+    }
+  }
+}
