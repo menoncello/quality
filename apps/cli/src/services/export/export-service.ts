@@ -467,9 +467,9 @@ export class ExportService {
 
       if (issue.type === 'error') {
         xmlLines.push(`    <testcase name="${testCaseName}" classname="${className}" time="0">`);
-        xmlLines.push(`      <error message="${this.escapeXml(issue.message)}">`);
+        xmlLines.push(`      <error message="${this.escapeXml(issue['message'])}">`);
         xmlLines.push(
-          `        ${this.escapeXml(`Tool: ${issue.toolName}, Line: ${issue.lineNumber}, Rule: ${issue.ruleId ?? 'N/A'}`)}`
+          `        ${this.escapeXml(`Tool: ${issue['toolName']}, Line: ${issue['lineNumber']}, Rule: ${issue['ruleId'] ?? 'N/A'}`)}`
         );
         xmlLines.push(`      </error>`);
         xmlLines.push(`    </testcase>`);
