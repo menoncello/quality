@@ -240,9 +240,9 @@ describe('AnalyzeCommand', () => {
 
       const results = JSON.parse(readFileSync(testOutputPath, 'utf-8'));
 
-      results.forEach((result: { tool: string }) => {
-        expect(result.tool).toBeDefined();
-        expect(typeof result.tool).toBe('string');
+      results.forEach((result: { toolResults: Array<{ toolName: string }> }) => {
+        expect(result.toolResults[0].toolName).toBeDefined();
+        expect(typeof result.toolResults[0].toolName).toBe('string');
       });
     });
 
@@ -257,9 +257,10 @@ describe('AnalyzeCommand', () => {
 
       const results = JSON.parse(readFileSync(testOutputPath, 'utf-8'));
 
-      results.forEach((result: { success: boolean }) => {
-        expect(result.success).toBeDefined();
-        expect(typeof result.success).toBe('boolean');
+      results.forEach((result: { toolResults: Array<{ status: string }> }) => {
+        expect(result.toolResults[0].status).toBeDefined();
+        expect(typeof result.toolResults[0].status).toBe('string');
+        expect(['success', 'error', 'warning']).toContain(result.toolResults[0].status);
       });
     });
 
@@ -310,15 +311,23 @@ describe('AnalyzeCommand', () => {
 
       results.forEach(
         (result: {
-          data: {
-            issues?: number;
-            warnings?: number;
-            suggestions?: number;
-            filesAnalyzed?: number;
+          summary: {
+            totalIssues?: number;
+            totalWarnings?: number;
+            totalErrors?: number;
           };
+          toolResults: Array<{
+            metrics?: {
+              issuesCount?: number;
+              warningsCount?: number;
+              errorsCount?: number;
+            };
+          }>;
         }) => {
-          expect(result.data).toBeDefined();
-          expect(typeof result.data).toBe('object');
+          expect(result.summary).toBeDefined();
+          expect(typeof result.summary).toBe('object');
+          expect(result.toolResults[0].metrics).toBeDefined();
+          expect(typeof result.toolResults[0].metrics).toBe('object');
         }
       );
     });

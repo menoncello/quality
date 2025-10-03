@@ -41,3 +41,4 @@ export declare class AutoConfigurationDetectionEngine implements DetectionEngine
     private generateIssues;
     private generateRecommendations;
 }
+//# sourceMappingURL=detection-engine.d.ts.map

@@ -12,3 +12,4 @@ export declare class ProjectDetector {
     private hasTests;
     private hasMonorepoConfig;
 }
+//# sourceMappingURL=project-detector.d.ts.map

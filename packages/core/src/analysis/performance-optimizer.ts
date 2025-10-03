@@ -100,7 +100,7 @@ export class PerformanceOptimizer {
   private startTime: number = 0;
   private memorySnapshots: number[] = [];
   private cpuSnapshots: number[] = [];
-  private cache: Map<string, CacheEntry> = new Map();
+  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
   private taskTimers: Map<string, TaskTimer> = new Map();
   private taskMetrics: PerformanceMetrics[] = [];
   private memoryUsageHistory: Array<{
@@ -124,7 +124,7 @@ export class PerformanceOptimizer {
     peak: 0,
     total: 0
   };
-  private defaultConfig: PerformanceOptimizationConfig = {
+  private defaultConfig: PerformanceOptimizerConfig = {
     maxConcurrency: 10,
     maxMemoryUsage: 1024 * 1024 * 1024, // 1GB
     taskTimeout: 30000,
@@ -526,7 +526,7 @@ export class PerformanceOptimizer {
   /**
    * Get current configuration
    */
-  getCurrentConfig(): PerformanceOptimizationConfig {
+  getCurrentConfig(): PerformanceOptimizerConfig {
     return { ...this.defaultConfig };
   }
 
@@ -581,7 +581,7 @@ export class PerformanceOptimizer {
   /**
    * Validate configuration
    */
-  validateConfig(config: PerformanceOptimizationConfig): boolean {
+  validateConfig(config: PerformanceOptimizerConfig): boolean {
     try {
       return (
         config.maxConcurrency > 0 &&

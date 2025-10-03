@@ -7,7 +7,7 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "dev-quality": "dist/index.js"
+    "dev-quality": "dist/cli-runner.js"
   },
   "exports": {
     ".": {

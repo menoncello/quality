@@ -56,6 +56,9 @@ Thumbs.db
 .eslintcache
 .stylelintcache
 
+# Turborepo
+.turbo/
+
 # DevQuality specific
 .devquality-backup/
 .dev-quality.json

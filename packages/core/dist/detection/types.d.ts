@@ -85,3 +85,4 @@ export interface StructureAnalyzer {
     detectMonorepoType(rootPath: string): Promise<ProjectStructure['workspaceType']>;
     calculateComplexity(structure: ProjectStructure): 'simple' | 'medium' | 'complex';
 }
+//# sourceMappingURL=types.d.ts.map

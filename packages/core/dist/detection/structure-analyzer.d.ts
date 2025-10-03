@@ -13,3 +13,4 @@ export declare class StructureAnalyzer {
     private detectPackageManager;
     calculateComplexity(structure: ProjectStructure): 'simple' | 'medium' | 'complex';
 }
+//# sourceMappingURL=structure-analyzer.d.ts.map

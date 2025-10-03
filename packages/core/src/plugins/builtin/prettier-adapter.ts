@@ -6,6 +6,7 @@ import type {
   ToolConfiguration,
   Issue
 } from '../analysis-plugin.js';
+import fs from 'fs';
 
 /**
  * Prettier tool adapter for code formatting checks
@@ -210,7 +211,23 @@ Usage:
     const args: string[] = [];
 
     if (useLocalPrettier) {
-      args.push(require.resolve('prettier/bin-prettier.js'));
+      try {
+        args.push(require.resolve('prettier/bin-prettier.js'));
+      } catch {
+        // Fallback for newer Prettier versions or different installations
+        try {
+          const prettierPath = require.resolve('prettier');
+          const basePath = prettierPath.replace(/\/index\.cjs$/, '');
+          const prettierBin = `${basePath}/bin/prettier.cjs`;
+          if (fs.existsSync(prettierBin)) {
+            args.push(prettierBin);
+          } else {
+            args.push('prettier'); // Global fallback
+          }
+        } catch {
+          args.push('prettier'); // Global fallback
+        }
+      }
     }
 
     // Add configuration options

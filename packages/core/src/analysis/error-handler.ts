@@ -713,7 +713,7 @@ export class ErrorHandler extends EventEmitter {
     };
 
     if (this.config.reporting.includeStackTrace) {
-      logData.stackTrace = error.originalError.stack;
+      (logData as any).stackTrace = error.originalError.stack;
     }
 
     switch (error.severity) {
