@@ -100,13 +100,13 @@ export type {
   StructureAnalyzer as StructureAnalyzerInterface,
 } from './detection/types';
 
-export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };
+// Plugin System exports (excluding conflicting types)
+export type {
+  ProjectConfiguration,
+  AnalysisResult,
+  ValidationResult as PluginValidationResult
+} from './plugins/index.js';
 
-// Plugin System exports
-export * from './plugins/index.js';
-
-// Analysis Engine exports
-export * from './analysis/index.js';
 
 // Coverage Analysis exports
 export * from './types/coverage.js';
@@ -127,3 +127,6 @@ export { BunTestAdapter } from './plugins/builtin/bun-test-adapter.js';
 
 // Export AnalysisProgress type from analysis engine
 export type { AnalysisProgress } from './analysis/analysis-engine.js';
+
+// Issue Prioritization Engine exports
+export * from './prioritization/index.js';

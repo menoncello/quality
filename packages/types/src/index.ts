@@ -73,3 +73,6 @@ export interface CacheEntry {
   timestamp: string;
   ttl: number;
 }
+
+// Export prioritization types
+export * from './prioritization';

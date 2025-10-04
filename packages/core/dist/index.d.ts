@@ -29,13 +29,12 @@ export { DependencyChecker } from './detection/dependency-checker';
 export { StructureAnalyzer } from './detection/structure-analyzer';
 export { DetectionCache } from './detection/detection-cache';
 export type { DetectedProject, DetectedTool, ConfigFile, DependencyInfo, ProjectStructure, DetectionResult, DetectionEngine, ConfigAnalyzer, DependencyChecker as DependencyCheckerInterface, StructureAnalyzer as StructureAnalyzerInterface, } from './detection/types';
-export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };
-export * from './plugins/index.js';
-export * from './analysis/index.js';
+export type { ProjectConfiguration, AnalysisResult, ValidationResult as PluginValidationResult } from './plugins/index.js';
 export * from './types/coverage.js';
 export type { Issue, ToolResult, CoverageData, AnalysisContext, ToolConfiguration } from './plugins/analysis-plugin.js';
 export { AnalysisEngine } from './analysis/analysis-engine.js';
 export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine.js';
 export { BunTestAdapter } from './plugins/builtin/bun-test-adapter.js';
 export type { AnalysisProgress } from './analysis/analysis-engine.js';
+export * from './prioritization/index.js';
 //# sourceMappingURL=index.d.ts.map

@@ -61,7 +61,7 @@ export interface ToolResult {
  */
 export interface Issue {
   id: string;
-  type: string;
+  type: "error" | "warning" | "info";
   toolName: string;
   filePath: string;
   lineNumber: number;
@@ -69,7 +69,7 @@ export interface Issue {
   ruleId?: string;
   fixable: boolean;
   suggestion?: string;
-  score: number;
+  score: number; // Basic score - to be enhanced with prioritization
 }
 
 /**

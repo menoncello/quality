@@ -32,6 +32,9 @@ jobs:
     - name: Install dependencies
       run: bun install --frozen-lockfile
 
+    - name: Build packages with Turborepo
+      run: turbo run build:all
+
     - name: Run type checking with Turborepo
       run: turbo run typecheck:all
 
@@ -40,9 +43,6 @@ jobs:
 
     - name: Run tests with Turborepo
       run: turbo run test:all
-
-    - name: Build packages with Turborepo
-      run: turbo run build:all
 
   security:
     runs-on: ubuntu-latest
