@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { render } from 'ink';
 import React from 'react';
 
-import { CoverageDashboard } from '../components/coverage/index.js';
+import { CoverageDashboard } from '../components/coverage/index';
 import type {
   CoverageReport,
   CoverageAnalysisEngine,
