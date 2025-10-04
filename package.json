@@ -17,6 +17,7 @@
     "test": "turbo run test",
     "test:cli": "turbo run test:cli",
     "test:all": "turbo run test:all",
+    "test:claude": "turbo run test:claude",
     "lint": "turbo run lint",
     "lint:cli": "turbo run lint:cli",
     "lint:all": "turbo run lint:all",

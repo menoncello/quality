@@ -1,0 +1,15 @@
+# Gate YAML (copy/paste):
+nfr_validation:
+  _assessed: [security, performance, reliability, maintainability]
+  security:
+    status: PASS
+    notes: 'Access controls and data protection implemented for coverage data'
+  performance:
+    status: CONCERNS
+    notes: '2-minute target specified but no coverage-specific performance tests found'
+  reliability:
+    status: PASS
+    notes: 'Error handling and graceful degradation implemented with timeout management'
+  maintainability:
+    status: CONCERNS
+    notes: 'Test coverage gaps for quality scoring and trend analysis features'

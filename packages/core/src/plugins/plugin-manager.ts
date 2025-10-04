@@ -71,7 +71,7 @@ export class PluginManager {
 
     for (const [name, plugin] of this.plugins) {
       try {
-        const toolConfig = pluginConfigs[name] || plugin.getDefaultConfig();
+        const toolConfig = (pluginConfigs[name] || plugin.getDefaultConfig()) as ToolConfiguration;
         const validation = plugin.validateConfig(toolConfig);
 
         if (!validation.valid) {
@@ -83,12 +83,12 @@ export class PluginManager {
         }
 
         // Convert ToolConfiguration to PluginConfig for initialize
-        const pluginConfig: PluginConfig = {
+        const pluginConfig = {
           enabled: toolConfig.enabled,
           timeout: this.getConfigValue(toolConfig, 'timeout', 30000),
           cacheEnabled: this.getConfigValue(toolConfig, 'cacheEnabled', true),
           logLevel: this.getConfigValue(toolConfig, 'logLevel', 'info') as 'error' | 'warn' | 'info' | 'debug',
-          ...toolConfig.config
+          ...(toolConfig.config as Record<string, unknown>)
         };
 
         await plugin.initialize(pluginConfig);

@@ -1,6 +1,7 @@
 import type { Logger } from '../plugins/analysis-plugin.js';
 import type { AnalysisEngine, AnalysisProgress } from '../analysis/analysis-engine.js';
-import type { ReportFormat, ReportConfig } from '../analysis/result-reporter.js';
+import type { ReportConfig } from '../analysis/result-reporter.js';
+import { ReportFormat } from '../analysis/result-reporter.js';
 import type { ProjectConfiguration } from '../plugins/analysis-plugin.js';
 
 /**

@@ -181,6 +181,33 @@ program
   });
 
 program
+  .command('coverage')
+  .alias('cov')
+  .description('Analyze and visualize test coverage')
+  .option('-o, --output <path>', 'Output file path for report')
+  .option('-f, --format <format>', 'Report format (json, html, markdown, csv)', 'json')
+  .option('-i, --interactive', 'Show interactive dashboard', false)
+  .option('--exclude <patterns...>', 'Exclude patterns for coverage analysis')
+  .option('--include <pattern>', 'Include pattern for coverage analysis')
+  .option('--coverage-threshold <threshold>', 'Coverage threshold percentage', '80')
+  .option('--critical-paths <paths...>', 'Critical path patterns')
+  .option('--no-trends', 'Disable trend analysis')
+  .option('--no-quality-score', 'Disable quality scoring')
+  .option('--no-risk-assessment', 'Disable risk assessment')
+  .action(async options => {
+    try {
+      const { CoverageCommand } = await import('./commands/coverage');
+      const coverageCommand = new CoverageCommand();
+      await coverageCommand.execute(options);
+    } catch (error) {
+      process.stderr.write(
+        `Coverage analysis failed: ${error instanceof Error ? error.message : error}\n`
+      );
+      process.exit(1);
+    }
+  });
+
+program
   .command('history')
   .description('View analysis history and trends')
   .option('-n, --limit <number>', 'Number of history entries to show', '10')

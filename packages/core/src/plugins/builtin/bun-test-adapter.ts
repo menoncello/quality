@@ -1,4 +1,5 @@
 import { BaseToolAdapter } from '../base-tool-adapter.js';
+import { CoverageAnalyzer } from '../../services/coverage-analyzer.js';
 import type {
   AnalysisContext,
   ToolResult,
@@ -7,6 +8,8 @@ import type {
   Issue,
   CoverageData
 } from '../analysis-plugin.js';
+
+import type { EnhancedCoverageData } from '../../types/coverage.js';
 
 /**
  * Bun Test tool adapter for test execution and coverage analysis
@@ -30,10 +33,18 @@ export class BunTestAdapter extends BaseToolAdapter {
           statements: 80,
           branches: 80,
           functions: 80,
-          lines: 80
+          lines: 80,
+          criticalPaths: 90
         },
         coverageDirectory: 'coverage',
         coverageReporters: ['text', 'lcov', 'json'],
+        enableAdvancedCoverage: true,
+        coverageExclusions: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/*.test.*', '**/*.spec.*'],
+        coverageIncludePatterns: ['**/*.{ts,tsx,js,jsx}'],
+        criticalPaths: [],
+        enableTrending: true,
+        enableQualityScoring: true,
+        enableRiskAssessment: true,
         bail: false,
         verbose: false,
         watch: false,
@@ -82,13 +93,42 @@ export class BunTestAdapter extends BaseToolAdapter {
     // Validate coverage threshold
     if (cfg.coverageThreshold) {
       const threshold = cfg.coverageThreshold;
-      const thresholdKeys = ['statements', 'branches', 'functions', 'lines'];
+      const thresholdKeys = ['statements', 'branches', 'functions', 'lines', 'criticalPaths'];
 
       for (const key of thresholdKeys) {
         if (threshold[key] !== undefined && (typeof threshold[key] !== 'number' || threshold[key] < 0 || threshold[key] > 100)) {
           errors.push(`Coverage threshold ${key} must be a number between 0 and 100`);
         }
       }
+    }
+
+    // Validate advanced coverage options
+    if (cfg.enableAdvancedCoverage !== undefined && typeof cfg.enableAdvancedCoverage !== 'boolean') {
+      errors.push('Bun Test enableAdvancedCoverage must be a boolean');
+    }
+
+    if (cfg.coverageExclusions && !Array.isArray(cfg.coverageExclusions)) {
+      errors.push('Bun Test coverageExclusions must be an array');
+    }
+
+    if (cfg.coverageIncludePatterns && !Array.isArray(cfg.coverageIncludePatterns)) {
+      errors.push('Bun Test coverageIncludePatterns must be an array');
+    }
+
+    if (cfg.criticalPaths && !Array.isArray(cfg.criticalPaths)) {
+      errors.push('Bun Test criticalPaths must be an array');
+    }
+
+    if (cfg.enableTrending !== undefined && typeof cfg.enableTrending !== 'boolean') {
+      errors.push('Bun Test enableTrending must be a boolean');
+    }
+
+    if (cfg.enableQualityScoring !== undefined && typeof cfg.enableQualityScoring !== 'boolean') {
+      errors.push('Bun Test enableQualityScoring must be a boolean');
+    }
+
+    if (cfg.enableRiskAssessment !== undefined && typeof cfg.enableRiskAssessment !== 'boolean') {
+      errors.push('Bun Test enableRiskAssessment must be a boolean');
     }
 
     return {
@@ -270,13 +310,18 @@ Usage:
 
     try {
       const coveragePath = `${context.projectPath}/${config.coverageDirectory || 'coverage'}/coverage-summary.json`;
+      const detailedCoveragePath = `${context.projectPath}/${config.coverageDirectory || 'coverage'}/coverage-final.json`;
       const fs = require('fs/promises');
 
-      try {
-        const coverageData = await fs.readFile(coveragePath, 'utf8');
-        const summary = JSON.parse(coverageData);
+      let basicCoverage: CoverageData | undefined;
+      let detailedCoverage: any;
 
-        return {
+      try {
+        // Read basic coverage summary
+        const summaryData = await fs.readFile(coveragePath, 'utf8');
+        const summary = JSON.parse(summaryData);
+
+        basicCoverage = {
           lines: {
             total: summary.total?.lines?.total || 0,
             covered: summary.total?.lines?.covered || 0,
@@ -302,9 +347,51 @@ Usage:
         // Coverage file not found or invalid
         return undefined;
       }
+
+      try {
+        // Read detailed coverage data for enhanced analysis
+        const detailedData = await fs.readFile(detailedCoveragePath, 'utf8');
+        detailedCoverage = JSON.parse(detailedData);
+      } catch {
+        // Detailed coverage not available, will use basic coverage only
+        detailedCoverage = null;
+      }
+
+      // Use enhanced coverage analyzer if detailed data is available
+      if (detailedCoverage && config.enableAdvancedCoverage !== false) {
+        const analyzer = new CoverageAnalyzer(this.getCoverageAnalyzerConfig(config));
+        const enhancedCoverage = await analyzer.analyzeCoverage(basicCoverage, context, detailedCoverage);
+
+        // Return the enhanced coverage data which extends the basic CoverageData
+        return enhancedCoverage as CoverageData;
+      }
+
+      return basicCoverage;
     } catch {
       return undefined;
     }
+  }
+
+  /**
+   * Get coverage analyzer configuration from tool config
+   */
+  private getCoverageAnalyzerConfig(config: any): any {
+    return {
+      thresholds: config.coverageThreshold || {
+        overall: 80,
+        lines: 80,
+        branches: 80,
+        functions: 80,
+        statements: 80,
+        criticalPaths: 90
+      },
+      criticalPaths: config.criticalPaths || [],
+      exclusions: config.coverageExclusions || ['**/node_modules/**', '**/dist/**', '**/build/**', '**/*.test.*', '**/*.spec.*'],
+      includePatterns: config.coverageIncludePatterns || ['**/*.{ts,tsx,js,jsx}'],
+      enableTrending: config.enableTrending !== false,
+      enableQualityScoring: config.enableQualityScoring !== false,
+      enableRiskAssessment: config.enableRiskAssessment !== false
+    };
   }
 
   /**

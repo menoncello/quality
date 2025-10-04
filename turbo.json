@@ -120,6 +120,13 @@
       "persistent": true,
       "inputs": ["src/**", "package.json"]
     },
+    "test:claude": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": false,
+      "inputs": ["src/**", "tests/**", "package.json"],
+      "passThroughEnv": ["NODE_ENV", "CLAUDECODE"]
+    },
     "clean": {
       "cache": false,
       "outputs": []

@@ -107,3 +107,23 @@ export * from './plugins/index.js';
 
 // Analysis Engine exports
 export * from './analysis/index.js';
+
+// Coverage Analysis exports
+export * from './types/coverage.js';
+
+// Additional type exports for CLI compatibility
+export type {
+  Issue,
+  ToolResult,
+  CoverageData,
+  AnalysisContext,
+  ToolConfiguration
+} from './plugins/analysis-plugin.js';
+
+// Additional exports that CLI needs
+export { AnalysisEngine } from './analysis/analysis-engine.js';
+export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine.js';
+export { BunTestAdapter } from './plugins/builtin/bun-test-adapter.js';
+
+// Export AnalysisProgress type from analysis engine
+export type { AnalysisProgress } from './analysis/analysis-engine.js';

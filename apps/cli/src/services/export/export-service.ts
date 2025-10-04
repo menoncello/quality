@@ -7,7 +7,14 @@ import { dirname, resolve } from 'node:path';
 import type { AnalysisResult, Issue } from '../../types/analysis';
 import type { ExportFormat, ExportRequest, ExportResult, ExportProgress } from '../../types/export';
 import type { DashboardMetrics } from '../../types/dashboard';
-import type { ExportOptions } from './report-formats';
+import type {
+  ExportOptions,
+  JSONExportOptions,
+  TextExportOptions,
+  CSVExportOptions,
+  MarkdownExportOptions,
+  JUnitExportOptions,
+} from './report-formats';
 import { transformCoreIssueToCLI } from '../../utils/type-transformers';
 
 // Proper type definitions instead of any
@@ -136,19 +143,38 @@ export class ExportService {
       let content: string;
       switch (format.id) {
         case 'json':
-          content = this.generateJSON(analysisResult, filteredIssues, metrics, options as _any);
+          content = this.generateJSON(
+            analysisResult,
+            filteredIssues,
+            metrics,
+            options as JSONExportOptions
+          );
           break;
         case 'txt':
-          content = this.generateText(analysisResult, filteredIssues, metrics, options as _any);
+          content = this.generateText(
+            analysisResult,
+            filteredIssues,
+            metrics,
+            options as TextExportOptions
+          );
           break;
         case 'csv':
-          content = this.generateCSV(filteredIssues, options as _any);
+          content = this.generateCSV(filteredIssues, options as CSVExportOptions);
           break;
         case 'md':
-          content = this.generateMarkdown(analysisResult, filteredIssues, metrics, options as _any);
+          content = this.generateMarkdown(
+            analysisResult,
+            filteredIssues,
+            metrics,
+            options as MarkdownExportOptions
+          );
           break;
         case 'junit':
-          content = this.generateJUnitXML(analysisResult, filteredIssues, options as _any);
+          content = this.generateJUnitXML(
+            analysisResult,
+            filteredIssues,
+            options as JUnitExportOptions
+          );
           break;
         default:
           throw new Error(`Export format ${format.id} not implemented`);
@@ -441,17 +467,17 @@ export class ExportService {
 
       if (issue.type === 'error') {
         xmlLines.push(`    <testcase name="${testCaseName}" classname="${className}" time="0">`);
-        xmlLines.push(`      <error message="${this.escapeXml(issue.message)}">`);
+        xmlLines.push(`      <error message="${this.escapeXml(issue['message'])}">`);
         xmlLines.push(
-          `        ${this.escapeXml(`Tool: ${issue.toolName}, Line: ${issue.lineNumber}, Rule: ${issue.ruleId ?? 'N/A'}`)}`
+          `        ${this.escapeXml(`Tool: ${issue['toolName']}, Line: ${issue['lineNumber']}, Rule: ${issue['ruleId'] ?? 'N/A'}`)}`
         );
         xmlLines.push(`      </error>`);
         xmlLines.push(`    </testcase>`);
       } else if (issue.type === 'warning') {
         xmlLines.push(`    <testcase name="${testCaseName}" classname="${className}" time="0">`);
-        xmlLines.push(`      <failure message="${this.escapeXml(issue.message)}">`);
+        xmlLines.push(`      <failure message="${this.escapeXml(issue['message'])}">`);
         xmlLines.push(
-          `        ${this.escapeXml(`Tool: ${issue.toolName}, Line: ${issue.lineNumber}, Rule: ${issue.ruleId ?? 'N/A'}`)}`
+          `        ${this.escapeXml(`Tool: ${issue['toolName']}, Line: ${issue['lineNumber']}, Rule: ${issue['ruleId'] ?? 'N/A'}`)}`
         );
         xmlLines.push(`      </failure>`);
         xmlLines.push(`    </testcase>`);

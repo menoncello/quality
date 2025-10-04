@@ -32,4 +32,10 @@ export type { DetectedProject, DetectedTool, ConfigFile, DependencyInfo, Project
 export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };
 export * from './plugins/index.js';
 export * from './analysis/index.js';
+export * from './types/coverage.js';
+export type { Issue, ToolResult, CoverageData, AnalysisContext, ToolConfiguration } from './plugins/analysis-plugin.js';
+export { AnalysisEngine } from './analysis/analysis-engine.js';
+export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine.js';
+export { BunTestAdapter } from './plugins/builtin/bun-test-adapter.js';
+export type { AnalysisProgress } from './analysis/analysis-engine.js';
 //# sourceMappingURL=index.d.ts.map

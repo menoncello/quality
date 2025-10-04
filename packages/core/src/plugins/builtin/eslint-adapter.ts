@@ -123,6 +123,15 @@ Usage:
    * Execute ESLint analysis
    */
   protected async executeTool(context: AnalysisContext): Promise<ToolResult> {
+    // Check if ESLint is available before proceeding
+    const isAvailable = await this.isAvailable();
+    if (!isAvailable) {
+      return this.createToolResult([], {
+        status: 'error',
+        errorMessage: 'ESLint is not available in this environment'
+      });
+    }
+
     const config = this.getToolConfig();
 
     // Check for incremental analysis
@@ -144,7 +153,7 @@ Usage:
 
     return this.createToolResult(issues, {
       executionTime: 0, // Will be set by caller
-      warningsIgnored: config.maxWarnings ? Math.max(0, issues.filter(i => i.type === 'warning').length - config.maxWarnings) : 0
+      warningsIgnored: config.maxWarnings ? Math.max(0, issues.filter(i => i.type === 'warning').length - (config.maxWarnings as number)) : 0
     });
   }
 
