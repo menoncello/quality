@@ -64,4 +64,5 @@ export interface CacheEntry {
     timestamp: string;
     ttl: number;
 }
+export * from './prioritization';
 //# sourceMappingURL=index.d.ts.map
