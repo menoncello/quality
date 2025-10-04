@@ -21,6 +21,7 @@
     "test": "bun test",
     "test:claude": "CLAUDECODE=1 bun test",
     "typecheck": "tsc --noEmit",
+    "typecheck:all": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
   "devDependencies": {

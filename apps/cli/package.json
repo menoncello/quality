@@ -29,6 +29,7 @@
     "test:claude": "CLAUDECODE=1 bun test",
     "lint": "bunx eslint .",
     "typecheck": "tsc --noEmit",
+    "typecheck:all": "tsc --noEmit",
     "format": "bunx prettier --write .",
     "format:check": "bunx prettier --check .",
     "clean": "rm -rf dist"
