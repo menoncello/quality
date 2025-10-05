@@ -241,11 +241,11 @@ export class ResultNormalizer {
       let normalized = path.replace(/\\/g, '/');
       // Handle the specific case from the test: "./src/../src/test.js" -> "src/test.js"
       normalized = normalized.replace(/^\.\//, ''); // Remove leading ./
-      normalized = normalized.replace(/\/[^\/]+\/\.\.\//g, '/'); // Remove /../ segments
-      normalized = normalized.replace(/^[^\/]*\/\.\.\//g, ''); // Remove ../ at beginning
+      normalized = normalized.replace(/\/[^/]+\/\.\.\//g, '/'); // Remove /../ segments
+      normalized = normalized.replace(/^[^/]*\/\.\.\//g, ''); // Remove ../ at beginning
       // Handle repeated .. normalization
       while (normalized.includes('/../')) {
-        normalized = normalized.replace(/\/[^\/]+\/\.\.\//g, '/');
+        normalized = normalized.replace(/\/[^/]+\/\.\.\//g, '/');
       }
       return normalized;
     },
@@ -270,11 +270,11 @@ export class ResultNormalizer {
       let normalized = path.replace(/\\/g, '/');
       // Handle the specific case from the test: "./src/../src/test.js" -> "src/test.js"
       normalized = normalized.replace(/^\.\//, ''); // Remove leading ./
-      normalized = normalized.replace(/\/[^\/]+\/\.\.\//g, '/'); // Remove /../ segments
-      normalized = normalized.replace(/^[^\/]*\/\.\.\//g, ''); // Remove ../ at beginning
+      normalized = normalized.replace(/\/[^/]+\/\.\.\//g, '/'); // Remove /../ segments
+      normalized = normalized.replace(/^[^/]*\/\.\.\//g, ''); // Remove ../ at beginning
       // Handle repeated .. normalization
       while (normalized.includes('/../')) {
-        normalized = normalized.replace(/\/[^\/]+\/\.\.\//g, '/');
+        normalized = normalized.replace(/\/[^/]+\/\.\.\//g, '/');
       }
       return normalized;
     },
@@ -304,11 +304,11 @@ export class ResultNormalizer {
       let normalized = path.replace(/\\/g, '/');
       // Handle the specific case from the test: "./src/../src/test.js" -> "src/test.js"
       normalized = normalized.replace(/^\.\//, ''); // Remove leading ./
-      normalized = normalized.replace(/\/[^\/]+\/\.\.\//g, '/'); // Remove /../ segments
-      normalized = normalized.replace(/^[^\/]*\/\.\.\//g, ''); // Remove ../ at beginning
+      normalized = normalized.replace(/\/[^/]+\/\.\.\//g, '/'); // Remove /../ segments
+      normalized = normalized.replace(/^[^/]*\/\.\.\//g, ''); // Remove ../ at beginning
       // Handle repeated .. normalization
       while (normalized.includes('/../')) {
-        normalized = normalized.replace(/\/[^\/]+\/\.\.\//g, '/');
+        normalized = normalized.replace(/\/[^/]+\/\.\.\//g, '/');
       }
       return normalized;
     },
@@ -335,11 +335,11 @@ export class ResultNormalizer {
       let normalized = path.replace(/\\/g, '/');
       // Handle the specific case from the test: "./src/../src/test.js" -> "src/test.js"
       normalized = normalized.replace(/^\.\//, ''); // Remove leading ./
-      normalized = normalized.replace(/\/[^\/]+\/\.\.\//g, '/'); // Remove /../ segments
-      normalized = normalized.replace(/^[^\/]*\/\.\.\//g, ''); // Remove ../ at beginning
+      normalized = normalized.replace(/\/[^/]+\/\.\.\//g, '/'); // Remove /../ segments
+      normalized = normalized.replace(/^[^/]*\/\.\.\//g, ''); // Remove ../ at beginning
       // Handle repeated .. normalization
       while (normalized.includes('/../')) {
-        normalized = normalized.replace(/\/[^\/]+\/\.\.\//g, '/');
+        normalized = normalized.replace(/\/[^/]+\/\.\.\//g, '/');
       }
       return normalized;
     },
@@ -353,7 +353,7 @@ export class ResultNormalizer {
   private normalizeIssues(issues: Issue[], rule: NormalizationRule): NormalizedIssue[] {
     return issues.map(issue => {
       const mappedSeverity = rule.severityMapping[issue.type];
-      const normalizedSeverity = mappedSeverity || this.getDefaultSeverity(issue.type);
+      const normalizedSeverity = mappedSeverity ?? this.getDefaultSeverity(issue.type);
       const normalizedMessage = rule.messageNormalization(issue.message);
       const normalizedPath = rule.pathNormalization(issue.filePath);
 
@@ -411,7 +411,7 @@ export class ResultNormalizer {
   private createSummary(issues: NormalizedIssue[], metrics: NormalizedMetrics): NormalizedResult['summary'] {
     const criticalIssues = issues.filter(i => i.severity === 'error' && i.score >= 80).length;
     const majorIssues = issues.filter(i => i.severity === 'error' && i.score < 80).length;
-    const minorIssues = issues.filter(i => i.severity === 'warning' || i.severity === 'info').length;
+    const minorIssues = issues.filter(i => i.severity === 'warning'  || i.severity === 'info').length;
 
     return {
       totalIssues: issues.length,
@@ -559,8 +559,8 @@ export class ResultNormalizer {
     endTime: Date
   ): NormalizedResult {
     // Handle null/undefined issues and metrics
-    const issues = result.issues || [];
-    const metrics = result.metrics || {
+    const issues = result.issues ?? [];
+    const metrics = result.metrics ?? {
       issuesCount: 0,
       errorsCount: 0,
       warningsCount: 0,
@@ -570,14 +570,14 @@ export class ResultNormalizer {
     };
 
     // Sanitize invalid values
-    const executionTime = Math.max(0, result.executionTime || 0);
+    const executionTime = Math.max(0, result.executionTime ?? 0);
 
     const normalizedIssues: NormalizedIssue[] = issues.map(issue => ({
       id: issue.id,
       toolName: issue.toolName,
       severity: this.getDefaultSeverity(issue.type),
       category: 'general',
-      filePath: issue.filePath ? issue.filePath.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/[^\/]+\/\.\.\//g, '/').replace(/[^\/]+\/\.\.\//g, '') : issue.filePath,
+      filePath: issue.filePath ? issue.filePath.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/[^/]+\/\.\.\//g, '/').replace(/[^/]+\/\.\.\//g, '') : issue.filePath,
       lineNumber: issue.lineNumber,
       message: issue.message.trim(),
       originalMessage: issue.message,
@@ -761,7 +761,7 @@ export class ResultNormalizer {
 
     const mergedIssues = allIssues.map((issue, index) => ({
       ...issue,
-      id: issue.id || `merged-${index}`
+      id: issue.id ?? `merged-${index}`
     }));
 
     const mergedMetrics = {
@@ -776,8 +776,8 @@ export class ResultNormalizer {
       totalIssues: allIssues.length,
       customMetrics: {},
       performance: {
-        filesProcessed: results.reduce((sum, r) => sum + (r.metrics.performance?.filesProcessed || 0), 0),
-        linesOfCode: results.reduce((sum, r) => sum + (r.metrics.performance?.linesOfCode || 0), 0)
+        filesProcessed: results.reduce((sum, r) => sum + (r.metrics.performance?.filesProcessed ?? 0), 0),
+        linesOfCode: results.reduce((sum, r) => sum + (r.metrics.performance?.linesOfCode ?? 0), 0)
       }
     };
 

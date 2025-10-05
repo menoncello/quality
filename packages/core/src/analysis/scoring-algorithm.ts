@@ -1,6 +1,5 @@
 import type {
-  NormalizedResult,
-  NormalizedIssue
+  NormalizedResult
 } from './result-normalizer.js';
 import type {
   AggregatedCoverage,
@@ -134,23 +133,34 @@ export class ScoringAlgorithm {
 
     if ('projectId' in issueStatsOrSummary) {
       // First overload: AggregatedSummary
-      const summary = issueStatsOrSummary as AggregatedSummary;
+      const summary = issueStatsOrSummary;
       issueStats = summary.issueStatistics;
       coverage = summary.coverage;
       perfMetrics = summary.performance;
       normalizedResults = coverageOrResults as NormalizedResult[];
     } else {
       // Second overload: Individual parameters
-      issueStats = issueStatsOrSummary as IssueStatistics;
+      issueStats = issueStatsOrSummary;
       coverage = coverageOrResults as AggregatedCoverage | null;
-      perfMetrics = performance!;
-      normalizedResults = results!;
+      perfMetrics = performance || {
+        averageExecutionTime: 0,
+        totalExecutionTime: 0,
+        slowestTool: '',
+        fastestTool: '',
+        toolsExecuted: 0,
+        toolsSucceeded: 0,
+        toolsFailed: 0,
+        memoryUsage: 0,
+        filesProcessed: 0,
+        linesOfCode: 0
+      };
+      normalizedResults = results || [];
     }
     this.logger.info('Calculating comprehensive quality score');
 
     try {
       // Start with base score
-      let baseScore = 100;
+      const baseScore = 100;
 
       // Calculate deductions
       const deductions = this.calculateDeductions(issueStats, coverage, perfMetrics, normalizedResults);
@@ -159,8 +169,8 @@ export class ScoringAlgorithm {
       const bonuses = this.calculateBonuses(issueStats, coverage, perfMetrics, normalizedResults);
 
       // Apply deductions and bonuses
-      const totalDeductions = Object.values(deductions).reduce((sum, value) => sum + (value || 0), 0);
-      const totalBonuses = Object.values(bonuses).reduce((sum, value) => sum + (value || 0), 0);
+      const totalDeductions = Object.values(deductions).reduce((sum, value) => sum + (value ?? 0), 0);
+      const totalBonuses = Object.values(bonuses).reduce((sum, value) => sum + (value ?? 0), 0);
 
       let finalScore = baseScore - totalDeductions + totalBonuses;
       finalScore = Math.max(0, Math.min(100, finalScore)); // Clamp between 0 and 100
@@ -264,7 +274,7 @@ export class ScoringAlgorithm {
       strengths.push('No critical issues found');
     }
 
-    if (coverage && coverage.lines.percentage >= 90) {
+    if (coverage && coverage.lines && coverage.lines.percentage >= 90) {
       strengths.push('Excellent test coverage');
     }
 
@@ -282,7 +292,7 @@ export class ScoringAlgorithm {
       recommendations.push('Address critical issues immediately to improve code quality');
     }
 
-    if (coverage && coverage.lines.percentage < 60) {
+    if (coverage && coverage.lines && coverage.lines.percentage < 60) {
       weaknesses.push('Low test coverage');
       recommendations.push('Increase test coverage to at least 80%');
     }
@@ -346,9 +356,9 @@ export class ScoringAlgorithm {
 
     // Issue-based deductions
     deductions.critical = issueStats.critical * this.config.weights.critical;
-    deductions.major = ((issueStats.bySeverity?.errors || 0) - issueStats.critical) * this.config.weights.major;
-    deductions.minor = (issueStats.bySeverity?.warnings || 0) * this.config.weights.minor;
-    deductions.info = (issueStats.bySeverity?.info || 0) * this.config.weights.info;
+    deductions.major = ((issueStats.bySeverity?.errors ?? 0) - issueStats.critical) * this.config.weights.major;
+    deductions.minor = (issueStats.bySeverity?.warnings ?? 0) * this.config.weights.minor;
+    deductions.info = (issueStats.bySeverity?.info ?? 0) * this.config.weights.info;
 
     // Coverage deductions
     if (coverage && coverage.lines.percentage < this.config.thresholds.coverageThreshold) {
@@ -392,7 +402,7 @@ export class ScoringAlgorithm {
     };
 
     // High coverage bonus
-    if (coverage && coverage.lines.percentage >= 95) {
+    if (coverage && coverage.lines && coverage.lines.percentage >= 95) {
       bonuses.highCoverage = this.config.bonuses.highCoverage;
     }
 
@@ -403,7 +413,7 @@ export class ScoringAlgorithm {
 
     // All tests passing bonus
     const allTestsPassed = results.every(result =>
-      result.toolName !== 'bun-test' || result.status === 'success'
+      result.toolName !== 'bun-test'  || result.status === 'success'
     );
     if (allTestsPassed) {
       bonuses.allTestsPassing = this.config.bonuses.allTestsPassing;
@@ -442,7 +452,7 @@ export class ScoringAlgorithm {
     bonuses: ScoringBreakdown['bonuses'],
     issueStats: IssueStatistics,
     coverage: AggregatedCoverage | null,
-    performance: AggregatedPerformance
+    _performance: AggregatedPerformance
   ): string[] {
     const explanation: string[] = [];
 
@@ -475,13 +485,12 @@ export class ScoringAlgorithm {
   /**
    * Calculate security score
    */
-  private calculateSecurityScore(results: NormalizedResult[], issueStats: IssueStatistics): number {
+  private calculateSecurityScore(results: NormalizedResult[], _issueStats: IssueStatistics): number {
     // Count security-related issues (simplified)
-    const securityIssues = (results || [])
-      .flatMap(result => result.issues || [])
+    const securityIssues = (results ?? [])
+      .flatMap(result => result.issues ?? [])
       .filter(issue =>
-        issue.category.toLowerCase().includes('security') ||
-        issue.ruleId?.toLowerCase().includes('security')
+        issue.category.toLowerCase().includes('security') ?? issue.ruleId?.toLowerCase().includes('security')
       ).length;
 
     return Math.max(0, 100 - (securityIssues * 10));
@@ -490,19 +499,19 @@ export class ScoringAlgorithm {
   /**
    * Calculate maintainability score
    */
-  private calculateMaintainabilityScore(results: NormalizedResult[], issueStats: IssueStatistics): number {
+  private calculateMaintainabilityScore(results: NormalizedResult[], _issueStats: IssueStatistics): number {
     let score = 100;
 
     // Deduct for style issues
-    const styleIssues = (results || [])
-      .flatMap(result => result.issues || [])
+    const styleIssues = (results ?? [])
+      .flatMap(result => result.issues ?? [])
       .filter(issue => issue.category === 'Code Style').length;
 
     score -= styleIssues * 2;
 
     // Deduct for complexity issues
-    const complexityIssues = (results || [])
-      .flatMap(result => result.issues || [])
+    const complexityIssues = (results ?? [])
+      .flatMap(result => result.issues ?? [])
       .filter(issue => issue.category === 'Complexity').length;
 
     score -= complexityIssues * 5;
@@ -514,11 +523,10 @@ export class ScoringAlgorithm {
    * Calculate security deductions
    */
   private calculateSecurityDeductions(results: NormalizedResult[]): number {
-    const securityIssues = (results || [])
-      .flatMap(result => result.issues || [])
+    const securityIssues = (results ?? [])
+      .flatMap(result => result.issues ?? [])
       .filter(issue =>
-        issue.category.toLowerCase().includes('security') ||
-        issue.ruleId?.toLowerCase().includes('security')
+        issue.category.toLowerCase().includes('security') ?? issue.ruleId?.toLowerCase().includes('security')
       ).length;
 
     return securityIssues * this.config.penalties.securityVulnerability;
@@ -529,8 +537,8 @@ export class ScoringAlgorithm {
    */
   private calculateComplexityDeductions(results: NormalizedResult[]): number {
     // Simplified complexity calculation
-    const complexityIssues = (results || [])
-      .flatMap(result => result.issues || [])
+    const complexityIssues = (results ?? [])
+      .flatMap(result => result.issues ?? [])
       .filter(issue => issue.category === 'Complexity').length;
 
     return complexityIssues * 2;
@@ -543,8 +551,8 @@ export class ScoringAlgorithm {
     let deductions = 0;
 
     // Deduct for style and formatting issues
-    const styleIssues = (results || [])
-      .flatMap(result => result.issues || [])
+    const styleIssues = (results ?? [])
+      .flatMap(result => result.issues ?? [])
       .filter(issue => issue.category === 'Code Style').length;
 
     deductions += styleIssues * 0.5;

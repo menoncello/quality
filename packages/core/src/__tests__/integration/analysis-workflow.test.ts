@@ -16,10 +16,18 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
 
   beforeEach(async () => {
     mockLogger = {
-      error: (msg) => console.error(`[ERROR] ${msg}`),
-      warn: (msg) => console.warn(`[WARN] ${msg}`),
-      info: (msg) => console.info(`[INFO] ${msg}`),
-      debug: (msg) => console.debug(`[DEBUG] ${msg}`)
+      error: (msg) => {  
+    console.error(`[ERROR] ${msg}`);
+},
+      warn: (msg) => {  
+    console.warn(`[WARN] ${msg}`);
+},
+      info: (msg) => {
+    console.log(`[INFO] ${msg}`);
+},
+      debug: (msg) => {
+    console.log(`[DEBUG] ${msg}`);
+}
     };
 
     // Initialize analysis engine with correct API
@@ -28,10 +36,13 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
       defaultTimeout: 30000,
       enableCache: true,
       sandboxConfig: {
-        enableSandbox: false,
-        allowedModules: ['*'],
-        timeoutMs: 30000,
-        memoryLimitMB: 1024,
+        maxExecutionTime: 30000,
+        maxMemoryUsage: 1024,
+        maxFileSize: 10 * 1024 * 1024,
+        allowedFileExtensions: ['.js', '.ts', '.json'],
+        allowedCommands: ['node', 'bun'],
+        enableFileSystemAccess: true,
+        enableNetworkAccess: false,
         workingDirectory: '/tmp'
       },
       progressReportingInterval: 1000,
@@ -53,7 +64,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
       // Create mock plugins
       const eslintPlugin = createTestPlugin({
         name: 'eslint',
-        async execute(context) {
+        async execute(context: AnalysisContext): Promise<any> {
           return {
             toolName: 'eslint',
             status: 'success' as const,
@@ -61,6 +72,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
             issues: [
               {
                 id: 'eslint-1',
+                type: 'error' as const,
                 toolName: 'eslint',
                 severity: 'error' as const,
                 category: 'linting',
@@ -76,6 +88,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
               },
               {
                 id: 'eslint-2',
+                type: 'warning' as const,
                 toolName: 'eslint',
                 severity: 'warning' as const,
                 category: 'linting',
@@ -91,19 +104,12 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
               }
             ],
             metrics: {
-              toolName: 'eslint',
-              executionTime: 1500,
               issuesCount: 2,
               errorsCount: 1,
               warningsCount: 1,
               infoCount: 0,
               fixableCount: 2,
-              score: 70,
-              customMetrics: {},
-              performance: {
-                filesProcessed: 1,
-                linesOfCode: 50
-              }
+              score: 70
             },
             summary: {
               totalIssues: 2,
@@ -121,7 +127,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
 
       const prettierPlugin = createTestPlugin({
         name: 'prettier',
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           return {
             toolName: 'prettier',
             status: 'success' as const,
@@ -158,7 +164,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
 
       const typescriptPlugin = createTestPlugin({
         name: 'typescript',
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           return {
             toolName: 'typescript',
             status: 'success' as const,
@@ -166,6 +172,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
             issues: [
               {
                 id: 'ts-1',
+                type: 'error' as const,
                 toolName: 'typescript',
                 severity: 'error' as const,
                 category: 'typescript',
@@ -256,7 +263,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
       // Create a failing plugin
       const failingPlugin = createTestPlugin({
         name: 'failing-plugin',
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           throw new Error('Plugin execution failed');
         }
       });
@@ -264,7 +271,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
       // Create a working plugin
       const workingPlugin = createTestPlugin({
         name: 'working-plugin',
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           return {
             toolName: 'working-plugin',
             status: 'success' as const,
@@ -326,7 +333,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
       // The working plugin should have succeeded
       const workingResult = result.toolResults.find(r => r.toolName === 'working-plugin');
       expect(workingResult).toBeDefined();
-      expect(workingResult.status).toBe('success');
+      expect(workingResult?.status).toBe('success');
 
       // The failing plugin should still have a result
       const failingResult = result.toolResults.find(r => r.toolName === 'failing-plugin');
@@ -338,7 +345,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
       const basePlugin = createTestPlugin({
         name: 'base-plugin',
         dependencies: [],
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           return {
             toolName: 'base-plugin',
             status: 'success' as const,
@@ -376,7 +383,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
       const dependentPlugin = createTestPlugin({
         name: 'dependent-plugin',
         dependencies: ['base-plugin'],
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           return {
             toolName: 'dependent-plugin',
             status: 'success' as const,
@@ -440,8 +447,8 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
 
       expect(baseResult).toBeDefined();
       expect(dependentResult).toBeDefined();
-      expect(baseResult.status).toBe('success');
-      expect(dependentResult.status).toBe('success');
+      expect(baseResult?.status).toBe('success');
+      expect(dependentResult?.status).toBe('success');
     });
   });
 
@@ -449,7 +456,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
     it('should aggregate results from multiple tools correctly', async () => {
       const tool1Plugin = createTestPlugin({
         name: 'tool-1',
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           return {
             toolName: 'tool-1',
             status: 'success' as const,
@@ -457,6 +464,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
             issues: [
               {
                 id: 'tool-1-1',
+                type: 'warning' as const,
                 toolName: 'tool-1',
                 severity: 'warning' as const,
                 category: 'test-category',
@@ -502,7 +510,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
 
       const tool2Plugin = createTestPlugin({
         name: 'tool-2',
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           return {
             toolName: 'tool-2',
             status: 'success' as const,
@@ -510,6 +518,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
             issues: [
               {
                 id: 'tool-2-1',
+                type: 'error' as const,
                 toolName: 'tool-2',
                 severity: 'error' as const,
                 category: 'test-category',
@@ -586,7 +595,7 @@ describe('Analysis Workflow Integration Tests (Fixed)', () => {
     it('should complete analysis within performance targets', async () => {
       const performancePlugin = createTestPlugin({
         name: 'performance-plugin',
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           const startTime = Date.now();
           // Simulate variable performance
           const workload = Math.random() * 100; // 0-100ms

@@ -8,10 +8,18 @@ describe('Plugin Lifecycle Management', () => {
 
   beforeEach(() => {
     mockLogger = {
-      error: (msg: string) => console.error(`[ERROR] ${msg}`),
-      warn: (msg: string) => console.warn(`[WARN] ${msg}`),
-      info: (msg: string) => console.info(`[INFO] ${msg}`),
-      debug: (msg: string) => console.debug(`[DEBUG] ${msg}`)
+      error: (msg: string) => {  
+    console.error(`[ERROR] ${msg}`);
+},
+      warn: (msg: string) => {  
+    console.warn(`[WARN] ${msg}`);
+},
+      info: (msg: string) => {
+    console.log(`[INFO] ${msg}`);
+},
+      debug: (msg: string) => {
+    console.log(`[DEBUG] ${msg}`);
+}
     };
 
     pluginManager = new PluginManager(mockLogger);
@@ -162,7 +170,7 @@ describe('Plugin Lifecycle Management', () => {
     it('should get plugin by name', () => {
       const plugin = pluginManager.getPlugin('test-plugin');
       expect(plugin).toBeDefined();
-      expect(plugin!.name).toBe('test-plugin');
+      expect(plugin?.name).toBe('test-plugin');
     });
 
     it('should return undefined for non-existent plugin', () => {

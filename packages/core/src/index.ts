@@ -57,7 +57,7 @@ export class PluginManager {
 
   async executeAnalysis(
     toolName: string,
-    config: any,
+    config: unknown,
     options: CommandOptions
   ): Promise<AnalysisResult> {
     const plugin = this.get(toolName);
@@ -65,16 +65,16 @@ export class PluginManager {
       throw new Error(`Plugin '${toolName}' not found`);
     }
 
-    return plugin.analyze(config, options);
+    return plugin.analyze(config as any, options);
   }
 
-  validateConfiguration(toolName: string, config: any): boolean {
+  validateConfiguration(toolName: string, config: unknown): boolean {
     const plugin = this.get(toolName);
     if (!plugin) {
       return false;
     }
 
-    return plugin.validate(config);
+    return plugin.validate(config as any);
   }
 }
 
@@ -100,13 +100,13 @@ export type {
   StructureAnalyzer as StructureAnalyzerInterface,
 } from './detection/types';
 
-export type { PluginInterface, ProjectConfiguration, CommandOptions, AnalysisResult };
+// Plugin System exports (excluding conflicting types)
+export type {
+  ProjectConfiguration,
+  AnalysisResult,
+  ValidationResult as PluginValidationResult
+} from './plugins/index.js';
 
-// Plugin System exports
-export * from './plugins/index.js';
-
-// Analysis Engine exports
-export * from './analysis/index.js';
 
 // Coverage Analysis exports
 export * from './types/coverage.js';
@@ -125,5 +125,11 @@ export { AnalysisEngine } from './analysis/analysis-engine.js';
 export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine.js';
 export { BunTestAdapter } from './plugins/builtin/bun-test-adapter.js';
 
+// Coverage related exports
+export type { CoverageReport, EnhancedCoverageData } from './types/coverage.js';
+
 // Export AnalysisProgress type from analysis engine
 export type { AnalysisProgress } from './analysis/analysis-engine.js';
+
+// Issue Prioritization Engine exports
+export * from './prioritization/index.js';

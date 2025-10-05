@@ -136,6 +136,7 @@ export class ToolDetector {
                         });
                     }
                     catch (error) {
+                        // eslint-disable-next-line no-console
                         console.warn(`Failed to parse config file ${configPath}:`, error);
                     }
                 }
@@ -153,7 +154,7 @@ export class ToolDetector {
             const configContent = this.parseConfigFile(configPath);
             return {
                 name: toolConfig.tool,
-                version: version || 'unknown',
+                version: version ?? 'unknown',
                 configPath,
                 configFormat: this.getConfigFormat(basename(configPath)),
                 enabled: true,
@@ -162,6 +163,7 @@ export class ToolDetector {
             };
         }
         catch (error) {
+            // eslint-disable-next-line no-console
             console.warn(`Failed to detect tool ${toolConfig.tool}:`, error);
             return null;
         }
@@ -224,7 +226,7 @@ export class ToolDetector {
             ...packageJson.peerDependencies,
             ...packageJson.optionalDependencies,
         };
-        return allDeps[depName] || null;
+        return allDeps[depName] ?? null;
     }
     getToolPriority(toolName) {
         const priorities = {
@@ -255,6 +257,7 @@ export class ToolDetector {
             return fileUtils.readJsonSync(packageJsonPath);
         }
         catch (error) {
+            // eslint-disable-next-line no-console
             console.warn(`Failed to load package.json:`, error);
             return {};
         }

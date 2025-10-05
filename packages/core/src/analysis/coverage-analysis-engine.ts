@@ -4,8 +4,7 @@
 
 import type {
   AnalysisContext,
-  ToolResult,
-  AnalysisPlugin
+  ToolResult
 } from '../plugins/analysis-plugin.js';
 
 import type {
@@ -68,7 +67,7 @@ export class CoverageAnalysisEngine {
 
     // Enhance with advanced analysis
     const enhancedCoverage = await this.coverageAnalyzer.analyzeCoverage(
-      mergedCoverage,
+      mergedCoverage as any,
       context,
       this.getDetailedCoverageData(context)
     );
@@ -79,7 +78,7 @@ export class CoverageAnalysisEngine {
   /**
    * Merge coverage data from multiple tools
    */
-  private mergeCoverageData(coverageResults: ToolResult[]): any {
+  private mergeCoverageData(coverageResults: ToolResult[]): unknown{
     if (coverageResults.length === 1) {
       return coverageResults[0].metrics.coverage;
     }
@@ -120,7 +119,7 @@ export class CoverageAnalysisEngine {
   /**
    * Get detailed coverage data for enhanced analysis
    */
-  private async getDetailedCoverageData(context: AnalysisContext): Promise<any> {
+  private async getDetailedCoverageData(context: AnalysisContext): Promise<unknown> {
     try {
       const fs = require('fs/promises');
       const path = require('path');
@@ -154,7 +153,7 @@ export class CoverageAnalysisEngine {
     // Create report
     const report: CoverageReport = {
       id: this.generateReportId(),
-      projectId: context.config.name || 'unknown',
+      projectId: context.config.name   ?? 'unknown',
       timestamp: new Date(),
       coverage: coverageData,
       summary,
@@ -170,19 +169,19 @@ export class CoverageAnalysisEngine {
    * Generate coverage summary
    */
   private generateSummary(coverageData: EnhancedCoverageData): CoverageSummary {
-    const files = coverageData.files || [];
+    const files = coverageData.files ?? [];
 
     const totalFiles = files.length;
     const coveredFiles = files.filter(f => f.overallCoverage > 0).length;
     const partiallyCoveredFiles = files.filter(f => f.overallCoverage > 0 && f.overallCoverage < 100).length;
     const uncoveredFiles = files.filter(f => f.overallCoverage === 0).length;
 
-    const criticalPaths = coverageData.criticalPaths || [];
+    const criticalPaths = coverageData.criticalPaths ?? [];
     const totalCriticalPaths = criticalPaths.length;
     const coveredCriticalPaths = criticalPaths.filter(cp => cp.currentCoverage >= cp.requiredCoverage).length;
 
-    const recommendations = coverageData.recommendations || [];
-    const highPriorityRecommendations = recommendations.filter(r => r.priority === 'critical' || r.priority === 'high').length;
+    const recommendations = coverageData.recommendations ?? [];
+    const highPriorityRecommendations = recommendations.filter(r => r.priority === 'critical'  || r.priority === 'high').length;
     const mediumPriorityRecommendations = recommendations.filter(r => r.priority === 'medium').length;
     const lowPriorityRecommendations = recommendations.filter(r => r.priority === 'low').length;
 
@@ -192,9 +191,9 @@ export class CoverageAnalysisEngine {
       branchCoverage: coverageData.branches.percentage,
       functionCoverage: coverageData.functions.percentage,
       statementCoverage: coverageData.statements.percentage,
-      qualityScore: coverageData.qualityScore?.overall || 0,
-      grade: coverageData.qualityScore?.grade || 'F',
-      riskLevel: coverageData.qualityScore?.riskLevel || 'unknown',
+      qualityScore: coverageData.qualityScore?.overall ?? 0,
+      grade: coverageData.qualityScore?.grade ?? 'F',
+      riskLevel: coverageData.qualityScore?.riskLevel ?? 'unknown',
       totalFiles,
       coveredFiles,
       partiallyCoveredFiles,
@@ -259,7 +258,7 @@ export class CoverageAnalysisEngine {
 
     return {
       id: this.generateReportId(),
-      projectId: context.config.name || 'unknown',
+      projectId: context.config.name ?? 'unknown',
       timestamp: new Date(),
       coverage: emptyCoverage,
       summary: this.generateSummary(emptyCoverage),
@@ -327,7 +326,7 @@ export class CoverageAnalysisEngine {
     }
 
     // Risk assessment based on uncovered areas
-    const highRiskAreas = coverage.uncoveredAreas?.filter(area => area.impact === 'critical') || [];
+    const highRiskAreas = coverage.uncoveredAreas?.filter(area => area.impact === 'critical')  || [];
     if (highRiskAreas.length > 0) {
       insights.push(`${highRiskAreas.length} high-risk uncovered areas identified.`);
       actionableItems.push('Address critical uncovered areas immediately');
@@ -382,12 +381,12 @@ export class CoverageAnalysisEngine {
 
     // Quality score risk
     if (coverage.qualityScore) {
-      if (coverage.qualityScore.grade === 'F' || coverage.qualityScore.grade === 'D') riskScore += 20;
+      if (coverage.qualityScore.grade === 'F'  || coverage.qualityScore.grade === 'D') riskScore += 20;
       else if (coverage.qualityScore.grade === 'C') riskScore += 10;
     }
 
     // Uncovered critical areas risk
-    const criticalUncovered = coverage.uncoveredAreas?.filter(area => area.impact === 'critical').length || 0;
+    const criticalUncovered = coverage.uncoveredAreas?.filter(area => area.impact === 'critical').length ?? 0;
     riskScore += Math.min(criticalUncovered * 5, 25);
 
     if (riskScore >= 70) return 'CRITICAL: High-risk project with significant coverage gaps';

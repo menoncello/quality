@@ -43,29 +43,29 @@ export class ESLintAdapter extends BaseToolAdapter {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    const cfg = config.config as any;
+    const cfg = (config as any).config as unknown;
 
-    if (cfg.configFile && typeof cfg.configFile !== 'string') {
+    if ((cfg as any).configFile && typeof (cfg as any).configFile !== 'string') {
       errors.push('ESLint configFile must be a string');
     }
 
-    if (cfg.extensions && !Array.isArray(cfg.extensions)) {
+    if ((cfg as any).extensions && !Array.isArray((cfg as any).extensions)) {
       errors.push('ESLint extensions must be an array');
     }
 
-    if (cfg.maxWarnings !== undefined && typeof cfg.maxWarnings !== 'number') {
+    if ((cfg as any).maxWarnings !== undefined && typeof (cfg as any).maxWarnings !== 'number') {
       errors.push('ESLint maxWarnings must be a number');
     }
 
-    if (cfg.fix !== undefined && typeof cfg.fix !== 'boolean') {
+    if ((cfg as any).fix !== undefined && typeof (cfg as any).fix !== 'boolean') {
       errors.push('ESLint fix must be a boolean');
     }
 
-    if (cfg.cache !== undefined && typeof cfg.cache !== 'boolean') {
+    if ((cfg as any).cache !== undefined && typeof (cfg as any).cache !== 'boolean') {
       errors.push('ESLint cache must be a boolean');
     }
 
-    if (cfg.ignorePatterns && !Array.isArray(cfg.ignorePatterns)) {
+    if ((cfg as any).ignorePatterns && !Array.isArray((cfg as any).ignorePatterns)) {
       errors.push('ESLint ignorePatterns must be an array');
     }
 
@@ -86,7 +86,7 @@ export class ESLintAdapter extends BaseToolAdapter {
       this.eslintPath = eslintPath;
 
       // Try to load ESLint
-      const { ESLint } = await import(eslintPath);
+      await import(eslintPath);
       return true;
     } catch {
       try {
@@ -153,7 +153,7 @@ Usage:
 
     return this.createToolResult(issues, {
       executionTime: 0, // Will be set by caller
-      warningsIgnored: config.maxWarnings ? Math.max(0, issues.filter(i => i.type === 'warning').length - (config.maxWarnings as number)) : 0
+      warningsIgnored: (config as any).maxWarnings ? Math.max(0, issues.filter(i => i.type === 'warning').length - ((config as any).maxWarnings as number)) : 0
     });
   }
 
@@ -167,7 +167,7 @@ Usage:
 
     const config = this.getToolConfig();
     const relevantFiles = context.changedFiles.filter(file =>
-      this.shouldProcessFile(file, config.extensions as string[], config.ignorePatterns as string[])
+      this.shouldProcessFile(file, (config as any).extensions as string[], (config as any).ignorePatterns as string[])
     );
 
     if (relevantFiles.length === 0) {
@@ -187,7 +187,7 @@ Usage:
   /**
    * Build ESLint command
    */
-  private buildESLintCommand(context: AnalysisContext, config: any, files?: string[]): { cmd: string; args: string[] } {
+  private buildESLintCommand(context: AnalysisContext, config: unknown, files?: string[]): { cmd: string; args: string[] } {
     const useLocalESLint = !!this.eslintPath;
     const cmd = useLocalESLint ? 'node' : 'eslint';
     const args: string[] = [];
@@ -213,34 +213,34 @@ Usage:
     }
 
     // Add configuration options
-    if (config.configFile) {
-      args.push('--config', config.configFile);
+    if ((config as any).configFile) {
+      args.push('--config', (config as any).configFile);
     }
 
-    if (config.format) {
-      args.push('--format', config.format);
+    if ((config as any).format) {
+      args.push('--format', (config as any).format);
     } else {
       args.push('--format', 'json');
     }
 
-    if (config.maxWarnings !== undefined) {
-      args.push('--max-warnings', config.maxWarnings.toString());
+    if ((config as any).maxWarnings !== undefined) {
+      args.push('--max-warnings', (config as any).maxWarnings.toString());
     }
 
-    if (config.fix) {
+    if ((config as any).fix) {
       args.push('--fix');
     }
 
-    if (config.cache) {
+    if ((config as any).cache) {
       args.push('--cache');
-      if (config.cacheLocation) {
-        args.push('--cache-location', config.cacheLocation);
+      if ((config as any).cacheLocation) {
+        args.push('--cache-location', (config as any).cacheLocation);
       }
     }
 
     // Add ignore patterns
-    if (config.ignorePatterns) {
-      for (const pattern of config.ignorePatterns) {
+    if ((config as any).ignorePatterns) {
+      for (const pattern of (config as any).ignorePatterns) {
         args.push('--ignore-pattern', pattern);
       }
     }
@@ -272,7 +272,7 @@ Usage:
               issues.push(this.createIssue(
                 this.getIssueSeverity(message.severity),
                 result.filePath,
-                message.line || 1,
+                message.line ?? 1,
                 message.message,
                 message.ruleId,
                 message.fix !== undefined,
@@ -293,7 +293,7 @@ Usage:
   /**
    * Parse text-based ESLint output
    */
-  private parseTextOutput(stdout: string, stderr: string, context: AnalysisContext): Issue[] {
+  private parseTextOutput(stdout: string, _stderr: string, _context: AnalysisContext): Issue[] {
     const issues: Issue[] = [];
     const lines = stdout.split('\n');
 
@@ -301,7 +301,7 @@ Usage:
       // Parse format: /path/to/file:line:column: severity message [rule]
       const match = line.match(/^([^:]+):(\d+):(\d+):\s+(\w+)\s+(.+?)(?:\s+\[([^\]]+)\])?$/);
       if (match) {
-        const [, filePath, lineNum, colNum, severity, message, ruleId] = match;
+        const [, filePath, lineNum, _colNum, severity, message, ruleId] = match;
 
         issues.push(this.createIssue(
           this.mapTextSeverity(severity),
@@ -357,7 +357,7 @@ Usage:
    */
   protected onInitialize(): void {
     // Check for ESLint configuration in project
-    const config = this.getToolConfig();
+    this.getToolConfig();
     const { join } = require('path');
 
     const possibleConfigs = [

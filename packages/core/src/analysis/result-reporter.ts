@@ -1,13 +1,8 @@
 import type {
   AnalysisResult,
   ToolResult,
-  Issue,
-  ResultSummary,
-  AIPrompt,
   Logger
 } from '../plugins/analysis-plugin.js';
-import type { NormalizedResult } from './result-normalizer.js';
-import type { AggregatedSummary } from './result-aggregator.js';
 
 /**
  * Report format
@@ -41,7 +36,7 @@ export interface ReportConfig {
     files?: string[];
     categories?: string[];
   };
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
 }
 
 /**
@@ -60,7 +55,7 @@ export interface ReportGenerationOptions {
     branch?: string;
     commit?: string;
   };
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -270,7 +265,7 @@ export class ResultReporter {
         format: 'json',
         version: '1.0'
       },
-      project: options.projectInfo || {},
+      project: options.projectInfo   ?? {},
       summary: result.summary,
       overallScore: result.overallScore,
       aiPrompts: config.includeRecommendations ? result.aiPrompts : [],
@@ -294,7 +289,7 @@ export class ResultReporter {
 
     // Header
     lines.push('='.repeat(80));
-    lines.push(`  ${options.title || 'Code Quality Analysis Report'}`);
+    lines.push(`  ${options.title ?? 'Code Quality Analysis Report'}`);
     lines.push('='.repeat(80));
     lines.push('');
 
@@ -320,9 +315,9 @@ export class ResultReporter {
     lines.push('-'.repeat(80));
     for (const tool of result.toolResults) {
       lines.push(`\n${tool.toolName}`);
-      lines.push('  '.padEnd(4) + `Status: ${tool.status}`);
-      lines.push('  '.padEnd(4) + `Issues: ${tool.issues.length}`);
-      lines.push('  '.padEnd(4) + `Execution Time: ${tool.executionTime}ms`);
+      lines.push(`${'  '.padEnd(4)  }Status: ${tool.status}`);
+      lines.push(`${'  '.padEnd(4)  }Issues: ${tool.issues.length}`);
+      lines.push(`${'  '.padEnd(4)  }Execution Time: ${tool.executionTime}ms`);
 
       if (config.includeDetails && tool.issues.length > 0) {
         lines.push('  Issues:');
@@ -363,7 +358,7 @@ export class ResultReporter {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${options.title || 'Code Quality Analysis Report'}</title>
+    <title>${options.title   ?? 'Code Quality Analysis Report'}</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -390,7 +385,7 @@ export class ResultReporter {
 <body>
     <div class="container">
         <div class="header">
-            <h1>${options.title || 'Code Quality Analysis Report'}</h1>
+            <h1>${options.title   ?? 'Code Quality Analysis Report'}</h1>
             <div class="score grade-${execSummary.status}">${execSummary.overallScore} (${execSummary.grade})</div>
             <div>Status: ${execSummary.status.toUpperCase()}</div>
         </div>
@@ -469,7 +464,7 @@ export class ResultReporter {
     const lines: string[] = [];
 
     // Header
-    lines.push(`# ${options.title || 'Code Quality Analysis Report'}`);
+    lines.push(`# ${options.title   ?? 'Code Quality Analysis Report'}`);
     lines.push('');
     lines.push(`**Overall Score:** ${execSummary.overallScore} (${execSummary.grade})`);
     lines.push(`**Status:** ${execSummary.status.toUpperCase()}`);
@@ -530,7 +525,7 @@ export class ResultReporter {
     config: ReportConfig,
     options: ReportGenerationOptions
   ): string {
-    const testSuiteName = options.title || 'Code Quality Analysis';
+    const testSuiteName = options.title   ?? 'Code Quality Analysis';
     const timestamp = new Date().toISOString();
     const totalIssues = result.summary.totalIssues;
     const totalErrors = result.summary.totalErrors;
@@ -575,8 +570,8 @@ export class ResultReporter {
    */
   private generateCSVReport(
     result: AnalysisResult,
-    config: ReportConfig,
-    options: ReportGenerationOptions
+    _config: ReportConfig,
+    _options: ReportGenerationOptions
   ): string {
     const headers = ['Tool Name', 'File Path', 'Line Number', 'Severity', 'Message', 'Rule ID', 'Fixable'];
     const rows: string[][] = [headers];
@@ -589,7 +584,7 @@ export class ResultReporter {
           issue.lineNumber.toString(),
           issue.type,
           `"${this.escapeCsv(issue.message)}"`,
-          issue.ruleId || '',
+          issue.ruleId ?? '',
           issue.fixable.toString()
         ]);
       }
@@ -612,8 +607,8 @@ export class ResultReporter {
       runs: [{
         tool: {
           driver: {
-            name: options.title || 'Code Quality Analysis',
-            version: options.version || '1.0.0',
+            name: options.title ?? 'Code Quality Analysis',
+            version: options.version ?? '1.0.0',
             informationUri: 'https://github.com/dev-quality/cli'
           }
         },
@@ -650,7 +645,7 @@ export class ResultReporter {
    */
   private generateFilename(extension: string, options: ReportGenerationOptions): string {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const projectName = options.projectInfo?.name || 'analysis';
+    const projectName = options.projectInfo?.name ?? 'analysis';
     return `${projectName}-quality-report-${timestamp}.${extension}`;
   }
 
@@ -675,8 +670,8 @@ export class ResultReporter {
   /**
    * Sanitize tool result for reporting
    */
-  private sanitizeToolResult(tool: ToolResult, config: ReportConfig): any {
-    const sanitized: any = {
+  private sanitizeToolResult(tool: ToolResult, config: ReportConfig): unknown{
+    const sanitized: Record<string, unknown> = {
       toolName: tool.toolName,
       executionTime: tool.executionTime,
       status: tool.status,

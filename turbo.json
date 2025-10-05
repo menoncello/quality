@@ -40,6 +40,13 @@
       "inputs": ["src/**", "tests/**", "package.json"],
       "passThroughEnv": ["NODE_ENV"]
     },
+    "test:unit": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": false,
+      "inputs": ["src/**", "tests/**", "package.json"],
+      "passThroughEnv": ["NODE_ENV"]
+    },
     "test:cli": {
       "dependsOn": ["build:cli"],
       "outputs": [],
@@ -67,10 +74,9 @@
     "lint:all": {
       "outputs": [],
       "cache": true,
-      "inputs": ["src/**", "package.json", "eslint.config.js", ".eslintrc.*"],
-      "dependsOn": ["@dev-quality/types#build", "@dev-quality/utils#build", "@dev-quality/core#build"]
+      "inputs": ["src/**", "package.json", "eslint.config.js", ".eslintrc.*"]
     },
-    "typecheck": {
+      "typecheck": {
       "dependsOn": ["^build"],
       "outputs": [],
       "cache": true,
@@ -83,7 +89,7 @@
       "inputs": ["src/**", "tsconfig.json", "package.json"]
     },
     "typecheck:all": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build:all"],
       "outputs": [],
       "cache": true,
       "inputs": ["src/**", "tsconfig.json", "package.json"]
@@ -94,11 +100,6 @@
       "inputs": ["src/**", "package.json"]
     },
     "format:check": {
-      "outputs": [],
-      "cache": true,
-      "inputs": ["src/**", "package.json"]
-    },
-    "format:all": {
       "outputs": [],
       "cache": true,
       "inputs": ["src/**", "package.json"]

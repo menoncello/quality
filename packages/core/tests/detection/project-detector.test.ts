@@ -148,7 +148,7 @@ describe('ProjectDetector', () => {
     });
   });
 
-  function setupTestProject(dir: string, packageJson: any) {
+  function setupTestProject(dir: string, packageJson: unknown) {
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }

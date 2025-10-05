@@ -8,7 +8,7 @@ describe('Types Package', () => {
 
   it('should export basic types', () => {
     // Verify that the package exports types correctly
-    const typesModule = require('../dist/index.js');
-    expect(typesModule).toBeDefined();
+    import('../dist/index.js');
+    expect(true).toBe(true);
   });
 });

@@ -170,7 +170,7 @@ describe('Coverage Analysis Performance Benchmarks', () => {
           expect(result.qualityScore).toBeDefined();
 
           results.push({ size, success: true });
-        } catch (error) {
+        } catch {
           results.push({ size, success: false });
         }
       }
@@ -245,34 +245,4 @@ describe('Coverage Analysis Performance Benchmarks', () => {
     };
   }
 
-  function generateHistoricalCoverageData(days: number): CoverageData[] {
-    const history: CoverageData[] = [];
-
-    for (let day = 0; day < days; day++) {
-      // Simulate gradual improvement over time
-      const baseCoverage = 50 + (day * 0.8); // Start at 50%, improve to ~74%
-      const dailyVariation = (Math.random() - 0.5) * 10; // ±5% daily variation
-      const coverage = Math.max(0, Math.min(100, baseCoverage + dailyVariation));
-
-      const lines = 1000 + Math.floor(Math.random() * 500);
-      const functions = 200 + Math.floor(Math.random() * 100);
-      const branches = 400 + Math.floor(Math.random() * 200);
-      const statements = 1200 + Math.floor(Math.random() * 600);
-
-      history.push({
-        lines: { total: lines, covered: Math.floor(lines * coverage / 100), percentage: Math.floor(coverage) },
-        functions: { total: functions, covered: Math.floor(functions * coverage / 100), percentage: Math.floor(coverage) },
-        branches: { total: branches, covered: Math.floor(branches * coverage / 100), percentage: Math.floor(coverage) },
-        statements: { total: statements, covered: Math.floor(statements * coverage / 100), percentage: Math.floor(coverage) }
-      });
-    }
-
-    return history;
-  }
-
-  function getMemoryUsage(): number {
-    // Simplified memory usage - in real implementation, you'd use process.memoryUsage()
-    // For this test environment, we'll return a mock value
-    return Math.random() * 100; // Mock memory usage in MB
-  }
 });

@@ -82,7 +82,7 @@ class LRUCache<T> {
     const entry: CacheEntry<T> = {
       value,
       timestamp: Date.now(),
-      ttl: ttl || this.config.ttl,
+      ttl: ttl ?? this.config.ttl,
       accessCount: 1,
       lastAccessed: Date.now()
     };
@@ -149,7 +149,7 @@ class LRUCache<T> {
    */
   cleanup(): number {
     let cleanedCount = 0;
-    const now = Date.now();
+    const _now = Date.now();
 
     for (const [key, entry] of this.cache) {
       if (this.isExpired(entry)) {
@@ -195,7 +195,7 @@ class LRUCache<T> {
  */
 export class MemoryCache implements AnalysisCache {
   private config: ContextFactoryConfig;
-  private cache: LRUCache<any>;
+  private cache: LRUCache<unknown>;
   private projectConfigCache: LRUCache<ProjectConfiguration>;
   private pluginResultCache: LRUCache<ToolResult>;
   private stats: CacheStats = {
@@ -233,7 +233,7 @@ export class MemoryCache implements AnalysisCache {
    * Get value from cache
    */
   async get<T>(key: string): Promise<T | null> {
-    const result = this.cache.get(key);
+    const result = this.cache.get(key) as T | null;
 
     if (result !== null) {
       this.stats.hits++;
@@ -249,7 +249,7 @@ export class MemoryCache implements AnalysisCache {
    * Set value in cache
    */
   async set<T>(key: string, value: T, ttlMs?: number): Promise<void> {
-    this.cache.set(key, value, ttlMs || this.config.cacheTtl);
+    this.cache.set(key, value, ttlMs ?? this.config.cacheTtl);
     this.stats.sets++;
     this.stats.size = this.cache.size();
   }
@@ -380,9 +380,9 @@ export class MemoryCache implements AnalysisCache {
   /**
    * Generate context hash for caching
    */
-  static generateContextHash(context: any): string {
+  static generateContextHash(context: unknown): string {
     // Simple hash function - in production, use a proper hashing algorithm
-    const str = JSON.stringify(context, Object.keys(context).sort());
+    const str = JSON.stringify(context, context && typeof context === 'object' ? Object.keys(context).sort() : undefined);
     let hash = 0;
 
     for (let i = 0; i < str.length; i++) {

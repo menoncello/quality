@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { PluginManager } from '../plugins/plugin-manager';
 import { createTestPlugin } from './test-utils-simple';
-import type { Logger } from '../plugins/analysis-plugin';
+import type { Logger, AnalysisContext } from '../plugins/analysis-plugin';
 
 describe('Concurrent Execution', () => {
   let pluginManager: PluginManager;
@@ -34,7 +34,7 @@ describe('Concurrent Execution', () => {
       const plugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `concurrent-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext): Promise<any> {
             // Simulate work
             await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
             return {
@@ -42,7 +42,14 @@ describe('Concurrent Execution', () => {
               status: 'success' as const,
               executionTime: 50,
               issues: [],
-              metrics: { score: 100 }
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
             };
           }
         })
@@ -75,7 +82,7 @@ describe('Concurrent Execution', () => {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 10));
             sharedState.initialized++;
           },
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Simulate initialization during execution if not already initialized
             if (!this.initialized) {
               await this.initialize({});
@@ -86,7 +93,14 @@ describe('Concurrent Execution', () => {
               status: 'success' as const,
               executionTime: 50,
               issues: [],
-              metrics: { score: 100 }
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
             };
           }
         })
@@ -100,10 +114,10 @@ describe('Concurrent Execution', () => {
       // Execute all plugins to trigger initialization
       const executionPromises = plugins.map(plugin =>
         plugin.execute({
-          projectId: 'test-project',
           projectPath: '/test',
-          options: {}
-        })
+          config: { name: 'test', version: '1.0.0', tools: [] },
+          logger: mockLogger
+        } as any)
       );
 
       await Promise.all(executionPromises);
@@ -121,7 +135,7 @@ describe('Concurrent Execution', () => {
       const plugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `concurrent-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Each plugin performs some work and updates shared state
             const increment = Math.floor(Math.random() * 5) + 1; // 1-5 increments
             sharedCounter.value += increment;
@@ -134,8 +148,13 @@ describe('Concurrent Execution', () => {
               executionTime: 50,
               issues: [],
               metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100,
-                increment: increment
+                increment
               }
             };
           }
@@ -150,10 +169,10 @@ describe('Concurrent Execution', () => {
       // Execute all plugins concurrently
       const executionPromises = plugins.map(async (plugin) => {
         return plugin.execute({
-          projectId: 'test-project',
           projectPath: '/test',
-          options: {}
-        });
+          config: { name: 'test', version: '1.0.0', tools: [] },
+          logger: mockLogger
+        } as any);
       });
 
       const results = await Promise.all(executionPromises);
@@ -166,7 +185,7 @@ describe('Concurrent Execution', () => {
       expect(sharedCounter.value).toBeLessThanOrEqual(pluginCount * 5); // Not more than max possible
 
       // Verify each plugin contributed something
-      const totalIncrement = results.reduce((sum, r) => sum + r.metrics.increment, 0);
+      const totalIncrement = results.reduce((sum, r) => sum + (r.metrics as any).increment, 0);
       expect(totalIncrement).toBe(sharedCounter.value);
     });
 
@@ -177,7 +196,7 @@ describe('Concurrent Execution', () => {
       const plugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `map-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             const key = `key-${i}`;
             const values = Array.from({ length: 5 }, (_, j) => `value-${i}-${j}`);
 
@@ -196,7 +215,14 @@ describe('Concurrent Execution', () => {
               status: 'success' as const,
               executionTime: 50,
               issues: [],
-              metrics: { score: 100 }
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
             };
           }
         })
@@ -210,10 +236,10 @@ describe('Concurrent Execution', () => {
       // Execute all plugins concurrently
       const executionPromises = plugins.map(plugin =>
         plugin.execute({
-          projectId: 'test-project',
           projectPath: '/test',
-          options: {}
-        })
+          config: { name: 'test', version: '1.0.0', tools: [] },
+          logger: mockLogger
+        } as any)
       );
 
       const results = await Promise.all(executionPromises);
@@ -232,7 +258,7 @@ describe('Concurrent Execution', () => {
       const plugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `cleanup-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Allocate some memory
             const data = new Array(100).fill(Math.random());
             return {
@@ -240,7 +266,14 @@ describe('Concurrent Execution', () => {
               status: 'success' as const,
               executionTime: 50,
               issues: [],
-              metrics: { score: 100 }
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
             };
           },
           async cleanup() {
@@ -276,7 +309,7 @@ describe('Concurrent Execution', () => {
       const memoryIntensivePlugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `memory-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Allocate memory during execution
             const data = new Array(1000).fill(Math.random());
             await new Promise(resolve => setTimeout(resolve, Math.random() * 10));
@@ -289,7 +322,14 @@ describe('Concurrent Execution', () => {
               status: 'success' as const,
               executionTime: 100,
               issues: [],
-              metrics: { score: 100 }
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
             };
           }
         })
@@ -303,10 +343,10 @@ describe('Concurrent Execution', () => {
       // Execute all plugins concurrently
       const executionPromises = memoryIntensivePlugins.map(plugin =>
         plugin.execute({
-          projectId: 'test-project',
           projectPath: '/test',
-          options: {}
-        })
+          config: { name: 'test', version: '1.0.0', tools: [] },
+          logger: mockLogger
+        } as any)
       );
 
       const results = await Promise.all(executionPromises);
@@ -330,14 +370,14 @@ describe('Concurrent Execution', () => {
   describe('Error Handling Under Concurrency', () => {
     it('should handle plugin failures gracefully during concurrent execution', async () => {
       const pluginCount = 10;
-      const failureRate = 0.3; // 30% failure rate
 
       const plugins = Array.from({ length: pluginCount }, (_, i) => {
-        const shouldFail = Math.random() < failureRate;
+        // Make it deterministic: fail plugins at indices 0, 3, 6, 9 (40% failure rate)
+        const shouldFail = i % 3 === 0;
 
         return createTestPlugin({
           name: `error-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
 
             if (shouldFail) {
@@ -349,7 +389,14 @@ describe('Concurrent Execution', () => {
               status: 'success' as const,
               executionTime: 50,
               issues: [],
-              metrics: { score: 100 }
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
             };
           }
         });
@@ -364,10 +411,10 @@ describe('Concurrent Execution', () => {
       const executionPromises = plugins.map(async (plugin) => {
         try {
           const result = await plugin.execute({
-            projectId: 'test-project',
             projectPath: '/test',
-            options: {}
-          });
+            config: { name: 'test', version: '1.0.0', tools: [] },
+            logger: mockLogger
+          } as any);
           return { success: true, result };
         } catch (error) {
           return { success: false, error };

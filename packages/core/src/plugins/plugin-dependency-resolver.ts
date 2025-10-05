@@ -27,7 +27,7 @@ export class PluginDependencyResolver {
    * Add a plugin to the dependency graph
    */
   addPlugin(plugin: AnalysisPlugin): void {
-    const dependencies = plugin.dependencies || [];
+    const dependencies = plugin.dependencies ?? [];
 
     this.dependencyGraph.set(plugin.name, {
       plugin,
@@ -423,7 +423,7 @@ export class PluginDependencyResolver {
   /**
    * Check version compatibility (simplified)
    */
-  private isVersionCompatible(plugin1: AnalysisPlugin, plugin2: AnalysisPlugin): boolean {
+  private isVersionCompatible(_plugin1: AnalysisPlugin, _plugin2: AnalysisPlugin): boolean {
     // Simplified version compatibility check
     // In reality, you'd implement semantic versioning checks
     return true;

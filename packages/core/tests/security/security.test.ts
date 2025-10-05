@@ -5,22 +5,19 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { writeFileSync, mkdirSync, chmodSync } from 'fs';
+import { writeFileSync, chmodSync } from 'fs';
 import { join } from 'path';
-import { AutoConfigurationDetectionEngine } from '../../src/detection/detection-engine';
 import { ProjectDetector } from '../../src/detection/project-detector';
 import { ToolDetector } from '../../src/detection/tool-detector';
 import { createTestDir, cleanupTestDir } from '../test-utils';
 
 describe('Security Tests - Configuration File Injection (SEC-001)', () => {
   let testDir: string;
-  let engine: AutoConfigurationDetectionEngine;
   let projectDetector: ProjectDetector;
   let toolDetector: ToolDetector;
 
   beforeEach(() => {
     testDir = createTestDir('security-test');
-    engine = new AutoConfigurationDetectionEngine();
     projectDetector = new ProjectDetector();
     toolDetector = new ToolDetector();
   });
@@ -50,7 +47,7 @@ describe('Security Tests - Configuration File Injection (SEC-001)', () => {
       const result = await projectDetector.detectProject(testDir);
 
       // Verify Object prototype not polluted
-      expect((Object.prototype as any).polluted).toBeUndefined();
+      expect((Object.prototype as unknown).polluted).toBeUndefined();
       expect(result).toBeDefined();
     });
 
@@ -69,7 +66,7 @@ describe('Security Tests - Configuration File Injection (SEC-001)', () => {
       await projectDetector.detectProject(testDir);
 
       // Verify no pollution
-      expect((Object.prototype as any).polluted).toBeUndefined();
+      expect((Object.prototype as unknown).polluted).toBeUndefined();
     });
 
     it('should safely handle nested __proto__ attempts', async () => {
@@ -86,7 +83,7 @@ describe('Security Tests - Configuration File Injection (SEC-001)', () => {
 
       const result = await projectDetector.detectProject(testDir);
 
-      expect((Object.prototype as any).injected).toBeUndefined();
+      expect((Object.prototype as unknown).injected).toBeUndefined();
       expect(result).toBeDefined();
     });
   });
@@ -123,7 +120,7 @@ describe('Security Tests - Configuration File Injection (SEC-001)', () => {
 
     it('should handle deeply nested configuration objects', async () => {
       // Create deeply nested structure
-      let nested: any = { value: 'deep' };
+      let nested: unknown = { value: 'deep' };
       for (let i = 0; i < 100; i++) {
         nested = { nested };
       }
@@ -275,7 +272,7 @@ describe('Security Tests - Configuration File Injection (SEC-001)', () => {
 
       try {
         await projectDetector.detectProject(nonExistentPath);
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Error messages should not leak full system paths
         expect(error.message).toBeDefined();
         // Should contain relative path, not absolute system path
@@ -334,7 +331,7 @@ describe('Security Tests - Configuration File Injection (SEC-001)', () => {
 
     it('should handle moderately nested structures without crashing', async () => {
       // Create moderately nested structure
-      let nested: any = 'data';
+      let nested: unknown = 'data';
       for (let i = 0; i < 10; i++) {
         const array = new Array(5).fill(nested);
         nested = { items: array };
@@ -408,7 +405,7 @@ describe('Input Validation Security', () => {
 
   it('should limit configuration key lengths', async () => {
     const veryLongKey = 'a'.repeat(10000);
-    const config: any = {
+    const config: unknown = {
       name: 'test',
       version: '1.0.0',
     };

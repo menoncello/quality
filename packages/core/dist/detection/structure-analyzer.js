@@ -79,8 +79,9 @@ export class StructureAnalyzer {
                     return packageManager === 'yarn' ? 'yarn' : 'npm';
                 }
             }
-            catch (error) {
-                console.warn('Failed to read package.json for monorepo type detection:', error);
+            catch (_error) {
+                // eslint-disable-next-line no-console
+                console.warn('Failed to read package.json for monorepo type detection:');
                 // Continue
             }
         }
@@ -96,8 +97,9 @@ export class StructureAnalyzer {
                     return true;
                 }
             }
-            catch (error) {
-                console.warn('Failed to read package.json:', error);
+            catch (_error) {
+                // eslint-disable-next-line no-console
+                console.warn('Failed to read package.json:');
                 // Continue
             }
         }
@@ -128,7 +130,7 @@ export class StructureAnalyzer {
                     }
                 }
             }
-            catch (error) {
+            catch (_error) {
                 // Continue
             }
         }
@@ -138,7 +140,7 @@ export class StructureAnalyzer {
             try {
                 const content = readFileSync(pnpmWorkspacePath, 'utf-8');
                 const packagesMatch = content.match(/packages:\s*\n((?:\s*-\s*[^\n]+\n?)*)/);
-                if (packagesMatch && packagesMatch[1]) {
+                if (packagesMatch?.[1]) {
                     const packageLines = packagesMatch[1].split('\n').filter(line => line.trim());
                     for (const line of packageLines) {
                         const packagePath = line.replace(/^\s*-\s*/, '').trim();
@@ -148,7 +150,7 @@ export class StructureAnalyzer {
                     }
                 }
             }
-            catch (error) {
+            catch (_error) {
                 // Continue
             }
         }
@@ -190,10 +192,8 @@ export class StructureAnalyzer {
                 if (entry.isDirectory()) {
                     const fullPath = join(dir, entry.name);
                     const relativePath = relative(rootPath, fullPath);
-                    // Check if directory name matches any pattern
-                    if (patterns.some(pattern => entry.name === pattern ||
-                        entry.name.includes(pattern) ||
-                        entry.name.toLowerCase().includes(pattern.toLowerCase()))) {
+                    // Check if directory name matches unknown pattern
+                    if (patterns.some(pattern => (entry?.name === pattern || entry?.name?.includes(pattern)) ?? entry.name.toLowerCase().includes(pattern.toLowerCase()))) {
                         directories.push(relativePath);
                     }
                     // Recursively scan, but avoid node_modules and hidden directories

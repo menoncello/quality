@@ -1,5 +1,5 @@
-import type { AnalysisPlugin, ToolConfiguration, Logger } from './analysis-plugin.js';
-import type { PluginRegistry, PluginRegistryEntry } from './plugin-registry.js';
+import type { AnalysisPlugin, Logger } from './analysis-plugin.js';
+import type { PluginRegistry, PluginRegistryEntry, PluginManifest } from './plugin-registry.js';
 import { PluginSource } from './plugin-registry.js';
 import type { PluginLoader as BasePluginLoader } from './plugin-loader.js';
 
@@ -74,9 +74,9 @@ export class PluginLoaderV2 {
 
     // Check cache first
     if (mergedOptions.enableCache && this.loadingCache.has(identifier)) {
-      const cached = this.loadingCache.get(identifier)!;
+      const cached = this.loadingCache.get(identifier);
       this.logger.debug(`Plugin loaded from cache: ${identifier}`);
-      return cached;
+      return cached as any;
     }
 
     const result = await this.performPluginLoad(identifier, mergedOptions);
@@ -143,7 +143,7 @@ export class PluginLoaderV2 {
         p => p.manifest.metadata.name === packageName
       );
 
-      if (existingEntry && existingEntry.installation.source === PluginSource.NPM) {
+      if (existingEntry?.installation.source === PluginSource.NPM) {
         if (version && existingEntry.installation.version !== version) {
           // Version mismatch, need to update
           await this.updatePlugin(packageName, version);
@@ -199,7 +199,7 @@ export class PluginLoaderV2 {
   async loadPluginFromGit(
     repositoryUrl: string,
     branch?: string,
-    options: PluginLoadingOptions = {}
+    _options: PluginLoadingOptions = {}
   ): Promise<PluginLoadingResult> {
     const identifier = branch ? `${repositoryUrl}#${branch}` : repositoryUrl;
 
@@ -208,7 +208,7 @@ export class PluginLoaderV2 {
     try {
       await this.registry.installPluginFromGit(identifier);
 
-      const repoName = repositoryUrl.split('/').pop()?.replace('.git', '') || 'unknown';
+      const repoName = repositoryUrl.split('/').pop()?.replace('.git', '') ?? 'unknown';
       const entry = this.registry.getAllPlugins().find(
         p => p.manifest.metadata.name === repoName
       );
@@ -242,7 +242,7 @@ export class PluginLoaderV2 {
    */
   async loadPluginFromPath(
     pluginPath: string,
-    options: PluginLoadingOptions = {}
+    _options: PluginLoadingOptions = {}
   ): Promise<PluginLoadingResult> {
     this.logger.info(`Loading plugin from path: ${pluginPath}`);
 
@@ -253,7 +253,7 @@ export class PluginLoaderV2 {
       }
 
       // Use base loader for local file loading
-      const plugin = await this.baseLoader.loadPlugin(pluginPath);
+      const plugin = await this.baseLoader!.loadPlugin(pluginPath);
 
       // Create minimal manifest for local plugin
       const manifest = await this.createLocalManifest(pluginPath, plugin);
@@ -290,7 +290,7 @@ export class PluginLoaderV2 {
    */
   async discoverAndLoadPlugins(
     searchPaths: string[],
-    options: PluginLoadingOptions = {}
+    _options: PluginLoadingOptions = {}
   ): Promise<PluginLoadingResult[]> {
     const results: PluginLoadingResult[] = [];
 
@@ -346,10 +346,11 @@ export class PluginLoaderV2 {
     }
 
     switch (entry.installation.source) {
-      case PluginSource.NPM:
+      case PluginSource.NPM: {
         const identifier = version ? `${pluginName}@${version}` : pluginName;
         await this.registry.installPluginFromNpm(identifier);
         break;
+      }
 
       case PluginSource.GIT:
         await this.registry.installPluginFromGit(entry.installation.location);
@@ -431,7 +432,7 @@ export class PluginLoaderV2 {
         p => p.manifest.metadata.name === identifier
       );
 
-      if (existingEntry && existingEntry.instance) {
+      if (existingEntry?.instance) {
         return {
           success: true,
           plugin: existingEntry.instance,
@@ -447,7 +448,7 @@ export class PluginLoaderV2 {
       } else if (identifier.includes('@') && !identifier.startsWith('.')) {
         // NPM package with version
         return await this.loadPluginFromNpm(identifier, undefined, options);
-      } else if (identifier.includes('/') || identifier.startsWith('.')) {
+      } else if (identifier.includes('/') ?? identifier.startsWith('.')) {
         // Local path
         return await this.loadPluginFromPath(identifier, options);
       } else {
@@ -477,7 +478,7 @@ export class PluginLoaderV2 {
   private async tryBuiltinFallback(
     identifier: string,
     originalError: Error,
-    options: PluginLoadingOptions
+    _options: PluginLoadingOptions
   ): Promise<PluginLoadingResult> {
     this.logger.warn(`Failed to load ${identifier}, trying builtin fallback:`, originalError);
 
@@ -533,20 +534,20 @@ export class PluginLoaderV2 {
     };
 
     const baseName = identifier.split('@')[0].split('/')[0];
-    return equivalents[baseName] || null;
+    return equivalents[baseName]  || null;
   }
 
   /**
    * Create manifest for local plugin
    */
-  private async createLocalManifest(pluginPath: string, plugin: AnalysisPlugin): Promise<any> {
+  private async createLocalManifest(pluginPath: string, plugin: AnalysisPlugin): Promise<PluginManifest> {
     const path = await import('path');
     const filename = path.basename(pluginPath, path.extname(pluginPath));
 
     return {
       metadata: {
-        name: plugin.name || filename,
-        version: plugin.version || '1.0.0',
+        name: plugin.name ?? filename,
+        version: plugin.version ?? '1.0.0',
         description: `Local plugin: ${filename}`,
         author: 'Local Developer',
         license: 'MIT',
@@ -554,7 +555,7 @@ export class PluginLoaderV2 {
         category: 'other',
         supportedLanguages: [],
         supportedFileTypes: [],
-        dependencies: plugin.dependencies || [],
+        dependencies: plugin.dependencies ?? [],
         engines: { node: '>=14.0.0' },
         compatibility: { platforms: ['*'], versions: ['*'] },
         features: {

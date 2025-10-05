@@ -9,6 +9,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { AnalysisPlugin } from '../plugins/analysis-plugin';
+import type { AnalysisContext, ToolResult, ToolConfiguration, PluginMetrics } from '../plugins/analysis-plugin';
 
 export interface TestProjectOptions {
   fileCount: number;
@@ -29,15 +30,14 @@ export interface TestPluginOptions {
   version?: string;
   dependencies?: string[];
   timeout?: number;
-  initialize?: (config: any) => Promise<void>;
-  execute: (context: any) => Promise<any>;
+  initialize?: (config: unknown) => Promise<void>;
+  execute: (context: AnalysisContext) => Promise<ToolResult>;
   cleanup?: () => Promise<void>;
-  validateConfig?: (config: any) => { valid: boolean; errors?: string[] };
-  getDefaultConfig?: () => any;
+  validateConfig?: (config: unknown) => { valid: boolean; errors: string[]; warnings: string[] };
+  getDefaultConfig?: () => ToolConfiguration;
   supportsIncremental?: () => boolean;
   supportsCache?: () => boolean;
-  getMetrics?: () => any;
-  updateConfig?: (newConfig: any) => Promise<void>;
+  getMetrics?: () => PluginMetrics;
 }
 
 export async function createTestProject(name: string, options: TestProjectOptions): Promise<TestProject> {
@@ -137,17 +137,16 @@ export async function cleanupTestProject(testProject: TestProject): Promise<void
 export function createTestPlugin(options: TestPluginOptions): AnalysisPlugin {
   return {
     name: options.name,
-    version: options.version || '1.0.0',
-    dependencies: options.dependencies || [],
-    timeout: options.timeout || 30000,
+    version: options.version   ?? '1.0.0',
+    dependencies: options.dependencies ?? [],
 
-    async initialize(config: any = {}) {
+    async initialize(config: unknown = {}) {
       if (options.initialize) {
         await options.initialize(config);
       }
     },
 
-    async execute(context: any) {
+    async execute(context: AnalysisContext) {
       return options.execute(context);
     },
 
@@ -157,18 +156,22 @@ export function createTestPlugin(options: TestPluginOptions): AnalysisPlugin {
       }
     },
 
-    validateConfig(config?: any) {
+    validateConfig(config?: unknown): { valid: boolean; errors: string[]; warnings: string[] } {
       if (options.validateConfig) {
         return options.validateConfig(config);
       }
-      return { valid: true };
+      return { valid: true, errors: [], warnings: [] };
     },
 
-    getDefaultConfig() {
+    getDefaultConfig(): ToolConfiguration {
       if (options.getDefaultConfig) {
         return options.getDefaultConfig();
       }
-      return {};
+      return {
+        name: options.name || 'mock-plugin',
+        enabled: true,
+        config: {}
+      };
     },
 
     supportsIncremental() {
@@ -185,23 +188,17 @@ export function createTestPlugin(options: TestPluginOptions): AnalysisPlugin {
       return true;
     },
 
-    getMetrics() {
+    getMetrics(): PluginMetrics {
       if (options.getMetrics) {
         return options.getMetrics();
       }
       return {
-        executionTime: 0,
-        memoryUsage: 0,
-        cacheHits: 0,
-        cacheMisses: 0
+        executionCount: 0,
+        totalExecutionTime: 0,
+        averageExecutionTime: 0,
+        successCount: 0,
+        errorCount: 0
       };
-    },
-
-    updateConfig(newConfig?: any) {
-      if (options.updateConfig) {
-        return options.updateConfig(newConfig);
-      }
-      return Promise.resolve();
     }
   };
 }
@@ -224,7 +221,7 @@ function generateSimpleFileContent(fileName: string, complexity: 'simple' | 'med
     case 'json':
       return generateJsonContent(complexity, index);
     default:
-      return baseContent + `Default content for ${fileName}`;
+      return `${baseContent  }Default content for ${fileName}`;
   }
 }
 
@@ -282,7 +279,7 @@ function generateJavaScriptContent(baseContent: string, complexity: 'simple' | '
   if (complexity !== 'simple') {
     functions = `
 function calculateTotal(items) {
-  return items.reduce((sum, item) => sum + (item.value || 0), 0);
+  return items.reduce((sum, item) => sum + (item.value ?? 0), 0);
 }
 
 function validateItem(item) {
@@ -302,6 +299,8 @@ function main${index}() {
 
   const isValid = validateItem(data);
   if (!isValid) {
+    // eslint-disable-next-line no-console
+    // eslint-disable-next-line no-console
     console.error('Validation failed');
     return null;
   }
@@ -363,7 +362,7 @@ function generateJsonContent(complexity: 'simple' | 'medium' | 'complex', index:
   return JSON.stringify(complexData, null, 2);
 }
 
-export async function createMockTool(toolName: string, result: any): Promise<any> {
+export async function createMockTool(toolName: string, result: unknown): Promise<unknown> {
   return {
     name: toolName,
     version: '1.0.0',
@@ -373,7 +372,7 @@ export async function createMockTool(toolName: string, result: any): Promise<any
   };
 }
 
-export function createMockAnalysisResult(overrides: any = {}) {
+export function createMockAnalysisResult(overrides: Record<string, unknown> = {}) {
   return {
     id: 'test-analysis-result',
     projectId: 'test-project',

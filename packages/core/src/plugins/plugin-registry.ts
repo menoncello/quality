@@ -182,7 +182,7 @@ export class PluginRegistry {
         category: 'testing',
         supportedLanguages: ['javascript'],
         supportedFileTypes: ['.js'],
-        dependencies: plugin.dependencies || [],
+        dependencies: plugin.dependencies ?? [],
         engines: { node: '>=14.0.0' },
         compatibility: { platforms: ['*'], versions: ['*'] },
         features: {
@@ -206,7 +206,7 @@ export class PluginRegistry {
         location: 'mock-location',
         installedAt: new Date(),
         version: plugin.version,
-        dependencies: plugin.dependencies || []
+        dependencies: plugin.dependencies ?? []
       },
       instance: plugin,
       enabled: true,
@@ -294,7 +294,7 @@ export class PluginRegistry {
 
     try {
       // Cleanup plugin instance
-      if (entry.instance && entry.instance.cleanup) {
+      if (entry.instance?.cleanup) {
         await entry.instance.cleanup();
       }
 
@@ -536,7 +536,7 @@ export class PluginRegistry {
     // Count by category
     for (const plugin of plugins) {
       const category = plugin.manifest.metadata.category;
-      stats.categories[category] = (stats.categories[category] || 0) + 1;
+      stats.categories[category] = (stats.categories[category]  || 0) + 1;
     }
 
     return stats;
@@ -547,7 +547,7 @@ export class PluginRegistry {
    */
   validatePluginConfig(pluginName: string, config: ToolConfiguration): ValidationResult {
     const entry = this.plugins.get(pluginName);
-    if (!entry || !entry.instance) {
+    if (!entry?.instance) {
       return {
         valid: false,
         errors: [`Plugin ${pluginName} not found or not loaded`],
@@ -606,7 +606,7 @@ export class PluginRegistry {
         : `${location}/${manifest.main}`;
 
       const module = await import(modulePath);
-      const PluginClass = module.default || module.AnalysisPlugin;
+      const PluginClass = module.default ?? module.AnalysisPlugin;
 
       if (!PluginClass) {
         throw new Error(`No default export found in ${modulePath}`);
@@ -632,11 +632,11 @@ export class PluginRegistry {
       }
     }
 
-    if (typeof plugin.name !== 'string' || !plugin.name) {
+    if (typeof plugin.name !== 'string'  || !plugin.name) {
       errors.push('Plugin must have a valid name');
     }
 
-    if (typeof plugin.version !== 'string' || !plugin.version) {
+    if (typeof plugin.version !== 'string'  || !plugin.version) {
       errors.push('Plugin must have a valid version');
     }
 
@@ -653,7 +653,7 @@ export class PluginRegistry {
   private async extractManifestFromFile(filePath: string): Promise<PluginManifest> {
     // This is a simplified implementation
     // In reality, you'd parse metadata from the plugin file
-    const filename = filePath.split('/').pop()?.replace(/\.(js|ts)$/, '') || '';
+    const filename = filePath.split('/').pop()?.replace(/\.(js|ts)$/, '') ?? '';
 
     return {
       metadata: {
@@ -751,12 +751,12 @@ export class PluginRegistry {
     };
 
     const baseManifest = manifests[pluginName];
-    if (!baseManifest) {
+    if (!baseManifest || !baseManifest.metadata) {
       throw new Error(`Unknown builtin plugin: ${pluginName}`);
     }
 
     return {
-      metadata: baseManifest.metadata as PluginMetadata,
+      metadata: baseManifest.metadata,
       main: `${pluginName}.js`
     };
   }
@@ -790,7 +790,7 @@ export class PluginRegistry {
    * Create git plugin manifest (simulated)
    */
   private async createGitManifest(repositoryUrl: string): Promise<PluginManifest> {
-    const repoName = repositoryUrl.split('/').pop()?.replace('.git', '') || 'unknown';
+    const repoName = repositoryUrl.split('/').pop()?.replace('.git', '') ?? 'unknown';
 
     return {
       metadata: {

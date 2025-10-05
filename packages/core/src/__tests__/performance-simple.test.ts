@@ -8,7 +8,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { PluginManager } from '../plugins/plugin-manager.js';
 import { createTestPlugin } from './test-utils-simple.js';
-import type { Logger } from '../plugins/analysis-plugin.js';
+import type { Logger, AnalysisContext } from '../plugins/analysis-plugin.js';
 
 describe('Performance Validation (PERF-001, PERF-002)', () => {
   let pluginManager: PluginManager;
@@ -35,7 +35,7 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const plugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `perf-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext): Promise<any> {
             const startTime = Date.now();
 
             // Simulate some work
@@ -51,6 +51,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
               issues: [],
               metrics: {
                 issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100,
                 processingTime: executionTime
               }
@@ -70,10 +74,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const startTime = Date.now();
       const executionPromises = plugins.map(plugin =>
         plugin.execute({
-          projectId: 'perf-test',
           projectPath: '/test',
-          options: {}
-        })
+          config: { name: 'test', version: '1.0.0', tools: [] },
+          logger: mockLogger
+        } as any)
       );
 
       const results = await Promise.all(executionPromises);
@@ -95,7 +99,7 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const plugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `concurrent-perf-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Simulate variable workloads
             const workload = Math.random() * 50; // 0-50ms of work
             await new Promise(resolve => setTimeout(resolve, workload));
@@ -107,6 +111,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
               issues: [],
               metrics: {
                 issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100
               }
             };
@@ -124,10 +132,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const results = await Promise.all(
         plugins.map(plugin =>
           plugin.execute({
-            projectId: 'concurrent-test',
             projectPath: '/test',
-            options: {}
-          })
+            config: { name: 'test', version: '1.0.0', tools: [] },
+            logger: mockLogger
+          } as any)
         )
       );
       const totalTime = Date.now() - startTime;
@@ -148,7 +156,7 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const plugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `memory-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Allocate memory during execution
             const data = new Array(10000).fill(Math.random());
 
@@ -165,6 +173,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
               issues: [],
               metrics: {
                 issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100,
                 memoryAllocated: processed.length * 8 // bytes
               }
@@ -181,10 +193,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       await Promise.all(
         plugins.map(plugin =>
           plugin.execute({
-            projectId: 'memory-test',
             projectPath: '/test',
-            options: {}
-          })
+            config: { name: 'test', version: '1.0.0', tools: [] },
+            logger: mockLogger
+          } as any)
         )
       );
 
@@ -209,7 +221,7 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const plugins = Array.from({ length: pluginCount }, (_, i) =>
         createTestPlugin({
           name: `cleanup-memory-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Allocate significant memory
             this.memoryCache = new Array(5000).fill(Math.random());
             return {
@@ -219,6 +231,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
               issues: [],
               metrics: {
                 issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100
               }
             };
@@ -242,10 +258,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       await Promise.all(
         plugins.map(plugin =>
           plugin.execute({
-            projectId: 'cleanup-test',
             projectPath: '/test',
-            options: {}
-          })
+            config: { name: 'test', version: '1.0.0', tools: [] },
+            logger: mockLogger
+          } as any)
         )
       );
 
@@ -276,7 +292,7 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const plugins = Array.from({ length: highPluginCount }, (_, i) =>
         createTestPlugin({
           name: `load-test-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Simulate light work
             await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -287,6 +303,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
               issues: [],
               metrics: {
                 issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100
               }
             };
@@ -313,10 +333,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
         const batchResults = await Promise.all(
           batch.map(plugin =>
             plugin.execute({
-              projectId: 'load-test',
               projectPath: '/test',
-              options: {}
-            })
+              config: { name: 'test', version: '1.0.0', tools: [] },
+              logger: mockLogger
+            } as any)
           )
         );
         results.push(...batchResults);
@@ -342,7 +362,7 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
 
         return createTestPlugin({
           name: `failure-test-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             if (shouldFail) {
               throw new Error(`Plugin ${i} intentionally failed`);
             }
@@ -354,6 +374,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
               issues: [],
               metrics: {
                 issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100
               }
             };
@@ -372,10 +396,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const results = await Promise.allSettled(
         plugins.map(plugin =>
           plugin.execute({
-            projectId: 'failure-test',
             projectPath: '/test',
-            options: {}
-          })
+            config: { name: 'test', version: '1.0.0', tools: [] },
+            logger: mockLogger
+          } as any)
         )
       );
 
@@ -400,7 +424,7 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const resourceIntensivePlugins = Array.from({ length: 5 }, (_, i) =>
         createTestPlugin({
           name: `resource-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Simulate resource-intensive work
             const startTime = Date.now();
 
@@ -422,6 +446,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
               issues: [],
               metrics: {
                 issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100,
                 calculations: 1000000,
                 memoryAllocated: data.length * 8
@@ -443,10 +471,10 @@ describe('Performance Validation (PERF-001, PERF-002)', () => {
       const results = await Promise.all(
         resourceIntensivePlugins.map(plugin =>
           plugin.execute({
-            projectId: 'resource-test',
             projectPath: '/test',
-            options: {}
-          })
+            config: { name: 'test', version: '1.0.0', tools: [] },
+            logger: mockLogger
+          } as any)
         )
       );
 

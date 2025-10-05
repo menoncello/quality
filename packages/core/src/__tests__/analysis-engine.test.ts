@@ -27,7 +27,7 @@ describe('AnalysisEngine', () => {
       getAllPluginMetrics: () => ({}),
       isInitialized: () => false,
       cleanup: async () => {}
-    } as any;
+    } as unknown as PluginManager;
 
     const config = {
       maxConcurrency: 4,
@@ -49,7 +49,7 @@ describe('AnalysisEngine', () => {
       retryDelay: 1000
     };
 
-    analysisEngine = new AnalysisEngine(config, mockLogger);
+    analysisEngine = new AnalysisEngine(config, mockLogger) as any;
   });
 
   afterEach(async () => {
@@ -166,7 +166,7 @@ describe('AnalysisEngine', () => {
       await analysisEngine.registerPlugin(mockPlugin);
       const plugin = analysisEngine.getPlugin('test-plugin');
       expect(plugin).toBeDefined();
-      expect(plugin!.name).toBe('test-plugin');
+      expect(plugin?.name).toBe('test-plugin');
     });
   });
 
@@ -223,16 +223,14 @@ describe('AnalysisEngine', () => {
       await analysisEngine.registerPlugin(mockPlugin);
 
       const mockContext: AnalysisContext = {
-        projectId: 'test-project',
-        projectPath: '/test',
+                projectPath: '/test',
         config: {
           name: 'test-project',
           version: '1.0.0',
           tools: []
         },
         logger: mockLogger,
-        startTime: Date.now(),
-        signal: undefined
+                signal: undefined
       };
 
       const result = await analysisEngine.executeAnalysis('test-project', mockContext);
@@ -247,16 +245,14 @@ describe('AnalysisEngine', () => {
       // We'll verify it can handle the case where no analysis is found
 
       const mockContext: AnalysisContext = {
-        projectId: 'test-project',
-        projectPath: '/test',
+                projectPath: '/test',
         config: {
           name: 'test-project',
           version: '1.0.0',
           tools: []
         },
         logger: mockLogger,
-        startTime: Date.now(),
-        signal: undefined
+                signal: undefined
       };
 
       // Try to cancel analysis that doesn't exist - should throw error
@@ -393,16 +389,14 @@ describe('AnalysisEngine', () => {
       await analysisEngine.registerPlugin(mockPlugin);
 
       const mockContext: AnalysisContext = {
-        projectId: 'test-project',
-        projectPath: '/test',
+                projectPath: '/test',
         config: {
           name: 'test-project',
           version: '1.0.0',
           tools: []
         },
         logger: mockLogger,
-        startTime: Date.now(),
-        signal: undefined
+                signal: undefined
       };
 
       const result = await analysisEngine.executeAnalysis('test-project', mockContext);

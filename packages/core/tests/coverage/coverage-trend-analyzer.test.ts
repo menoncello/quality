@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { CoverageTrendAnalyzer } from '../../src/services/coverage-trend-analyzer.js';
 import type { AnalysisContext, CoverageData } from '../../src/plugins/analysis-plugin.js';
-import { writeFile, unlink } from 'fs/promises';
+import { unlink } from 'fs/promises';
 import { join } from 'path';
 
 describe('CoverageTrendAnalyzer', () => {

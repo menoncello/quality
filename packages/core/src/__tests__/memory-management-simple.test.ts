@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { PluginManager } from '../plugins/plugin-manager';
 import { createTestPlugin } from './test-utils-simple';
-import type { Logger } from '../plugins/analysis-plugin';
+import type { Logger, AnalysisContext } from '../plugins/analysis-plugin';
 
 describe('Memory Management', () => {
   let pluginManager: PluginManager;
@@ -41,7 +41,7 @@ describe('Memory Management', () => {
       const plugins = Array.from({ length: 10 }, (_, i) =>
         createTestPlugin({
           name: `memory-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext): Promise<any> {
             // Allocate some memory
             const data = new Array(1000).fill(Math.random());
             return {
@@ -79,13 +79,20 @@ describe('Memory Management', () => {
       const plugins = Array.from({ length: 5 }, (_, i) =>
         createTestPlugin({
           name: `cleanup-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             return {
               toolName: `cleanup-plugin-${i}`,
               status: 'success' as const,
               executionTime: 50,
               issues: [],
-              metrics: { issuesCount: 0, score: 100 }
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
             };
           },
           async cleanup() {
@@ -133,19 +140,26 @@ describe('Memory Management', () => {
           // Allocate memory during initialization
           this.cache = new Array(5000).fill(Math.random());
         },
-        async execute(context) {
+        async execute(context: AnalysisContext) {
           return {
             toolName: 'memory-intensive-plugin',
             status: 'success' as const,
             executionTime: 100,
             issues: [],
-            metrics: { issuesCount: 0, score: 100 }
+            metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
           };
         },
         async cleanup() {
           // Clean up allocated memory
-          (this as any).cache = null;
-          delete (this as any).cache;
+          (this).cache = null;
+          delete (this).cache;
         }
       });
 
@@ -174,13 +188,20 @@ describe('Memory Management', () => {
       for (let cycle = 0; cycle < 5; cycle++) {
         const plugin = createTestPlugin({
           name: `cycle-plugin-${cycle}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             return {
               toolName: `cycle-plugin-${cycle}`,
               status: 'success' as const,
               executionTime: 50,
               issues: [],
-              metrics: { issuesCount: 0, score: 100 }
+              metrics: {
+                issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
+                score: 100
+              }
             };
           }
         });
@@ -214,7 +235,7 @@ describe('Memory Management', () => {
       for (let i = 0; i < 10; i++) {
         const plugin = createTestPlugin({
           name: `pressure-plugin-${i}`,
-          async execute(context) {
+          async execute(context: AnalysisContext) {
             // Simulate work that uses memory
             const data = new Array(100 * (i + 1)).fill(Math.random());
             return {
@@ -224,6 +245,10 @@ describe('Memory Management', () => {
               issues: [],
               metrics: {
                 issuesCount: 0,
+                errorsCount: 0,
+                warningsCount: 0,
+                infoCount: 0,
+                fixableCount: 0,
                 score: 100,
                 memoryUsed: data.length * 8
               }

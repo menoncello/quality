@@ -4,10 +4,8 @@ import type {
   NormalizationRule,
   NormalizedIssue,
   NormalizedMetrics,
-  NormalizedResult
 } from '../analysis/result-normalizer.js';
 import type { Logger } from '../plugins/analysis-plugin.js';
-import type { ToolResult } from '../plugins/analysis-plugin.js';
 
 describe('ResultNormalizer', () => {
   let resultNormalizer: ResultNormalizer;
@@ -26,7 +24,7 @@ describe('ResultNormalizer', () => {
 
   describe('basic normalization', () => {
     it('should normalize a simple tool result', () => {
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'eslint',
         executionTime: 1500,
         status: 'success',
@@ -74,7 +72,7 @@ describe('ResultNormalizer', () => {
     });
 
     it('should handle empty results', () => {
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'empty-tool',
         executionTime: 100,
         status: 'success',
@@ -97,7 +95,7 @@ describe('ResultNormalizer', () => {
     });
 
     it('should handle failed tool results', () => {
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'failing-tool',
         executionTime: 500,
         status: 'error',
@@ -121,7 +119,7 @@ describe('ResultNormalizer', () => {
 
   describe('issue normalization', () => {
     it('should normalize issue severity', () => {
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'test-tool',
         executionTime: 100,
         status: 'success',
@@ -185,7 +183,7 @@ describe('ResultNormalizer', () => {
     });
 
     it('should add default categories to issues', () => {
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'test-tool',
         executionTime: 100,
         status: 'success',
@@ -217,7 +215,7 @@ describe('ResultNormalizer', () => {
     });
 
     it('should normalize file paths', () => {
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'test-tool',
         executionTime: 100,
         status: 'success',
@@ -251,7 +249,7 @@ describe('ResultNormalizer', () => {
 
   describe('metrics normalization', () => {
     it('should calculate comprehensive metrics', () => {
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'metrics-tool',
         executionTime: 2000,
         status: 'success',
@@ -307,11 +305,11 @@ describe('ResultNormalizer', () => {
 
       // Should have performance metrics
       expect(normalized.metrics.performance).toBeDefined();
-      expect(normalized.metrics.performance!.filesProcessed).toBe(2); // file1.js, file2.js
+      expect(normalized.metrics.performance.filesProcessed).toBe(2); // file1.js, file2.js
     });
 
     it('should handle missing performance data', () => {
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'no-perf-tool',
         executionTime: 500,
         status: 'success',
@@ -329,8 +327,8 @@ describe('ResultNormalizer', () => {
       const normalized = resultNormalizer.normalizeResult(toolResult);
 
       expect(normalized.metrics.performance).toBeDefined();
-      expect(normalized.metrics.performance!.filesProcessed).toBe(0);
-      expect(normalized.metrics.performance!.linesOfCode).toBe(0);
+      expect(normalized.metrics.performance.filesProcessed).toBe(0);
+      expect(normalized.metrics.performance.linesOfCode).toBe(0);
     });
   });
 
@@ -358,14 +356,14 @@ describe('ResultNormalizer', () => {
 
       resultNormalizer.addRule(customRule);
 
-      const toolResult: ToolResult = {
+      const toolResult: any = {
         toolName: 'custom-tool',
         executionTime: 100,
         status: 'success',
         issues: [
           {
             id: 'custom-1',
-            type: 'bug' as any, // Custom type
+            type: 'bug' as unknown, // Custom type
             toolName: 'custom-tool',
             filePath: 'test.js',
             lineNumber: 1,
@@ -375,7 +373,7 @@ describe('ResultNormalizer', () => {
           },
           {
             id: 'custom-2',
-            type: 'style' as any, // Custom type
+            type: 'style' as unknown, // Custom type
             toolName: 'custom-tool',
             filePath: 'test.js',
             lineNumber: 2,
@@ -407,7 +405,11 @@ describe('ResultNormalizer', () => {
         toolName: 'removable-tool',
         severityMapping: {
           'custom': 'error'
-        }
+        },
+        categoryMapping: {},
+        scoreMapping: {},
+        pathNormalization: (path: string) => path,
+        messageNormalization: (message: string) => message
       };
 
       resultNormalizer.addRule(customRule);
@@ -420,7 +422,7 @@ describe('ResultNormalizer', () => {
 
   describe('built-in tool normalization', () => {
     it('should normalize ESLint results', () => {
-      const eslintResult: ToolResult = {
+      const eslintResult: any = {
         toolName: 'eslint',
         executionTime: 1000,
         status: 'success',
@@ -455,7 +457,7 @@ describe('ResultNormalizer', () => {
     });
 
     it('should normalize TypeScript results', () => {
-      const tsResult: ToolResult = {
+      const tsResult: any = {
         toolName: 'typescript',
         executionTime: 1500,
         status: 'success',
@@ -490,7 +492,7 @@ describe('ResultNormalizer', () => {
     });
 
     it('should normalize Prettier results', () => {
-      const prettierResult: ToolResult = {
+      const prettierResult: any = {
         toolName: 'prettier',
         executionTime: 800,
         status: 'success',
@@ -525,7 +527,7 @@ describe('ResultNormalizer', () => {
 
   describe('batch normalization', () => {
     it('should normalize multiple results', () => {
-      const results: ToolResult[] = [
+      const results: any[] = [
         {
           toolName: 'tool1',
           executionTime: 500,
@@ -593,12 +595,12 @@ describe('ResultNormalizer', () => {
       const invalidResult = {
         toolName: '', // Invalid empty name
         executionTime: -100, // Invalid negative time
-        status: 'invalid-status' as any, // Invalid status
-        issues: null as any, // Invalid null issues
-        metrics: {} as any // Invalid empty metrics
+        status: 'invalid-status' as unknown, // Invalid status
+        issues: null as unknown, // Invalid null issues
+        metrics: {} as unknown // Invalid empty metrics
       };
 
-      const normalized = resultNormalizer.normalizeResult(invalidResult);
+      const normalized = resultNormalizer.normalizeResult(invalidResult as any);
 
       // Should still produce a valid normalized result
       expect(normalized.toolName).toBe('');
@@ -631,7 +633,7 @@ describe('ResultNormalizer', () => {
     });
 
     it('should merge normalized results', () => {
-      const result1: NormalizedResult = {
+      const result1: any = {
         toolName: 'tool1',
         toolVersion: '1.0.0',
         status: 'success',
@@ -682,7 +684,7 @@ describe('ResultNormalizer', () => {
         metadata: {}
       };
 
-      const result2: NormalizedResult = {
+      const result2: any = {
         toolName: 'tool2',
         toolVersion: '1.0.0',
         status: 'success',
@@ -736,7 +738,7 @@ describe('ResultNormalizer', () => {
       const merged = resultNormalizer.mergeNormalizedResults([result1, result2]);
 
       expect(merged.issues).toHaveLength(2);
-      expect(merged.metrics.totalIssues).toBe(2);
+      expect(merged.metrics.issuesCount).toBe(2);
       expect(merged.metrics.executionTime).toBe(800);
     });
   });

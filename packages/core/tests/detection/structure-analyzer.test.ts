@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { StructureAnalyzer } from '../../src/detection/structure-analyzer';
 import { join } from 'node:path';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { createTestDir, cleanupTestDir } from '../test-utils';
+import { createTestDir } from '../test-utils';
 
 describe('StructureAnalyzer', () => {
   let analyzer: StructureAnalyzer;
@@ -149,7 +149,7 @@ describe('StructureAnalyzer', () => {
         configDirectories: ['config'],
       };
 
-      const complexity = analyzer.calculateComplexity(structure as any);
+      const complexity = analyzer.calculateComplexity(structure as unknown);
 
       expect(complexity).toBe('simple');
     });
@@ -164,7 +164,7 @@ describe('StructureAnalyzer', () => {
         configDirectories: ['config'],
       };
 
-      const complexity = analyzer.calculateComplexity(structure as any);
+      const complexity = analyzer.calculateComplexity(structure as unknown);
 
       expect(complexity).toBe('complex');
     });
@@ -179,7 +179,7 @@ describe('StructureAnalyzer', () => {
         configDirectories: ['config', 'configs'],
       };
 
-      const complexity = analyzer.calculateComplexity(structure as any);
+      const complexity = analyzer.calculateComplexity(structure as unknown);
 
       expect(complexity).toBe('simple');
     });
@@ -420,7 +420,7 @@ describe('StructureAnalyzer', () => {
       try {
         const { execSync } = require('child_process');
         execSync(`rm -rf ${dir}`);
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     }

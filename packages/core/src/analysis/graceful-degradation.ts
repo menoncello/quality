@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import type { Logger } from '../plugins/analysis-plugin.js';
-import type { ErrorHandler, ErrorClassification } from './error-handler.js';
+import type { ErrorHandler } from './error-handler.js';
 
 /**
  * Degradation level
@@ -164,7 +164,8 @@ export class GracefulDegradationManager extends EventEmitter {
     if (averageSuccessRate >= strategy.recovery.successThreshold &&
         averageResponseTime < this.getResponseTimeThreshold(this.currentLevel)) {
       this.logger.info(`Recovery criteria met for ${this.currentLevel} level`);
-      return this.recoverToLevel(this.getNextLowerLevel(this.currentLevel));
+      const nextLevel = this.getNextLowerLevel(this.currentLevel);
+      return nextLevel ? this.recoverToLevel(nextLevel) : false;
     }
 
     this.logger.debug(`Recovery criteria not met: successRate=${averageSuccessRate}%, responseTime=${averageResponseTime}ms`);
@@ -240,7 +241,7 @@ export class GracefulDegradationManager extends EventEmitter {
     return {
       currentLevel: this.currentLevel,
       timeInCurrentLevel,
-      totalLevelChanges: this.healthHistory.filter(m => m.timestamp >= (this.lastLevelChange || new Date(0))).length,
+      totalLevelChanges: this.healthHistory.filter(m => m.timestamp >= (this.lastLevelChange ?? new Date(0))).length,
       disabledPluginsCount: this.disabledPlugins.size,
       healthScore,
       recommendations
@@ -472,7 +473,7 @@ export class GracefulDegradationManager extends EventEmitter {
     const higherLevelStrategies = Array.from(this.strategies.entries())
       .filter(([l]) => this.compareLevels(l, level) > 0);
 
-    for (const [levelName, strategy] of higherLevelStrategies) {
+    for (const [_levelName, strategy] of higherLevelStrategies) {
       for (const pluginName of strategy.actions.disablePlugins) {
         this.disabledPlugins.delete(pluginName);
         this.logger.debug(`Re-enabled plugin: ${pluginName}`);

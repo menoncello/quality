@@ -112,7 +112,7 @@ describe('PluginRegistry', () => {
       };
 
       await expect(
-        registry.registerPlugin(invalidManifest, PluginSource.LOCAL, '/test/path')
+        registry.registerPlugin(invalidManifest as any, PluginSource.LOCAL, '/test/path')
       ).rejects.toThrow('Missing required field: category');
     });
 
@@ -136,7 +136,7 @@ describe('PluginRegistry', () => {
       };
 
       await expect(
-        registry.registerPlugin(invalidManifest, PluginSource.LOCAL, '/test/path')
+        registry.registerPlugin(invalidManifest as any, PluginSource.LOCAL, '/test/path')
       ).rejects.toThrow('Invalid version format (expected x.y.z)');
     });
   });
@@ -150,8 +150,8 @@ describe('PluginRegistry', () => {
     it('should get plugin by name', () => {
       const plugin = registry.getPlugin('test-plugin');
       expect(plugin).toBeDefined();
-      expect(plugin!.name).toBe('test-plugin');
-      expect(plugin!.version).toBe('1.0.0');
+      expect(plugin?.name).toBe('test-plugin');
+      expect(plugin?.version).toBe('1.0.0');
     });
 
     it('should return undefined for non-existent plugin', () => {

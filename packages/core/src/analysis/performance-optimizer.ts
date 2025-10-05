@@ -1,5 +1,4 @@
-import type { AnalysisPlugin, AnalysisContext, Logger } from '../plugins/analysis-plugin.js';
-import type { TaskScheduler, WorkerPoolConfig } from './task-scheduler.js';
+import type { Logger } from '../plugins/analysis-plugin.js';
 
 /**
  * Task timer interface
@@ -70,6 +69,11 @@ export interface PerformanceMetrics {
     tasksPerSecond: number;
     filesPerSecond: number;
   };
+  diskIO: {
+    readBytes: number;
+    writeBytes: number;
+  };
+  timestamp: number;
   resourceUtilization: {
     cpu: number;
     memory: number;
@@ -100,7 +104,7 @@ export class PerformanceOptimizer {
   private startTime: number = 0;
   private memorySnapshots: number[] = [];
   private cpuSnapshots: number[] = [];
-  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
+  private cache: Map<string, { data: unknown; timestamp: number; ttl: number }> = new Map();
   private taskTimers: Map<string, TaskTimer> = new Map();
   private taskMetrics: PerformanceMetrics[] = [];
   private memoryUsageHistory: Array<{
@@ -180,6 +184,11 @@ export class PerformanceOptimizer {
         tasksPerSecond: 0,
         filesPerSecond: 0
       },
+      diskIO: {
+        readBytes: 0,
+        writeBytes: 0
+      },
+      timestamp: Date.now(),
       resourceUtilization: {
         cpu: 0,
         memory: 0,
@@ -222,16 +231,17 @@ export class PerformanceOptimizer {
     this.taskTimers.delete(taskId);
     this.concurrencyTracking.current = Math.max(0, this.concurrencyTracking.current - 1);
 
-    const metrics: any = {
+    const metrics: PerformanceMetrics = {
       executionTime: timer.executionTime,
-      memoryUsage: timer.memoryUsage,
-      memoryPeak: timer.memoryPeak,
-      cpuUsage: 0,
-      diskIO: {
-        readBytes: 0,
-        writeBytes: 0
+      memoryUsage: {
+        peak: timer.memoryPeak,
+        average: timer.memoryUsage,
+        final: timer.memoryUsage
       },
-      timestamp: Date.now(),
+      cpuUsage: {
+        peak: 0,
+        average: 0
+      },
       cacheStats: {
         hits: 0,
         misses: 0,
@@ -241,6 +251,11 @@ export class PerformanceOptimizer {
         tasksPerSecond: 0,
         filesPerSecond: 0
       },
+      diskIO: {
+        readBytes: 0,
+        writeBytes: 0
+      },
+      timestamp: Date.now(),
       resourceUtilization: {
         cpu: 0,
         memory: timer.memoryUsage,
@@ -262,12 +277,19 @@ export class PerformanceOptimizer {
   /**
    * Get system metrics
    */
-  getSystemMetrics(): any {
+  getSystemMetrics(): PerformanceMetrics {
     const memoryUsage = process.memoryUsage();
     return {
       executionTime: Date.now() - this.startTime,
-      memoryUsage: memoryUsage.heapUsed,
-      cpuUsage: 0,
+      memoryUsage: {
+        peak: memoryUsage.heapUsed,
+        average: memoryUsage.heapUsed,
+        final: memoryUsage.heapUsed
+      },
+      cpuUsage: {
+        peak: 0,
+        average: 0
+      },
       diskIO: {
         readBytes: 0,
         writeBytes: 0
@@ -315,9 +337,9 @@ export class PerformanceOptimizer {
    */
   detectBottlenecks(): Array<{type: string, impact: string, description: string}> {
     const bottlenecks = [];
-    const systemMetrics = this.getSystemMetrics();
+    const systemMetrics = this.getSystemMetrics() as any;
 
-    if (systemMetrics.memoryUsage.final > 500 * 1024 * 1024) { // 500MB
+    if (systemMetrics.memoryUsage && systemMetrics.memoryUsage.heapUsed > 500 * 1024 * 1024) { // 500MB
       bottlenecks.push({
         type: 'memory',
         impact: 'high',
@@ -365,17 +387,17 @@ export class PerformanceOptimizer {
    * Get optimization recommendations
    */
   getOptimizationRecommendations(): OptimizationRecommendation[] {
-    const recommendations = [];
+    const recommendations: OptimizationRecommendation[] = [];
     const systemMetrics = this.getSystemMetrics();
 
     if (systemMetrics.memoryUsage.final > 100 * 1024 * 1024) {
       recommendations.push({
-        type: 'resource',
-        priority: 'high',
+        type: 'resource' as const,
+        priority: 'high' as const,
         title: 'High Memory Usage',
         description: 'Memory usage is above recommended threshold',
         impact: 'Reduced performance and potential out-of-memory errors',
-        effort: 'medium',
+        effort: 'medium' as const,
         implementation: 'Implement memory pooling and reduce object creation'
       });
     }
@@ -393,7 +415,7 @@ export class PerformanceOptimizer {
     this.memoryUsageHistory.push({
       timestamp,
       rss: memoryRecord.rss,
-      heapUsed: memoryUsage || memoryRecord.heapUsed,
+      heapUsed: memoryUsage ?? memoryRecord.heapUsed,
       heapTotal: memoryRecord.heapTotal,
       external: memoryRecord.external,
       arrayBuffers: memoryRecord.arrayBuffers
@@ -404,7 +426,7 @@ export class PerformanceOptimizer {
       this.memoryUsageHistory = this.memoryUsageHistory.slice(-100);
     }
 
-    return memoryUsage || memoryRecord.heapUsed;
+    return memoryUsage ?? memoryRecord.heapUsed;
   }
 
   /**
@@ -481,7 +503,7 @@ export class PerformanceOptimizer {
   /**
    * Generate performance report
    */
-  generatePerformanceReport(): {summary: PerformanceMetrics, recommendations: OptimizationRecommendation[], scoreBreakdown: any} {
+  generatePerformanceReport(): {summary: PerformanceMetrics, recommendations: OptimizationRecommendation[], scoreBreakdown: {total: number, memory: number, speed: number, efficiency: number}} {
     const systemMetrics = this.getSystemMetrics();
     const recommendations = this.getOptimizationRecommendations();
     const scoreBreakdown = this.getPerformanceScoreBreakdown();
@@ -496,7 +518,7 @@ export class PerformanceOptimizer {
   /**
    * Export metrics
    */
-  exportMetrics(): {timestamp: number, metrics: PerformanceMetrics[], config: PerformanceOptimizerConfig, metadata: any, version: string} {
+  exportMetrics(): {timestamp: number, metrics: PerformanceMetrics[], config: PerformanceOptimizerConfig, metadata: unknown, version: string} {
     return {
       timestamp: Date.now(),
       metrics: [...this.taskMetrics],
@@ -513,19 +535,17 @@ export class PerformanceOptimizer {
   /**
    * Update configuration
    */
-  updateConfig(newConfig: any): void {
+  updateConfig(newConfig: Partial<PerformanceOptimizerConfig>): void {
     // Check for invalid configuration patterns
     if (newConfig.resourceManagement) {
       const thresholds = newConfig.resourceManagement;
-      if (thresholds.slowTaskThreshold <= 0 ||
-          thresholds.memoryThreshold <= 0 ||
-          thresholds.cpuThreshold > 100 ||
-          thresholds.diskIOLatencyThreshold <= 0) {
+      if ((thresholds as any).slowTaskThreshold <= 0 || (thresholds as any).memoryThreshold <= 0  || (thresholds.cpuThreshold && thresholds.cpuThreshold > 100)  || (thresholds as any).diskIOLatencyThreshold <= 0) {
         throw new Error('Invalid configuration: negative or out-of-range values');
       }
     }
 
-    if (!this.validateConfig({ ...this.defaultConfig, ...newConfig })) {
+    const mergedConfig = { ...this.defaultConfig, ...newConfig } as PerformanceOptimizerConfig;
+    if (!this.validateConfig(mergedConfig)) {
       throw new Error('Invalid configuration');
     }
     Object.assign(this.defaultConfig, newConfig);

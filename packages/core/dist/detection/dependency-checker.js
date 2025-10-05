@@ -75,8 +75,9 @@ export class DependencyChecker {
         // Process all dependency types
         const depTypes = Object.keys(depTypeMap);
         for (const depType of depTypes) {
-            if (packageJson[depType]) {
-                for (const [name, version] of Object.entries(packageJson[depType])) {
+            const typedPackageJson = packageJson;
+            if (typedPackageJson[depType]) {
+                for (const [name, version] of Object.entries(typedPackageJson[depType])) {
                     const compatibility = this.checkDependencyCompatibility(name, version);
                     const issues = this.getCompatibilityIssues(name, version);
                     dependencies.push({
@@ -118,10 +119,10 @@ export class DependencyChecker {
         };
     }
     getMinimumVersion(tool) {
-        return this.COMPATIBILITY_MATRIX[tool]?.minimum || '0.0.0';
+        return this.COMPATIBILITY_MATRIX[tool]?.minimum ?? '0.0.0';
     }
     getRecommendedVersion(tool) {
-        return this.COMPATIBILITY_MATRIX[tool]?.recommended || 'latest';
+        return this.COMPATIBILITY_MATRIX[tool]?.recommended ?? 'latest';
     }
     checkDependencyCompatibility(name, version) {
         const matrix = this.COMPATIBILITY_MATRIX[name];
@@ -130,7 +131,7 @@ export class DependencyChecker {
         }
         const cleanVersion = this.cleanVersion(version);
         const minVersion = matrix.minimum;
-        const incompatibleVersions = matrix.incompatible || [];
+        const incompatibleVersions = matrix.incompatible ?? [];
         // Check against incompatible versions
         for (const incompatible of incompatibleVersions) {
             if (this.satisfiesVersion(cleanVersion, incompatible)) {
@@ -201,7 +202,7 @@ export class DependencyChecker {
         const v2 = version2.split('.').map(Number);
         for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
             const num1 = v1[i] || 0;
-            const num2 = v2[i] || 0;
+            const num2 = v2[i] ?? 0;
             if (num1 > num2)
                 return 1;
             if (num1 < num2)
@@ -240,7 +241,7 @@ export class DependencyChecker {
         try {
             return fileUtils.readJsonSync(packageJsonPath);
         }
-        catch (error) {
+        catch (_error) {
             return {};
         }
     }
