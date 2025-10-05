@@ -6,7 +6,7 @@ import {
   HistoricalData,
   IssueContext,
   TriageSuggestion
-} from '../../../types/src/prioritization';
+} from '@dev-quality/types';
 
 /**
  * Team workflow integration for issue prioritization

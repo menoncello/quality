@@ -4,7 +4,7 @@
  */
 
 // Core interfaces and types
-export * from '../../../types/src/prioritization';
+export * from '@dev-quality/types';
 
 // Main engine interfaces (export type for isolatedModules compatibility)
 export type { IssuePrioritizationEngine } from './issue-prioritization-engine';

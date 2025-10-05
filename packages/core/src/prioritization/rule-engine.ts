@@ -8,7 +8,7 @@ import {
   ValidationError,
   ValidationWarning,
   IssueResolutionData
-} from '../../../types/src/prioritization';
+} from '@dev-quality/types';
 
 /**
  * Customizable prioritization rules engine

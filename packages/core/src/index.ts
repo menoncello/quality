@@ -125,6 +125,9 @@ export { AnalysisEngine } from './analysis/analysis-engine.js';
 export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine.js';
 export { BunTestAdapter } from './plugins/builtin/bun-test-adapter.js';
 
+// Coverage related exports
+export type { CoverageReport, EnhancedCoverageData } from './types/coverage.js';
+
 // Export AnalysisProgress type from analysis engine
 export type { AnalysisProgress } from './analysis/analysis-engine.js';
 

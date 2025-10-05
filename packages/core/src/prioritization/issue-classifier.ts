@@ -7,7 +7,7 @@ import {
   ModelMetrics,
   ValidationResult,
   ValidationError
-} from '../../../types/src/prioritization';
+} from '@dev-quality/types';
 
 /**
  * Machine Learning-based issue classification system
@@ -54,7 +54,7 @@ export class IssueClassifier {
       // Validate training data
       const validation = this.validateTrainingData(trainingData);
       if (!validation.valid) {
-        throw new Error(`Invalid training data: ${validation.errors.map(e => e.message).join(', ')}`);
+        throw new Error(`Invalid training data: ${validation.errors.map((e: ValidationError) => e.message).join(', ')}`);
       }
 
       // Create and train new model
@@ -158,7 +158,7 @@ export class IssueClassifier {
       'low': 0.2
     };
 
-    return criticalityScores[context.criticality] ?? 0.5;
+    return criticalityScores[context.criticality as keyof typeof criticalityScores] ?? 0.5;
   }
 
   /**
@@ -211,7 +211,7 @@ export class IssueClassifier {
       'low': 0.0
     };
 
-    criticality += componentCriticalityScores[context.criticality]  || 0.1;
+    criticality += componentCriticalityScores[context.criticality as keyof typeof componentCriticalityScores] || 0.1;
 
     return Math.min(1.0, criticality);
   }

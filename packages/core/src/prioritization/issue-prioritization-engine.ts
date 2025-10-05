@@ -7,7 +7,7 @@ import {
   ModelMetrics,
   TriageSuggestion,
   PrioritizationConfiguration
-} from '../../../types/src/prioritization';
+} from '@dev-quality/types';
 
 /**
  * Main Issue Prioritization Engine interface

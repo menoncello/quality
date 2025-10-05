@@ -2,7 +2,7 @@ import {
   IssuePrioritization,
   TriageSuggestion,
   ProjectContext
-} from '../../../types/src/prioritization';
+} from '@dev-quality/types';
 
 import { WorkflowIntegration } from './workflow-integration';
 
@@ -195,7 +195,7 @@ export class TriageEngine {
       'documentation': 0.5,
       'feature': 2.5
     };
-    effort *= effortMultipliers[issue.classification.category]  || 1.0;
+    effort *= effortMultipliers[issue.classification.category as keyof typeof effortMultipliers] || 1.0;
 
     // Adjust for severity
     if (issue.classification.severity === 'critical') effort *= 1.5;

@@ -8,8 +8,10 @@ import {
   TriageSuggestion,
   PrioritizationConfiguration,
   IssueContext,
-  IssueClassification
-} from '../../../types/src/prioritization';
+  IssueClassification,
+  ValidationResult,
+  ValidationError
+} from '@dev-quality/types';
 
 import { IssuePrioritizationEngine } from './issue-prioritization-engine';
 import { ScoringAlgorithm } from './scoring-algorithm';
@@ -130,12 +132,12 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
       const validationResults = await Promise.all(validationPromises);
 
       const invalidRules = validationResults
-        .map((result, index) => ({ result, rule: rules[index] }))
-        .filter(({ result }) => !result.valid);
+        .map((result: ValidationResult, index: number) => ({ result, rule: rules[index] }))
+        .filter(({ result }: { result: ValidationResult }) => !result.valid);
 
       if (invalidRules.length > 0) {
         const errorMessages = invalidRules
-          .map(({ result, rule }) => `${rule.name}: ${result.errors.map(e => e.message).join(', ')}`)
+          .map(({ result, rule }: { result: ValidationResult; rule: PrioritizationRule }) => `${rule.name}: ${result.errors.map((e: ValidationError) => e.message).join(', ')}`)
           .join('; ');
         throw new Error(`Invalid rules: ${errorMessages}`);
       }
@@ -616,7 +618,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
       'medium': 5,
       'low': 3
     };
-    return mapping[severity]  || 5;
+    return mapping[severity as keyof typeof mapping] || 5;
   }
 
   private calculateImpactScore(issue: Issue, context: IssueContext): number {
@@ -636,7 +638,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
       'medium': 5,
       'low': 3
     };
-    return mapping[context.criticality] ?? 5;
+    return mapping[context.criticality as keyof typeof mapping] ?? 5;
   }
 
   /**

@@ -1,6 +1,6 @@
 import { IssuePrioritizationEngine, IssuePrioritizationEngineFactory } from './issue-prioritization-engine';
 import { IssuePrioritizationEngineImpl } from './prioritization-engine-impl';
-import { PrioritizationConfiguration } from '../../../types/src/prioritization';
+import { PrioritizationConfiguration } from '@dev-quality/types';
 
 /**
  * Factory for creating Issue Prioritization Engine instances

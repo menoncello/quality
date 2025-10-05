@@ -6,7 +6,7 @@ import {
   ScoringFactors,
   PrioritizationConfiguration,
   ProjectContext
-} from '../../../types/src/prioritization';
+} from '@dev-quality/types';
 
 /**
  * Multi-factor scoring algorithm for issue prioritization
@@ -88,19 +88,21 @@ export class ScoringAlgorithm {
    */
   private calculateSeverityScore(issue: Issue, classification: IssueClassification): number {
     // Base severity from issue type
-    const typeSeverity = {
+    const typeSeverityMap = {
       'error': 8,
       'warning': 5,
       'info': 2
-    }[issue.type]  || 5;
+    };
+    const typeSeverity: number = typeSeverityMap[issue.type as keyof typeof typeSeverityMap] || 5;
 
     // Adjust based on ML classification severity
-    const classificationSeverity = {
+    const classificationSeverityMap = {
       'critical': 10,
       'high': 8,
       'medium': 5,
       'low': 2
-    }[classification.severity] ?? 5;
+    };
+    const classificationSeverity: number = classificationSeverityMap[classification.severity as keyof typeof classificationSeverityMap] ?? 5;
 
     // Weighted average with classification confidence
     const confidence = classification.confidence;
@@ -123,12 +125,13 @@ export class ScoringAlgorithm {
     if (context.filePath.includes('/config/')) impact += 2;
 
     // Component criticality impact
-    const criticalityImpact = {
+    const criticalityImpactMap = {
       'critical': 3,
       'high': 2,
       'medium': 1,
       'low': 0
-    }[context.criticality] ?? 0;
+    };
+    const criticalityImpact: number = criticalityImpactMap[context.criticality as keyof typeof criticalityImpactMap] ?? 0;
     impact += criticalityImpact;
 
     // Recent changes impact (issues in recently changed files are more urgent)
@@ -165,14 +168,15 @@ export class ScoringAlgorithm {
     if (issue.fixable) effort -= 2;
 
     // Adjust based on classification (some categories are harder to fix)
-    const categoryEffort = {
+    const categoryEffortMap = {
       'bug': 4,
       'performance': 6,
       'security': 7,
       'maintainability': 5,
       'documentation': 2,
       'feature': 8
-    }[classification.category] ?? 5;
+    };
+    const categoryEffort: number = categoryEffortMap[classification.category as keyof typeof categoryEffortMap] ?? 5;
     effort = (effort + categoryEffort) / 2;
 
     return Math.max(1, Math.min(10, effort));
@@ -185,12 +189,13 @@ export class ScoringAlgorithm {
     let businessValue = 5; // Base value
 
     // Component criticality directly affects business value
-    const criticalityValue = {
+    const criticalityValueMap = {
       'critical': 9,
       'high': 7,
       'medium': 5,
       'low': 3
-    }[context.criticality] ?? 5;
+    };
+    const criticalityValue: number = criticalityValueMap[context.criticality as keyof typeof criticalityValueMap] ?? 5;
     businessValue = (businessValue + criticalityValue) / 2;
 
     // Adjust based on team priorities
@@ -252,7 +257,8 @@ export class ScoringAlgorithm {
       'documentation': 0.9,
       'feature': 1.0
     };
-    bonus *= categoryBonuses[classification.category]  || 1.0;
+    const categoryBonus: number = categoryBonuses[classification.category as keyof typeof categoryBonuses] || 1.0;
+    bonus *= categoryBonus;
 
     return Math.max(0.8, Math.min(1.5, bonus));
   }
@@ -368,7 +374,8 @@ export class ScoringAlgorithm {
       'documentation': 0.5,
       'feature': 2.5
     };
-    effort *= categoryMultipliers[classification.category]  || 1.0;
+    const categoryMultiplier: number = categoryMultipliers[classification.category as keyof typeof categoryMultipliers] || 1.0;
+    effort *= categoryMultiplier;
 
     return Math.max(0.5, Math.round(effort * 10) / 10); // Round to 0.1 hours
   }
