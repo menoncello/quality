@@ -83,6 +83,12 @@
       "cache": true,
       "inputs": ["src/**", "tsconfig.json", "package.json"]
     },
+    "typecheck:all": {
+      "dependsOn": ["build:all"],
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
+    },
     "format": {
       "outputs": [],
       "cache": true,
