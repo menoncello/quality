@@ -64,7 +64,10 @@ export class IssueClassifier {
       const metrics = await this.evaluateModel(newModel, trainingData);
 
       if (metrics.accuracy < 0.5) { // Lower threshold for simple model
-        console.warn(`Model accuracy ${metrics.accuracy} is below ideal threshold (50%), but proceeding with simple model`);
+         
+     
+    // eslint-disable-next-line no-console
+    console.warn(`Model accuracy ${metrics.accuracy} is below ideal threshold (50%), but proceeding with simple model`);
       }
 
       // Replace current model
@@ -155,7 +158,7 @@ export class IssueClassifier {
       'low': 0.2
     };
 
-    return criticalityScores[context.criticality] || 0.5;
+    return criticalityScores[context.criticality] ?? 0.5;
   }
 
   /**
@@ -208,7 +211,7 @@ export class IssueClassifier {
       'low': 0.0
     };
 
-    criticality += componentCriticalityScores[context.criticality] || 0.1;
+    criticality += componentCriticalityScores[context.criticality]  || 0.1;
 
     return Math.min(1.0, criticality);
   }
@@ -414,10 +417,12 @@ export class IssueClassifier {
         categoryCounts.set(predicted, { correct: 0, total: 0 });
       }
 
-      const counts = categoryCounts.get(predicted)!;
-      counts.total++;
-      if (predicted === expected) {
-        counts.correct++;
+      const counts = categoryCounts.get(predicted);
+      if (counts) {
+        counts.total++;
+        if (predicted === expected) {
+          counts.correct++;
+        }
       }
     }
 
@@ -453,10 +458,12 @@ export class IssueClassifier {
         categoryCounts.set(expected, { correct: 0, total: 0 });
       }
 
-      const counts = categoryCounts.get(expected)!;
-      counts.total++;
-      if (predicted === expected) {
-        counts.correct++;
+      const counts = categoryCounts.get(expected);
+      if (counts) {
+        counts.total++;
+        if (predicted === expected) {
+          counts.correct++;
+        }
       }
     }
 
@@ -505,12 +512,12 @@ export class IssueClassifier {
   /**
    * Convert outcome to category for evaluation
    */
-  private outcomeToCategory(outcome: any): string {
+  private outcomeToCategory(outcome: unknown): string {
     // Simplified mapping from outcome to category that aligns with predict logic
-    if (!outcome.success) return 'bug';
-    if (outcome.effort > 7) return 'feature';
-    if (outcome.effort > 5) return 'performance';
-    if (outcome.effort > 3) return 'maintainability';
+    if (!(outcome as any).success) return 'bug';
+    if ((outcome as any).effort > 7) return 'feature';
+    if ((outcome as any).effort > 5) return 'performance';
+    if ((outcome as any).effort > 3) return 'maintainability';
     return 'documentation';
   }
 
@@ -589,20 +596,16 @@ class SimpleClassificationModel implements IssueClassificationModel {
   }
 
   async getMetrics(): Promise<ModelMetrics> {
-    if (!this.metrics) {
-      // Return default metrics
-      this.metrics = {
-        accuracy: 0.75,
-        precision: 0.73,
-        recall: 0.71,
-        f1Score: 0.72,
-        confusionMatrix: [[10, 2, 1], [1, 15, 2], [0, 1, 8]],
-        trainingDataSize: this.trainingData.length,
-        validationDataSize: Math.floor(this.trainingData.length * 0.2),
-        modelVersion: '1.0.0',
-        trainedAt: new Date()
-      };
-    }
-    return this.metrics;
+    return this.metrics ??= {
+      accuracy: 0.75,
+      precision: 0.73,
+      recall: 0.71,
+      f1Score: 0.72,
+      confusionMatrix: [[10, 2, 1], [1, 15, 2], [0, 1, 8]],
+      trainingDataSize: this.trainingData.length,
+      validationDataSize: Math.floor(this.trainingData.length * 0.2),
+      modelVersion: '1.0.0',
+      trainedAt: new Date()
+    };
   }
 }

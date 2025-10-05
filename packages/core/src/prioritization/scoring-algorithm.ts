@@ -1,14 +1,11 @@
 import {
   Issue,
-  IssuePrioritization,
   IssueContext,
   IssueClassification,
   TriageSuggestion,
   ScoringFactors,
   PrioritizationConfiguration,
-  ProjectContext,
-  ClassificationFeatures,
-  PrioritizationMetadata
+  ProjectContext
 } from '../../../types/src/prioritization';
 
 /**
@@ -35,7 +32,7 @@ export class ScoringAlgorithm {
     scoringFactors: ScoringFactors;
     triageSuggestion: TriageSuggestion;
   }> {
-    const startTime = Date.now();
+    const _startTime = Date.now();
 
     // Calculate base scores
     const severityScore = this.calculateSeverityScore(issue, classification);
@@ -95,7 +92,7 @@ export class ScoringAlgorithm {
       'error': 8,
       'warning': 5,
       'info': 2
-    }[issue.type] || 5;
+    }[issue.type]  || 5;
 
     // Adjust based on ML classification severity
     const classificationSeverity = {
@@ -103,7 +100,7 @@ export class ScoringAlgorithm {
       'high': 8,
       'medium': 5,
       'low': 2
-    }[classification.severity] || 5;
+    }[classification.severity] ?? 5;
 
     // Weighted average with classification confidence
     const confidence = classification.confidence;
@@ -131,7 +128,7 @@ export class ScoringAlgorithm {
       'high': 2,
       'medium': 1,
       'low': 0
-    }[context.criticality] || 0;
+    }[context.criticality] ?? 0;
     impact += criticalityImpact;
 
     // Recent changes impact (issues in recently changed files are more urgent)
@@ -175,7 +172,7 @@ export class ScoringAlgorithm {
       'maintainability': 5,
       'documentation': 2,
       'feature': 8
-    }[classification.category] || 5;
+    }[classification.category] ?? 5;
     effort = (effort + categoryEffort) / 2;
 
     return Math.max(1, Math.min(10, effort));
@@ -193,7 +190,7 @@ export class ScoringAlgorithm {
       'high': 7,
       'medium': 5,
       'low': 3
-    }[context.criticality] || 5;
+    }[context.criticality] ?? 5;
     businessValue = (businessValue + criticalityValue) / 2;
 
     // Adjust based on team priorities
@@ -202,7 +199,7 @@ export class ScoringAlgorithm {
     // Map component types to business value based on team priorities
     if (context.componentType.includes('security')) businessValue = (businessValue + priorities.security) / 2;
     if (context.componentType.includes('performance')) businessValue = (businessValue + priorities.performance) / 2;
-    if (context.componentType.includes('ui') || context.componentType.includes('user')) {
+    if (context.componentType.includes('ui') ?? context.componentType.includes('user')) {
       businessValue = (businessValue + priorities.features) / 2;
     }
 
@@ -255,7 +252,7 @@ export class ScoringAlgorithm {
       'documentation': 0.9,
       'feature': 1.0
     };
-    bonus *= categoryBonuses[classification.category] || 1.0;
+    bonus *= categoryBonuses[classification.category]  || 1.0;
 
     return Math.max(0.8, Math.min(1.5, bonus));
   }
@@ -293,7 +290,7 @@ export class ScoringAlgorithm {
   ): TriageSuggestion {
     // Determine action based on score and context
     let action: TriageSuggestion['action'];
-    let estimatedEffort = this.estimateEffort(issue, context, classification);
+    const estimatedEffort = this.estimateEffort(issue, context, classification);
 
     if (finalScore >= 8) {
       action = 'fix-now';
@@ -312,13 +309,13 @@ export class ScoringAlgorithm {
 
     // Determine assignee if applicable
     let assignee: string | undefined;
-    if (action === 'delegate' || action === 'schedule') {
+    if (action === 'delegate'  || action === 'schedule') {
       assignee = this.suggestAssignee(issue, context, projectContext);
     }
 
     // Set deadline if urgent
     let deadline: Date | undefined;
-    if (action === 'fix-now' || (action === 'schedule' && finalScore >= 7)) {
+    if (action === 'fix-now'  || (action === 'schedule' && finalScore >= 7)) {
       deadline = this.calculateDeadline(finalScore, projectContext);
     }
 
@@ -371,7 +368,7 @@ export class ScoringAlgorithm {
       'documentation': 0.5,
       'feature': 2.5
     };
-    effort *= categoryMultipliers[classification.category] || 1.0;
+    effort *= categoryMultipliers[classification.category]  || 1.0;
 
     return Math.max(0.5, Math.round(effort * 10) / 10); // Round to 0.1 hours
   }
@@ -379,7 +376,7 @@ export class ScoringAlgorithm {
   /**
    * Suggest assignee based on expertise and workload
    */
-  private suggestAssignee(issue: Issue, context: IssueContext, projectContext: ProjectContext): string | undefined {
+  private suggestAssignee(issue: Issue, context: IssueContext, _projectContext: ProjectContext): string | undefined {
     // This would integrate with team management system
     // For now, return a placeholder
     if (context.componentType.includes('security')) return 'security-team';
@@ -418,7 +415,7 @@ export class ScoringAlgorithm {
     context: IssueContext,
     classification: IssueClassification,
     finalScore: number,
-    action: TriageSuggestion['action']
+    _action: TriageSuggestion['action']
   ): string {
     const reasons = [];
 
@@ -442,7 +439,7 @@ export class ScoringAlgorithm {
       reasons.push('Located in recently modified code');
     }
 
-    return reasons.join('. ') + '.';
+    return `${reasons.join('. ')  }.`;
   }
 
   /**
@@ -470,7 +467,7 @@ export class ScoringAlgorithm {
     if (sprintGoals.length === 0) return 0.5;
 
     // Simple keyword matching for relevance
-    const contextText = `${context.filePath} ${context.componentType} ${context.businessDomain || ''}`.toLowerCase();
+    const contextText = `${context.filePath} ${context.componentType} ${context.businessDomain ?? ''}`.toLowerCase();
 
     let relevanceScore = 0;
     for (const goal of sprintGoals) {

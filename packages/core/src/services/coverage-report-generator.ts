@@ -4,8 +4,6 @@
 
 import type {
   CoverageReport,
-  CoverageSummary,
-  EnhancedCoverageData,
   FileCoverage,
   CriticalPath,
   CoverageRecommendation
@@ -188,11 +186,11 @@ export class CoverageReportGenerator {
                 </div>
             </div>
 
-            ${coverage.files && coverage.files.length > 0 ? this.generateFilesHtml(coverage.files) : ''}
+            ${coverage.files?.length > 0 ? this.generateFilesHtml(coverage.files) : ''}
 
-            ${coverage.criticalPaths && coverage.criticalPaths.length > 0 ? this.generateCriticalPathsHtml(coverage.criticalPaths) : ''}
+            ${coverage.criticalPaths?.length > 0 ? this.generateCriticalPathsHtml(coverage.criticalPaths) : ''}
 
-            ${coverage.recommendations && coverage.recommendations.length > 0 ? this.generateRecommendationsHtml(coverage.recommendations) : ''}
+            ${coverage.recommendations?.length > 0 ? this.generateRecommendationsHtml(coverage.recommendations) : ''}
         </div>
     </div>
 </body>
@@ -328,7 +326,7 @@ export class CoverageReportGenerator {
 
 ## Critical Paths
 
-${coverage.criticalPaths && coverage.criticalPaths.length > 0 ?
+${coverage.criticalPaths?.length > 0 ?
   coverage.criticalPaths.map(path => `
 ### ${path.name}
 
@@ -346,7 +344,7 @@ ${path.recommendations.map(rec => `- ${rec}`).join('\n')}
 
 ## Recommendations
 
-${coverage.recommendations && coverage.recommendations.length > 0 ?
+${coverage.recommendations?.length > 0 ?
   coverage.recommendations.map(rec => `
 ### ${rec.title} (${rec.priority.toUpperCase()})
 
@@ -364,7 +362,7 @@ ${rec.actionItems.map(item => `- ${item}`).join('\n')}
 
 ## File Coverage Details
 
-${coverage.files && coverage.files.length > 0 ?
+${coverage.files?.length > 0 ?
   coverage.files.map(file => `
 ### ${file.relativePath}
 

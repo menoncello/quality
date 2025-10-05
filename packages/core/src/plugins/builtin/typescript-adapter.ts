@@ -24,7 +24,7 @@ export class TypeScriptAdapter extends BaseToolAdapter {
       name: 'typescript',
       enabled: true,
       config: {
-        configFile: 'tsconfig.json',
+        configFile: 'ts(config as any).json',
         noEmit: true,
         skipLibCheck: true,
         strict: true,
@@ -47,29 +47,29 @@ export class TypeScriptAdapter extends BaseToolAdapter {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    const cfg = config.config as any;
+    const cfg = (config as any).config as unknown;
 
-    if (cfg.configFile && typeof cfg.configFile !== 'string') {
+    if ((cfg as any).configFile && typeof (cfg as any).configFile !== 'string') {
       errors.push('TypeScript configFile must be a string');
     }
 
-    if (cfg.noEmit !== undefined && typeof cfg.noEmit !== 'boolean') {
+    if ((cfg as any).noEmit !== undefined && typeof (cfg as any).noEmit !== 'boolean') {
       errors.push('TypeScript noEmit must be a boolean');
     }
 
-    if (cfg.skipLibCheck !== undefined && typeof cfg.skipLibCheck !== 'boolean') {
+    if ((cfg as any).skipLibCheck !== undefined && typeof (cfg as any).skipLibCheck !== 'boolean') {
       errors.push('TypeScript skipLibCheck must be a boolean');
     }
 
-    if (cfg.strict !== undefined && typeof cfg.strict !== 'boolean') {
+    if ((cfg as any).strict !== undefined && typeof (cfg as any).strict !== 'boolean') {
       errors.push('TypeScript strict must be a boolean');
     }
 
-    if (cfg.include && !Array.isArray(cfg.include)) {
+    if ((cfg as any).include && !Array.isArray((cfg as any).include)) {
       errors.push('TypeScript include must be an array');
     }
 
-    if (cfg.exclude && !Array.isArray(cfg.exclude)) {
+    if ((cfg as any).exclude && !Array.isArray((cfg as any).exclude)) {
       errors.push('TypeScript exclude must be an array');
     }
 
@@ -90,7 +90,7 @@ export class TypeScriptAdapter extends BaseToolAdapter {
       this.typescriptPath = typescriptPath;
 
       // Try to load TypeScript
-      const ts = await import(typescriptPath);
+      await import(typescriptPath);
       return true;
     } catch {
       try {
@@ -109,11 +109,11 @@ export class TypeScriptAdapter extends BaseToolAdapter {
   getHelp(): string {
     return `
 TypeScript Adapter Configuration:
-  configFile: Path to TypeScript configuration file (default: tsconfig.json)
+  configFile: Path to TypeScript configuration file (default: ts(config as any).json)
   noEmit: Do not emit output files (default: true)
   skipLibCheck: Skip type checking of declaration files (default: true)
   strict: Enable all strict type checking options (default: true)
-  noImplicitAny: Raise error on expressions and declarations with an implied 'any' type (default: true)
+  noImplicitAny: Raise error on expressions and declarations with an implied 'unknown' type (default: true)
   strictNullChecks: Enable strict null checks (default: true)
   strictFunctionTypes: Enable strict checking of function types (default: true)
   noImplicitReturns: Report error when not all code paths in function return a value (default: true)
@@ -167,7 +167,7 @@ Usage:
 
     const config = this.getToolConfig();
     const relevantFiles = context.changedFiles.filter(file =>
-      this.shouldProcessFile(file, ['.ts', '.tsx'], config.exclude as string[])
+      this.shouldProcessFile(file, ['.ts', '.tsx'], (config as any).exclude as string[])
     );
 
     if (relevantFiles.length === 0) {
@@ -187,7 +187,7 @@ Usage:
   /**
    * Build TypeScript command
    */
-  private buildTypeScriptCommand(context: AnalysisContext, config: any, files?: string[]): { cmd: string; args: string[] } {
+  private buildTypeScriptCommand(context: AnalysisContext, config: unknown, files?: string[]): { cmd: string; args: string[] } {
     const useLocalTypeScript = !!this.typescriptPath;
     const cmd = useLocalTypeScript ? 'node' : 'tsc';
     const args: string[] = [];
@@ -197,56 +197,56 @@ Usage:
     }
 
     // Add configuration options
-    if (config.configFile) {
-      args.push('--project', config.configFile);
+    if ((config as any).configFile) {
+      args.push('--project', (config as any).configFile);
     }
 
-    if (config.noEmit) {
+    if ((config as any).noEmit) {
       args.push('--noEmit');
     }
 
-    if (config.skipLibCheck) {
+    if ((config as any).skipLibCheck) {
       args.push('--skipLibCheck');
     }
 
-    if (config.strict) {
+    if ((config as any).strict) {
       args.push('--strict');
     }
 
-    if (config.noImplicitAny) {
+    if ((config as any).noImplicitAny) {
       args.push('--noImplicitAny');
     }
 
-    if (config.strictNullChecks) {
+    if ((config as any).strictNullChecks) {
       args.push('--strictNullChecks');
     }
 
-    if (config.strictFunctionTypes) {
+    if ((config as any).strictFunctionTypes) {
       args.push('--strictFunctionTypes');
     }
 
-    if (config.noImplicitReturns) {
+    if ((config as any).noImplicitReturns) {
       args.push('--noImplicitReturns');
     }
 
-    if (config.noFallthroughCasesInSwitch) {
+    if ((config as any).noFallthroughCasesInSwitch) {
       args.push('--noFallthroughCasesInSwitch');
     }
 
-    if (config.noUncheckedIndexedAccess) {
+    if ((config as any).noUncheckedIndexedAccess) {
       args.push('--noUncheckedIndexedAccess');
     }
 
     // Add include/exclude patterns if no config file is specified
-    if (!config.configFile) {
-      if (config.include) {
-        for (const pattern of config.include) {
+    if (!(config as any).configFile) {
+      if ((config as any).include) {
+        for (const pattern of (config as any).include) {
           args.push('--include', pattern);
         }
       }
 
-      if (config.exclude) {
-        for (const pattern of config.exclude) {
+      if ((config as any).exclude) {
+        for (const pattern of (config as any).exclude) {
           args.push('--exclude', pattern);
         }
       }
@@ -263,18 +263,18 @@ Usage:
   /**
    * Parse TypeScript output to issues
    */
-  protected parseOutput(stdout: string, stderr: string, context: AnalysisContext): Issue[] {
+  protected parseOutput(stdout: string, stderr: string, _context: AnalysisContext): Issue[] {
     const issues: Issue[] = [];
 
     // TypeScript outputs to stderr by default
-    const output = stderr || stdout;
+    const output = stderr ?? stdout;
     const lines = output.split('\n');
 
     for (const line of lines) {
       // Parse format: filename(line,column): error TS####: message
       const match = line.match(/^([^(]+)\((\d+),(\d+)\):\s+(error|warning)\s+TS(\d+):\s+(.+)$/);
       if (match) {
-        const [, filePath, lineNum, colNum, severity, errorCode, message] = match;
+        const [, filePath, lineNum, _colNum, severity, errorCode, message] = match;
 
         issues.push(this.createIssue(
           severity === 'error' ? 'error' : 'warning',
@@ -307,7 +307,7 @@ Usage:
       '2502', // Duplicate identifier
       '2580', // Duplicate identifier
       '2769', // Type mismatch
-      '7006', // Parameter implicitly has 'any' type
+      '7006', // Parameter implicitly has 'unknown' type
       '7027' // Unreachable code detected
     ];
 
@@ -379,13 +379,13 @@ Usage:
    */
   protected override onInitialize(): void {
     // Check for TypeScript configuration in project
-    const config = this.getToolConfig();
+    this.getToolConfig();
     const { join } = require('path');
 
     const possibleConfigs = [
-      'tsconfig.json',
-      'tsconfig.build.json',
-      'tsconfig.base.json'
+      'ts(config as any).json',
+      'ts(config as any).build.json',
+      'ts(config as any).base.json'
     ];
 
     for (const configFile of possibleConfigs) {

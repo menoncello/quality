@@ -3,8 +3,7 @@
  */
 
 import type {
-  AnalysisContext,
-  CoverageData
+  AnalysisContext
 } from '../plugins/analysis-plugin.js';
 
 import type {
@@ -41,7 +40,10 @@ export class CoverageTrendAnalyzer {
       // Calculate changes and insights
       return this.calculateTrendChanges(updatedHistory);
     } catch (error) {
-      console.warn('Failed to analyze coverage trends:', error);
+       
+     
+    // eslint-disable-next-line no-console
+    console.warn('Failed to analyze coverage trends:', error);
       return [this.createTrendEntry(currentCoverage)];
     }
   }
@@ -61,10 +63,13 @@ export class CoverageTrendAnalyzer {
         const parsed = JSON.parse(data);
 
         // Convert string dates back to Date objects
-        return parsed.map((item: any) => ({
-          ...item,
-          timestamp: new Date(item.timestamp)
-        }));
+        return parsed.map((item: any) => {
+          const trendItem = item as CoverageTrend;
+          return {
+            ...trendItem,
+            timestamp: new Date(trendItem.timestamp)
+          };
+        });
       } catch {
         return [];
       }
@@ -93,7 +98,10 @@ export class CoverageTrendAnalyzer {
       // Save trends data
       await fs.writeFile(historyPath, JSON.stringify(trends, null, 2));
     } catch (error) {
-      console.warn('Failed to save coverage history:', error);
+       
+     
+    // eslint-disable-next-line no-console
+    console.warn('Failed to save coverage history:', error);
     }
   }
 
@@ -119,13 +127,13 @@ export class CoverageTrendAnalyzer {
       statementChange: 0,
 
       // Additional metrics
-      totalFiles: coverage.files?.length || 0,
-      testedFiles: coverage.files?.filter(f => f.overallCoverage > 0).length || 0,
+      totalFiles: coverage.files?.length ?? 0,
+      testedFiles: coverage.files?.filter(f => (f as any).overallCoverage > 0).length ?? 0,
       totalTests: 0, // TODO: Extract from test results
       passedTests: 0, // TODO: Extract from test results
 
       // Quality indicators
-      qualityScore: coverage.qualityScore?.overall || 0,
+      qualityScore: coverage.qualityScore?.overall ?? 0,
       riskScore: this.calculateRiskScore(coverage)
     };
   }
@@ -175,7 +183,7 @@ export class CoverageTrendAnalyzer {
     else if (branchCoverage < 70) riskScore += 10;
 
     // Critical path risk
-    const criticalPaths = coverage.criticalPaths || [];
+    const criticalPaths = coverage.criticalPaths ?? [];
     if (criticalPaths.length > 0) {
       const avgCriticalCoverage = criticalPaths.reduce((sum, cp) => sum + cp.currentCoverage, 0) / criticalPaths.length;
       if (avgCriticalCoverage < 80) riskScore += 15;
@@ -183,7 +191,7 @@ export class CoverageTrendAnalyzer {
     }
 
     // Uncovered critical areas
-    const criticalUncovered = coverage.uncoveredAreas?.filter(area => area.impact === 'critical').length || 0;
+    const criticalUncovered = coverage.uncoveredAreas?.filter(area => area.impact === 'critical').length ?? 0;
     riskScore += Math.min(criticalUncovered * 3, 20);
 
     return Math.min(riskScore, 100);
@@ -372,7 +380,10 @@ export class CoverageTrendAnalyzer {
         // File doesn't exist, which is fine
       }
     } catch (error) {
-      console.warn('Failed to clear coverage history:', error);
+       
+     
+    // eslint-disable-next-line no-console
+    console.warn('Failed to clear coverage history:', error);
     }
   }
 

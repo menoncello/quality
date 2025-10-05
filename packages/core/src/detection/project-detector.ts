@@ -3,6 +3,16 @@ import { join } from 'node:path';
 import { fileUtils } from '@dev-quality/utils';
 import { DetectedProject } from './types';
 
+interface PackageJson {
+  name?: string;
+  version?: string;
+  description?: string;
+  scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  workspaces?: string[] | { packages: string[] };
+}
+
 export class ProjectDetector {
   private readonly FRAMEWORK_PATTERNS = {
     react: ['react', 'react-dom', '@types/react', 'next', 'gatsby', 'remix'],
@@ -38,9 +48,9 @@ export class ProjectDetector {
     const hasTests = this.hasTests(packageJson, rootPath);
 
     return {
-      name: packageJson.name || 'unknown-project',
-      version: packageJson.version || '1.0.0',
-      description: packageJson.description || '',
+      name: packageJson.name ?? 'unknown-project',
+      version: packageJson.version ?? '1.0.0',
+      description: packageJson.description ?? '',
       type: projectType,
       frameworks,
       buildSystems,
@@ -52,7 +62,7 @@ export class ProjectDetector {
     };
   }
 
-  private parsePackageJson(packageJsonPath: string): any {
+  private parsePackageJson(packageJsonPath: string): PackageJson {
     try {
       return fileUtils.readJsonSync(packageJsonPath);
     } catch (error) {
@@ -60,12 +70,12 @@ export class ProjectDetector {
     }
   }
 
-  private determineProjectType(packageJson: any, rootPath: string): DetectedProject['type'] {
+  private determineProjectType(packageJson: PackageJson, rootPath: string): DetectedProject['type'] {
     const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
     const depNames = Object.keys(dependencies);
 
     // Check for monorepo
-    if (packageJson.workspaces || this.hasMonorepoConfig(rootPath)) {
+    if (packageJson.workspaces ?? this.hasMonorepoConfig(rootPath)) {
       return 'monorepo';
     }
 
@@ -90,7 +100,7 @@ export class ProjectDetector {
     }
   }
 
-  private detectFrameworks(packageJson: any): string[] {
+  private detectFrameworks(packageJson: PackageJson): string[] {
     const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
     const depNames = Object.keys(dependencies);
     const frameworks: string[] = [];
@@ -132,11 +142,11 @@ export class ProjectDetector {
     return 'npm';
   }
 
-  private hasTypeScript(packageJson: any, rootPath: string): boolean {
+  private hasTypeScript(packageJson: PackageJson, rootPath: string): boolean {
     const hasTypeScriptDep = Object.keys({
       ...packageJson.dependencies,
       ...packageJson.devDependencies,
-    }).some(dep => dep === 'typescript' || dep.startsWith('@types/'));
+    }).some(dep => dep === 'typescript'  || dep.startsWith('@types/'));
 
     const hasTsConfig =
       existsSync(join(rootPath, 'tsconfig.json')) || existsSync(join(rootPath, 'jsconfig.json'));
@@ -144,9 +154,9 @@ export class ProjectDetector {
     return hasTypeScriptDep || hasTsConfig;
   }
 
-  private hasTests(packageJson: any, rootPath: string): boolean {
+  private hasTests(packageJson: PackageJson, rootPath: string): boolean {
     const testScripts = packageJson.scripts
-      ? Object.keys(packageJson.scripts).filter(key => key.includes('test') || key.includes('spec'))
+      ? Object.keys(packageJson.scripts).filter(key => key.includes('test') ?? key.includes('spec'))
       : [];
 
     const testDeps = Object.keys({
@@ -154,21 +164,13 @@ export class ProjectDetector {
       ...packageJson.devDependencies,
     }).filter(
       dep =>
-        dep.includes('jest') ||
-        dep.includes('vitest') ||
-        dep.includes('mocha') ||
-        dep.includes('cypress') ||
-        dep.includes('playwright') ||
-        dep.includes('test') ||
-        dep.includes('bun-test')
+        dep.includes('jest') || dep.includes('vitest') || dep.includes('mocha') || dep.includes('cypress') || dep.includes('playwright') || dep.includes('test') || dep.includes('bun-test')
     );
 
     const hasTestDir =
-      existsSync(join(rootPath, 'test')) ||
-      existsSync(join(rootPath, 'tests')) ||
-      existsSync(join(rootPath, '__tests__'));
+      existsSync(join(rootPath, 'test')) || existsSync(join(rootPath, 'tests')) || existsSync(join(rootPath, '__tests__'));
 
-    return testScripts.length > 0 || testDeps.length > 0 || hasTestDir;
+    return testScripts.length > 0 || testDeps.length > 0  || hasTestDir;
   }
 
   private hasMonorepoConfig(rootPath: string): boolean {

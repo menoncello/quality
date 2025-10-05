@@ -137,7 +137,7 @@ export class AnalysisEngine extends EventEmitter {
         context,
         progress,
         projectId,
-        options.incremental || false
+        options.incremental   ?? false
       );
 
       // Aggregate results
@@ -273,8 +273,8 @@ export class AnalysisEngine extends EventEmitter {
   getMetrics(): {
     registeredPlugins: number;
     activeAnalyses: number;
-    pluginMetrics: Record<string, any>;
-    dependencyStats: any;
+    pluginMetrics: Record<string, unknown>;
+    dependencyStats: unknown;
   } {
     return {
       registeredPlugins: this.pluginManager.getPluginCount(),
@@ -330,7 +330,7 @@ export class AnalysisEngine extends EventEmitter {
     if (pluginNames && pluginNames.length > 0) {
       const plugins = pluginNames
         .map(name => this.pluginManager.getPlugin(name))
-        .filter(plugin => plugin !== undefined) as AnalysisPlugin[];
+        .filter(plugin => plugin !== undefined);
 
       if (plugins.length !== pluginNames.length) {
         const missing = pluginNames.filter(name => !this.pluginManager.hasPlugin(name));
@@ -367,7 +367,7 @@ export class AnalysisEngine extends EventEmitter {
     for (const group of parallelGroups) {
       const groupPlugins = group
         .map(name => plugins.find(p => p.name === name))
-        .filter(plugin => plugin !== undefined) as AnalysisPlugin[];
+        .filter(plugin => plugin !== undefined);
 
       if (groupPlugins.length === 0) continue;
 
@@ -461,13 +461,13 @@ export class AnalysisEngine extends EventEmitter {
 
     switch (plugin.name) {
       case 'eslint':
-        return ['js', 'jsx', 'ts', 'tsx'].includes(extension || '');
+        return ['js', 'jsx', 'ts', 'tsx'].includes(extension ?? '');
       case 'prettier':
-        return ['js', 'jsx', 'ts', 'tsx', 'json', 'md', 'css', 'scss', 'html'].includes(extension || '');
+        return ['js', 'jsx', 'ts', 'tsx', 'json', 'md', 'css', 'scss', 'html'].includes(extension ?? '');
       case 'typescript':
-        return ['ts', 'tsx'].includes(extension || '');
+        return ['ts', 'tsx'].includes(extension ?? '');
       case 'bun-test':
-        return filePath.includes('.test.') || filePath.includes('.spec.');
+        return filePath.includes('.test.') ?? filePath.includes('.spec.');
       default:
         return true;
     }
@@ -505,7 +505,7 @@ export class AnalysisEngine extends EventEmitter {
   /**
    * Aggregate results from multiple plugins
    */
-  private async aggregateResults(results: ToolResult[], _projectId: string): Promise<any> {
+  private async aggregateResults(results: ToolResult[], _projectId: string): Promise<unknown> {
     // This would be implemented by the ResultAggregator
     // For now, return basic aggregation
     return {

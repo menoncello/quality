@@ -113,43 +113,43 @@ export class AutoConfigurationDetectionEngine implements DetectionEngine {
   }
 
   private generateIssues(
-    project: any,
-    tools: any[],
-    _configs: any[],
-    _dependencies: any[],
-    structure: any,
-    compatibility: any
+    project: unknown,
+    tools: unknown[],
+    _configs: unknown[],
+    _dependencies: unknown[],
+    structure: unknown,
+    compatibility: unknown
   ): string[] {
     const issues: string[] = [];
 
     // Project type issues
-    if (project.type === 'unknown') {
+    if ((project as any).type === 'unknown') {
       issues.push('Could not determine project type');
     }
 
     // Tool configuration issues
-    const enabledTools = tools.filter((t: any) => t.enabled);
+    const enabledTools = tools.filter((t: any) => (t as any).enabled);
     if (enabledTools.length === 0) {
       issues.push('No development tools detected');
     }
 
     // Dependency issues
-    if (compatibility.issues.length > 0) {
-      issues.push(...compatibility.issues);
+    if ((compatibility as any).issues.length > 0) {
+      issues.push(...(compatibility as any).issues);
     }
 
     // Structure issues
-    if (structure.sourceDirectories.length === 0) {
+    if ((structure as any).sourceDirectories.length === 0) {
       issues.push('No source directories found');
     }
 
-    if (structure.testDirectories.length === 0) {
+    if ((structure as any).testDirectories.length === 0) {
       issues.push('No test directories found - consider adding tests');
     }
 
     // Configuration issues
-    const hasLinting = tools.some((t: any) => t.name === 'eslint' && t.enabled);
-    const hasFormatting = tools.some((t: any) => t.name === 'prettier' && t.enabled);
+    const hasLinting = tools.some((t: any) => (t as any).name === 'eslint' && t.enabled);
+    const hasFormatting = tools.some((t: any) => (t as any).name === 'prettier' && t.enabled);
 
     if (!hasLinting) {
       issues.push('No linting tool detected - consider adding ESLint');
@@ -163,22 +163,23 @@ export class AutoConfigurationDetectionEngine implements DetectionEngine {
   }
 
   private generateRecommendations(
-    project: any,
-    tools: any[],
-    _configs: any[],
-    _dependencies: any[],
-    structure: any,
-    compatibility: any
+    project: unknown,
+    tools: unknown[],
+    _configs: unknown[],
+    _dependencies: unknown[],
+    structure: unknown,
+    compatibility: unknown
   ): string[] {
     const recommendations: string[] = [];
 
     // Add compatibility recommendations
-    recommendations.push(...compatibility.recommendations);
+    recommendations.push(...(compatibility as any).recommendations);
 
     // Tool recommendations
-    const toolNames = tools.map((t: any) => t.name);
+    const toolNames = tools.map((t: any) => (t as any).name);
 
-    if (!toolNames.includes('typescript') && project.hasTypeScript) {
+    const typedProject = project as { hasTypeScript?: boolean };
+    if (!toolNames.includes('typescript') && typedProject.hasTypeScript) {
       recommendations.push('Add TypeScript configuration');
     }
 
@@ -196,12 +197,12 @@ export class AutoConfigurationDetectionEngine implements DetectionEngine {
     }
 
     // Structure recommendations
-    if (structure.complexity === 'complex' && !structure.isMonorepo) {
+    if ((structure as any).complexity === 'complex' && !(structure as any).isMonorepo) {
       recommendations.push('Consider converting to monorepo structure for better organization');
     }
 
     // Performance recommendations
-    if (structure.packages.length > 5 && structure.workspaceType === 'npm') {
+    if ((structure as any).packages.length > 5 && (structure as any).workspaceType === 'npm') {
       recommendations.push('Consider using pnpm or yarn workspaces for better performance');
     }
 
@@ -211,7 +212,7 @@ export class AutoConfigurationDetectionEngine implements DetectionEngine {
     }
 
     // Testing recommendations
-    if (structure.testDirectories.length === 0) {
+    if ((structure as any).testDirectories.length === 0) {
       recommendations.push('Set up testing structure with unit and integration tests');
     }
 

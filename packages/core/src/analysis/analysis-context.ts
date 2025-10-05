@@ -49,8 +49,8 @@ export interface ContextValidationResult {
 export interface AnalysisCache extends CacheInterface {
   getProjectConfig(projectPath: string): Promise<ProjectConfiguration | null>;
   setProjectConfig(projectPath: string, config: ProjectConfiguration): Promise<void>;
-  getPluginResult(pluginName: string, contextHash: string): Promise<any>;
-  setPluginResult(pluginName: string, contextHash: string, result: any): Promise<void>;
+  getPluginResult(pluginName: string, contextHash: string): Promise<unknown>;
+  setPluginResult(pluginName: string, contextHash: string, result: unknown): Promise<void>;
   invalidateProject(projectPath: string): Promise<void>;
   getStats(): CacheStats;
 }
@@ -109,7 +109,7 @@ export class AnalysisContextFactory {
     } = {}
   ): EnhancedAnalysisContext {
     const sessionId = this.generateSessionId();
-    const analysisId = options.analysisId || this.generateAnalysisId();
+    const analysisId = options.analysisId ?? this.generateAnalysisId();
 
     const context: EnhancedAnalysisContext = {
       sessionId,
@@ -119,7 +119,7 @@ export class AnalysisContextFactory {
       startTime: new Date(),
       metadata: { ...this.config.metadataDefaults, ...options.metadata },
       environment: this.getEnvironmentVariables(),
-      plugins: options.plugins || {},
+      plugins: options.plugins ?? {},
       config: projectConfig,
       logger: this.createContextLogger(sessionId, analysisId),
       ...(this.cache && { cache: this.cache })
@@ -215,7 +215,7 @@ export class AnalysisContextFactory {
     const cloned: EnhancedAnalysisContext = {
       ...context,
       ...modifications,
-      analysisId: modifications.analysisId || this.generateAnalysisId(),
+      analysisId: modifications.analysisId ?? this.generateAnalysisId(),
       startTime: new Date(),
       metadata: { ...context.metadata, ...modifications.metadata },
       environment: { ...context.environment, ...modifications.environment },
@@ -390,7 +390,7 @@ export class AnalysisContextManager {
   registerContext(context: EnhancedAnalysisContext): void {
     this.contexts.set(context.analysisId, context);
 
-    const sessionContexts = this.contextsBySession.get(context.sessionId) || [];
+    const sessionContexts = this.contextsBySession.get(context.sessionId)  ?? [];
     sessionContexts.push(context);
     this.contextsBySession.set(context.sessionId, sessionContexts);
 
@@ -406,7 +406,7 @@ export class AnalysisContextManager {
 
     this.contexts.delete(analysisId);
 
-    const sessionContexts = this.contextsBySession.get(context.sessionId) || [];
+    const sessionContexts = this.contextsBySession.get(context.sessionId) ?? [];
     const index = sessionContexts.findIndex(c => c.analysisId === analysisId);
     if (index !== -1) {
       sessionContexts.splice(index, 1);
@@ -430,7 +430,7 @@ export class AnalysisContextManager {
    * Get all contexts for a session
    */
   getSessionContexts(sessionId: string): EnhancedAnalysisContext[] {
-    return this.contextsBySession.get(sessionId) || [];
+    return this.contextsBySession.get(sessionId)  ?? [];
   }
 
   /**

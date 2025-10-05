@@ -85,7 +85,7 @@ export class WorkflowIntegration {
     prioritizations: IssuePrioritization[],
     context: ProjectContext
   ): IssuePrioritization[] {
-    if (!context.currentSprint) {
+    if (!(context.currentSprint as any)) {
       return prioritizations;
     }
 
@@ -93,7 +93,7 @@ export class WorkflowIntegration {
 
     // Prioritize issues that align with sprint goals
     adjusted.forEach(prioritization => {
-      const goalAlignment = this.calculateGoalAlignment(prioritization, context.currentSprint!);
+      const goalAlignment = this.calculateGoalAlignment(prioritization, (context.currentSprint as any));
       const sprintBonus = goalAlignment * 2; // Max 2 point bonus
 
       prioritization.finalScore = Math.min(10, prioritization.finalScore + sprintBonus);
@@ -119,7 +119,7 @@ export class WorkflowIntegration {
    */
   private adaptForKanban(
     prioritizations: IssuePrioritization[],
-    context: ProjectContext
+    _context: ProjectContext
   ): IssuePrioritization[] {
     const adjusted = prioritizations.map(p => ({ ...p }));
 
@@ -146,7 +146,7 @@ export class WorkflowIntegration {
    */
   private adaptForWaterfall(
     prioritizations: IssuePrioritization[],
-    context: ProjectContext
+    _context: ProjectContext
   ): IssuePrioritization[] {
     const adjusted = prioritizations.map(p => ({ ...p }));
 
@@ -198,9 +198,9 @@ export class WorkflowIntegration {
     return suggestions.map(suggestion => {
       const adjusted = { ...suggestion };
 
-      if (context.currentSprint) {
+      if ((context.currentSprint as any)) {
         // Set deadlines relative to sprint end
-        if (suggestion.action === 'fix-now' || suggestion.action === 'schedule') {
+        if (suggestion.action === 'fix-now'  || suggestion.action === 'schedule') {
           const daysUntilSprintEnd = Math.ceil(
             (context.currentSprint!.endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           );
@@ -223,7 +223,7 @@ export class WorkflowIntegration {
    */
   private adjustSuggestionsForKanban(
     suggestions: TriageSuggestion[],
-    context: ProjectContext
+    _context: ProjectContext
   ): TriageSuggestion[] {
     return suggestions.map(suggestion => {
       const adjusted = { ...suggestion };
@@ -247,7 +247,7 @@ export class WorkflowIntegration {
    */
   private adjustSuggestionsForWaterfall(
     suggestions: TriageSuggestion[],
-    context: ProjectContext
+    _context: ProjectContext
   ): TriageSuggestion[] {
     return suggestions.map(suggestion => {
       const adjusted = { ...suggestion };
@@ -274,7 +274,7 @@ export class WorkflowIntegration {
   private calculateGoalAlignment(prioritization: IssuePrioritization, sprint: SprintContext): number {
     if (sprint.goals.length === 0) return 0;
 
-    const contextText = `${prioritization.context.filePath} ${prioritization.context.componentType} ${prioritization.context.businessDomain || ''} ${prioritization.classification.category}`.toLowerCase();
+    const contextText = `${prioritization.context.filePath} ${prioritization.context.componentType} ${prioritization.context.businessDomain ?? ''} ${prioritization.classification.category}`.toLowerCase();
 
     let alignmentScore = 0;
     for (const goal of sprint.goals) {
@@ -293,9 +293,9 @@ export class WorkflowIntegration {
    * Calculate capacity utilization
    */
   private calculateCapacityUtilization(context: ProjectContext): number {
-    if (!context.currentSprint) return 0.5;
+    if (!(context.currentSprint as any)) return 0.5;
 
-    return context.currentSprint.currentLoad / context.currentSprint.capacity;
+    return context.currentSprint!.currentLoad / context.currentSprint!.capacity;
   }
 
   /**
@@ -305,13 +305,13 @@ export class WorkflowIntegration {
     // Simplified phase detection based on file paths
     const filePath = context.filePath.toLowerCase();
 
-    if (filePath.includes('design') || filePath.includes('spec')) {
+    if (filePath.includes('design') ?? filePath.includes('spec')) {
       return 2; // Design phase
-    } else if (filePath.includes('implementation') || filePath.includes('src')) {
+    } else if (filePath.includes('implementation') ?? filePath.includes('src')) {
       return 1; // Implementation phase
-    } else if (filePath.includes('test') || filePath.includes('qa')) {
+    } else if (filePath.includes('test') ?? filePath.includes('qa')) {
       return 1.5; // Testing phase
-    } else if (filePath.includes('deploy') || filePath.includes('release')) {
+    } else if (filePath.includes('deploy') ?? filePath.includes('release')) {
       return 2; // Deployment phase
     }
 
@@ -336,7 +336,7 @@ export class WorkflowIntegration {
     if (prioritization.classification.category === 'maintainability') {
       adjustment += (priorities.maintainability - 5) * 0.2;
     }
-    if (prioritization.classification.category === 'feature' || prioritization.classification.category === 'documentation') {
+    if (prioritization.classification.category === 'feature'  || prioritization.classification.category === 'documentation') {
       adjustment += (priorities.features - 5) * 0.2;
     }
 
@@ -398,7 +398,7 @@ export class WorkflowIntegration {
       recommendations.push('Implement code review automation or assign dedicated reviewers');
     }
 
-    if (context.teamPreferences.workflow === 'scrum' && !context.currentSprint) {
+    if (context.teamPreferences.workflow === 'scrum' && !(context.currentSprint as any)) {
       recommendations.push('Set up sprint planning to improve prioritization');
     }
 

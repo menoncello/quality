@@ -1,5 +1,6 @@
 import { BaseToolAdapter } from '../base-tool-adapter.js';
 import { CoverageAnalyzer } from '../../services/coverage-analyzer.js';
+import type { CoverageConfiguration } from '../../types/coverage.js';
 import type {
   AnalysisContext,
   ToolResult,
@@ -9,7 +10,6 @@ import type {
   CoverageData
 } from '../analysis-plugin.js';
 
-import type { EnhancedCoverageData } from '../../types/coverage.js';
 
 /**
  * Bun Test tool adapter for test execution and coverage analysis
@@ -60,74 +60,74 @@ export class BunTestAdapter extends BaseToolAdapter {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    const cfg = config.config as any;
+    const cfg = (config as any).config as unknown;
 
-    if (cfg.testMatch && !Array.isArray(cfg.testMatch)) {
+    if ((cfg as any).testMatch && !Array.isArray((cfg as any).testMatch)) {
       errors.push('Bun Test testMatch must be an array');
     }
 
-    if (cfg.testPathIgnorePatterns && !Array.isArray(cfg.testPathIgnorePatterns)) {
+    if ((cfg as any).testPathIgnorePatterns && !Array.isArray((cfg as any).testPathIgnorePatterns)) {
       errors.push('Bun Test testPathIgnorePatterns must be an array');
     }
 
-    if (cfg.coverage !== undefined && typeof cfg.coverage !== 'boolean') {
+    if ((cfg as any).coverage !== undefined && typeof (cfg as any).coverage !== 'boolean') {
       errors.push('Bun Test coverage must be a boolean');
     }
 
-    if (cfg.bail !== undefined && typeof cfg.bail !== 'boolean') {
+    if ((cfg as any).bail !== undefined && typeof (cfg as any).bail !== 'boolean') {
       errors.push('Bun Test bail must be a boolean');
     }
 
-    if (cfg.verbose !== undefined && typeof cfg.verbose !== 'boolean') {
+    if ((cfg as any).verbose !== undefined && typeof (cfg as any).verbose !== 'boolean') {
       errors.push('Bun Test verbose must be a boolean');
     }
 
-    if (cfg.watch !== undefined && typeof cfg.watch !== 'boolean') {
+    if ((cfg as any).watch !== undefined && typeof (cfg as any).watch !== 'boolean') {
       errors.push('Bun Test watch must be a boolean');
     }
 
-    if (cfg.timeout !== undefined && typeof cfg.timeout !== 'number') {
+    if ((cfg as any).timeout !== undefined && typeof (cfg as any).timeout !== 'number') {
       errors.push('Bun Test timeout must be a number');
     }
 
     // Validate coverage threshold
-    if (cfg.coverageThreshold) {
-      const threshold = cfg.coverageThreshold;
+    if ((cfg as any).coverageThreshold) {
+      const threshold = (cfg as any).coverageThreshold;
       const thresholdKeys = ['statements', 'branches', 'functions', 'lines', 'criticalPaths'];
 
       for (const key of thresholdKeys) {
-        if (threshold[key] !== undefined && (typeof threshold[key] !== 'number' || threshold[key] < 0 || threshold[key] > 100)) {
+        if (threshold[key] !== undefined && (typeof threshold[key] !== 'number'  || threshold[key] < 0 || threshold[key] > 100)) {
           errors.push(`Coverage threshold ${key} must be a number between 0 and 100`);
         }
       }
     }
 
     // Validate advanced coverage options
-    if (cfg.enableAdvancedCoverage !== undefined && typeof cfg.enableAdvancedCoverage !== 'boolean') {
+    if ((cfg as any).enableAdvancedCoverage !== undefined && typeof (cfg as any).enableAdvancedCoverage !== 'boolean') {
       errors.push('Bun Test enableAdvancedCoverage must be a boolean');
     }
 
-    if (cfg.coverageExclusions && !Array.isArray(cfg.coverageExclusions)) {
+    if ((cfg as any).coverageExclusions && !Array.isArray((cfg as any).coverageExclusions)) {
       errors.push('Bun Test coverageExclusions must be an array');
     }
 
-    if (cfg.coverageIncludePatterns && !Array.isArray(cfg.coverageIncludePatterns)) {
+    if ((cfg as any).coverageIncludePatterns && !Array.isArray((cfg as any).coverageIncludePatterns)) {
       errors.push('Bun Test coverageIncludePatterns must be an array');
     }
 
-    if (cfg.criticalPaths && !Array.isArray(cfg.criticalPaths)) {
+    if ((cfg as any).criticalPaths && !Array.isArray((cfg as any).criticalPaths)) {
       errors.push('Bun Test criticalPaths must be an array');
     }
 
-    if (cfg.enableTrending !== undefined && typeof cfg.enableTrending !== 'boolean') {
+    if ((cfg as any).enableTrending !== undefined && typeof (cfg as any).enableTrending !== 'boolean') {
       errors.push('Bun Test enableTrending must be a boolean');
     }
 
-    if (cfg.enableQualityScoring !== undefined && typeof cfg.enableQualityScoring !== 'boolean') {
+    if ((cfg as any).enableQualityScoring !== undefined && typeof (cfg as any).enableQualityScoring !== 'boolean') {
       errors.push('Bun Test enableQualityScoring must be a boolean');
     }
 
-    if (cfg.enableRiskAssessment !== undefined && typeof cfg.enableRiskAssessment !== 'boolean') {
+    if ((cfg as any).enableRiskAssessment !== undefined && typeof (cfg as any).enableRiskAssessment !== 'boolean') {
       errors.push('Bun Test enableRiskAssessment must be a boolean');
     }
 
@@ -198,7 +198,7 @@ Usage:
 
     // Collect coverage if enabled
     let coverage: CoverageData | undefined;
-    if (config.coverage) {
+    if ((config as any).coverage) {
       coverage = await this.collectCoverage(context, config);
     }
 
@@ -223,7 +223,7 @@ Usage:
 
     const config = this.getToolConfig();
     const relevantFiles = context.changedFiles.filter(file =>
-      this.shouldProcessFile(file, config.testMatch as string[], config.testPathIgnorePatterns as string[])
+      this.shouldProcessFile(file, (config as any).testMatch as string[], (config as any).testPathIgnorePatterns as string[])
     );
 
     if (relevantFiles.length === 0) {
@@ -239,7 +239,7 @@ Usage:
     const issues = this.parseOutput(testResult.stdout, testResult.stderr, context);
 
     let coverage: CoverageData | undefined;
-    if (config.coverage) {
+    if ((config as any).coverage) {
       coverage = await this.collectCoverage(context, config);
     }
 
@@ -257,46 +257,46 @@ Usage:
   /**
    * Build Bun Test command
    */
-  private buildBunTestCommand(context: AnalysisContext, config: any, files?: string[]): { cmd: string; args: string[] } {
+  private buildBunTestCommand(context: AnalysisContext, config: unknown, files?: string[]): { cmd: string; args: string[] } {
     const cmd = 'bun';
     const args: string[] = ['test'];
 
     // Add coverage options
-    if (config.coverage) {
+    if ((config as any).coverage) {
       args.push('--coverage');
 
-      if (config.coverageDirectory) {
-        args.push('--coverage-dir', config.coverageDirectory);
+      if ((config as any).coverageDirectory) {
+        args.push('--coverage-dir', (config as any).coverageDirectory);
       }
 
-      if (config.coverageReporters) {
-        args.push('--coverage-reporter', ...config.coverageReporters);
+      if ((config as any).coverageReporters) {
+        args.push('--coverage-reporter', ...(config as any).coverageReporters);
       }
     }
 
     // Add test options
-    if (config.bail) {
+    if ((config as any).bail) {
       args.push('--bail');
     }
 
-    if (config.verbose) {
+    if ((config as any).verbose) {
       args.push('--verbose');
     }
 
-    if (config.watch) {
+    if ((config as any).watch) {
       args.push('--watch');
     }
 
-    if (config.timeout) {
-      args.push('--timeout', config.timeout.toString());
+    if ((config as any).timeout) {
+      args.push('--timeout', (config as any).timeout.toString());
     }
 
     // Add specific test files if provided
     if (files && files.length > 0) {
       args.push(...files);
-    } else if (config.testMatch) {
+    } else if ((config as any).testMatch) {
       // Use test patterns
-      args.push(...config.testMatch);
+      args.push(...(config as any).testMatch);
     }
 
     return { cmd, args };
@@ -305,16 +305,16 @@ Usage:
   /**
    * Collect coverage data
    */
-  private async collectCoverage(context: AnalysisContext, config: any): Promise<CoverageData | undefined> {
-    if (!config.coverage) return undefined;
+  private async collectCoverage(context: AnalysisContext, config: unknown): Promise<CoverageData | undefined> {
+    if (!(config as any).coverage) return undefined;
 
     try {
-      const coveragePath = `${context.projectPath}/${config.coverageDirectory || 'coverage'}/coverage-summary.json`;
-      const detailedCoveragePath = `${context.projectPath}/${config.coverageDirectory || 'coverage'}/coverage-final.json`;
+      const coveragePath = `${context.projectPath}/${(config as any).coverageDirectory  ?? 'coverage'}/coverage-summary.json`;
+      const detailedCoveragePath = `${context.projectPath}/${(config as any).coverageDirectory  ?? 'coverage'}/coverage-final.json`;
       const fs = require('fs/promises');
 
       let basicCoverage: CoverageData | undefined;
-      let detailedCoverage: any;
+      let detailedCoverage: unknown;
 
       try {
         // Read basic coverage summary
@@ -323,24 +323,24 @@ Usage:
 
         basicCoverage = {
           lines: {
-            total: summary.total?.lines?.total || 0,
-            covered: summary.total?.lines?.covered || 0,
-            percentage: summary.total?.lines?.pct || 0
+            total: summary.total?.lines?.total ?? 0,
+            covered: summary.total?.lines?.covered ?? 0,
+            percentage: summary.total?.lines?.pct ?? 0
           },
           functions: {
-            total: summary.total?.functions?.total || 0,
-            covered: summary.total?.functions?.covered || 0,
-            percentage: summary.total?.functions?.pct || 0
+            total: summary.total?.functions?.total ?? 0,
+            covered: summary.total?.functions?.covered ?? 0,
+            percentage: summary.total?.functions?.pct ?? 0
           },
           branches: {
-            total: summary.total?.branches?.total || 0,
-            covered: summary.total?.branches?.covered || 0,
-            percentage: summary.total?.branches?.pct || 0
+            total: summary.total?.branches?.total ?? 0,
+            covered: summary.total?.branches?.covered ?? 0,
+            percentage: summary.total?.branches?.pct ?? 0
           },
           statements: {
-            total: summary.total?.statements?.total || 0,
-            covered: summary.total?.statements?.covered || 0,
-            percentage: summary.total?.statements?.pct || 0
+            total: summary.total?.statements?.total ?? 0,
+            covered: summary.total?.statements?.covered ?? 0,
+            percentage: summary.total?.statements?.pct ?? 0
           }
         };
       } catch {
@@ -358,7 +358,7 @@ Usage:
       }
 
       // Use enhanced coverage analyzer if detailed data is available
-      if (detailedCoverage && config.enableAdvancedCoverage !== false) {
+      if (detailedCoverage && (config as any).enableAdvancedCoverage !== false) {
         const analyzer = new CoverageAnalyzer(this.getCoverageAnalyzerConfig(config));
         const enhancedCoverage = await analyzer.analyzeCoverage(basicCoverage, context, detailedCoverage);
 
@@ -375,9 +375,9 @@ Usage:
   /**
    * Get coverage analyzer configuration from tool config
    */
-  private getCoverageAnalyzerConfig(config: any): any {
+  private getCoverageAnalyzerConfig(config: unknown): Partial<CoverageConfiguration> {
     return {
-      thresholds: config.coverageThreshold || {
+      thresholds: (config as any).coverageThreshold   ?? {
         overall: 80,
         lines: 80,
         branches: 80,
@@ -385,12 +385,12 @@ Usage:
         statements: 80,
         criticalPaths: 90
       },
-      criticalPaths: config.criticalPaths || [],
-      exclusions: config.coverageExclusions || ['**/node_modules/**', '**/dist/**', '**/build/**', '**/*.test.*', '**/*.spec.*'],
-      includePatterns: config.coverageIncludePatterns || ['**/*.{ts,tsx,js,jsx}'],
-      enableTrending: config.enableTrending !== false,
-      enableQualityScoring: config.enableQualityScoring !== false,
-      enableRiskAssessment: config.enableRiskAssessment !== false
+      criticalPaths: (config as any).criticalPaths ?? [],
+      exclusions: (config as any).coverageExclusions ?? ['**/node_modules/**', '**/dist/**', '**/build/**', '**/*.test.*', '**/*.spec.*'],
+      includePatterns: (config as any).coverageIncludePatterns ??  ['**/*.{ts,tsx,js,jsx}'],
+      enableTrending: (config as any).enableTrending !== false,
+      enableQualityScoring: (config as any).enableQualityScoring !== false,
+      enableRiskAssessment: (config as any).enableRiskAssessment !== false
     };
   }
 
@@ -403,14 +403,13 @@ Usage:
     const lines = output.split('\n');
 
     let currentFile = '';
-    let currentTest = '';
 
     for (const line of lines) {
       // Parse test failure format
       const failureMatch = line.match(/^✖\s+(.+)\s+\((\d+)ms\)$/);
       if (failureMatch) {
         const [, testName] = failureMatch;
-        currentTest = testName;
+        const _currentTest = testName;
 
         issues.push(this.createIssue(
           'error',
@@ -426,7 +425,7 @@ Usage:
       // Parse error location format
       const errorMatch = line.match(/^(\s+→)\s+(.+):(\d+):(\d+)$/);
       if (errorMatch) {
-        const [, , filePath, lineNum, colNum] = errorMatch;
+        const [, , filePath, lineNum, _colNum] = errorMatch;
         currentFile = filePath;
 
         // Look for error message in next lines
@@ -453,7 +452,7 @@ Usage:
         const [, actual, assertion] = assertionMatch;
         issues.push(this.createIssue(
           'error',
-          currentFile || '',
+          currentFile ?? '',
           1,
           `Assertion failed: expect(${actual}).${assertion}`,
           'bun-test/assertion-failed',
@@ -466,7 +465,7 @@ Usage:
       if (line.includes('Test timed out')) {
         issues.push(this.createIssue(
           'error',
-          currentFile || '',
+          currentFile ?? '',
           1,
           'Test timed out',
           'bun-test/test-timeout',
@@ -476,7 +475,8 @@ Usage:
     }
 
     // Check for coverage threshold violations
-    const coverageThreshold = (context.config.tools?.find(t => t.name === 'bun-test')?.config as any)?.coverageThreshold;
+    const toolConfig = context.config.tools?.find(t => t.name === 'bun-test')?.config;
+    const coverageThreshold = (toolConfig as any)?.coverageThreshold;
     if (coverageThreshold) {
       const coverageViolations = this.checkCoverageThresholds(output, coverageThreshold);
       issues.push(...coverageViolations);
@@ -493,7 +493,7 @@ Usage:
 
     // Extract coverage percentages from output
     const coverageMatch = output.match(/Lines\s+:\s+(\d+(?:\.\d+)?)/);
-    if (coverageMatch) {
+    if (coverageMatch && thresholds?.lines) {
       const coverage = parseFloat(coverageMatch[1]);
       if (coverage < thresholds.lines) {
         issues.push(this.createIssue(

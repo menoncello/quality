@@ -128,7 +128,7 @@ describe('DependencyChecker', () => {
           compatibility: 'compatible',
           issues: [],
         },
-      ] as any;
+      ] as unknown;
 
       const result = await checker.checkCompatibility(dependencies);
 
@@ -136,7 +136,7 @@ describe('DependencyChecker', () => {
       expect(result.issues).toHaveLength(0);
     });
 
-    it('should return incompatible when any dep is incompatible', async () => {
+    it('should return incompatible when unknown dep is incompatible', async () => {
       const dependencies = [
         {
           name: 'typescript',
@@ -152,7 +152,7 @@ describe('DependencyChecker', () => {
           compatibility: 'compatible',
           issues: [],
         },
-      ] as any;
+      ] as unknown;
 
       const result = await checker.checkCompatibility(dependencies);
 
@@ -169,7 +169,7 @@ describe('DependencyChecker', () => {
           compatibility: 'incompatible',
           issues: ['Too old'],
         },
-      ] as any;
+      ] as unknown;
 
       const result = await checker.checkCompatibility(dependencies);
 
@@ -224,7 +224,7 @@ describe('DependencyChecker', () => {
     });
   });
 
-  function setupTestProject(dir: string, packageJson: any) {
+  function setupTestProject(dir: string, packageJson: unknown) {
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }

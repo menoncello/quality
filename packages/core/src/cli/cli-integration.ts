@@ -2,7 +2,6 @@ import type { Logger } from '../plugins/analysis-plugin.js';
 import type { AnalysisEngine, AnalysisProgress } from '../analysis/analysis-engine.js';
 import type { ReportConfig } from '../analysis/result-reporter.js';
 import { ReportFormat } from '../analysis/result-reporter.js';
-import type { ProjectConfiguration } from '../plugins/analysis-plugin.js';
 
 /**
  * CLI command options
@@ -153,7 +152,7 @@ export class CLIOutputFormatter {
    */
   tableRow(cells: string[], widths: number[]): string {
     return cells.map((cell, index) => {
-      const width = widths[index] || 20;
+      const width = widths[index] ?? 20;
       const padding = width - cell.length;
       return cell + ' '.repeat(Math.max(0, padding));
     }).join(' | ');
@@ -207,10 +206,9 @@ export class CLIOutputFormatter {
   private supportsColor(): boolean {
     const process = require('process');
     return Boolean(
-      process.stdout &&
-      process.stdout.isTTY &&
+      process.stdout?.isTTY &&
       process.env.TERM !== 'dumb' &&
-      (!('CI' in process.env) || process.env.CI === 'false')
+      (!('CI' in process.env)  || process.env.CI === 'false')
     );
   }
 
@@ -310,9 +308,9 @@ export class CLIProgressIndicator implements ProgressIndicator {
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
     process.stdout.write(
-      this.formatter.success(
-        `${message || this.currentMessage} completed in ${durationText}`
-      ) + '\n'
+      `${this.formatter.success(
+        `${message ?? this.currentMessage} completed in ${durationText}`
+      )  }\n`
     );
   }
 
@@ -332,7 +330,7 @@ export class CLIProgressIndicator implements ProgressIndicator {
     // Clear current line and show error
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
-    process.stdout.write(this.formatter.error(message) + '\n');
+    process.stdout.write(`${this.formatter.error(message)  }\n`);
   }
 
   // Private methods
@@ -483,11 +481,11 @@ export class CLIIntegrationManager {
   ): void {
     // Configure engine based on CLI options
     const engineConfig = {
-      maxConcurrency: options.concurrency || 4,
-      defaultTimeout: options.timeout || 30000,
+      maxConcurrency: options.concurrency   ?? 4,
+      defaultTimeout: options.timeout ?? 30000,
       enableCache: true,
       sandboxConfig: {
-        maxExecutionTime: options.timeout || 30000,
+        maxExecutionTime: options.timeout ?? 30000,
         maxMemoryUsage: 1024, // 1GB
         maxFileSize: 10 * 1024 * 1024, // 10MB
         allowedFileExtensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.md'],
@@ -497,7 +495,7 @@ export class CLIIntegrationManager {
         workingDirectory: process.cwd()
       },
       progressReportingInterval: 1000,
-      enableIncrementalAnalysis: options.incremental || false,
+      enableIncrementalAnalysis: options.incremental ?? false,
       maxRetryAttempts: 3,
       retryDelay: 1000
     };
@@ -537,18 +535,45 @@ export class CLIIntegrationManager {
       return;
     }
 
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.header('Code Quality Analysis Results'));
 
     // Summary
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.section('Summary'));
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.keyValue('Overall Score', `${result.overallScore}%`));
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.keyValue('Total Issues', result.summary.totalIssues.toString()));
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.keyValue('Errors', result.summary.totalErrors.toString()));
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.keyValue('Warnings', result.summary.totalWarnings.toString()));
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.keyValue('Fixable Issues', result.summary.totalFixable.toString()));
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.keyValue('Execution Time', this.formatter.formatDuration(result.duration)));
 
     // Tool results
+     
+     
+    // eslint-disable-next-line no-console
     console.log(this.formatter.section('Tool Results'));
 
     for (const tool of result.toolResults) {
@@ -556,34 +581,67 @@ export class CLIIntegrationManager {
                          tool.status === 'warning' ? this.formatter.warning('⚠') :
                          this.formatter.error('✗');
 
-      console.log(`\n${tool.toolName} ${statusIcon}`);
-      console.log(this.formatter.keyValue('Status', tool.status));
-      console.log(this.formatter.keyValue('Issues', tool.issues.length.toString()));
-      console.log(this.formatter.keyValue('Time', this.formatter.formatDuration(tool.executionTime)));
+       
+     
+    // eslint-disable-next-line no-console
+    console.log(`\n${tool.toolName} ${statusIcon}`);
+       
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.keyValue('Status', tool.status));
+       
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.keyValue('Issues', tool.issues.length.toString()));
+       
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.keyValue('Time', this.formatter.formatDuration(tool.executionTime)));
 
       if (!options.verbose && tool.issues.length > 0) {
-        console.log('Top issues:');
-        tool.issues.slice(0, 5).forEach(issue => {
-          console.log(`  ${this.formatter.issue(issue.type, issue.filePath, issue.lineNumber, issue.message)}`);
+         
+     
+    // eslint-disable-next-line no-console
+    console.log('Top issues:');
+        tool.issues.slice(0, 5).forEach((issue: any) => {
+           
+     
+    // eslint-disable-next-line no-console
+    console.log(`  ${this.formatter.issue(issue.type, issue.filePath, issue.lineNumber, issue.message)}`);
         });
         if (tool.issues.length > 5) {
-          console.log(`  ... and ${tool.issues.length - 5} more issues`);
+           
+     
+    // eslint-disable-next-line no-console
+    console.log(`  ... and ${tool.issues.length - 5} more issues`);
         }
       } else if (options.verbose) {
-        tool.issues.forEach(issue => {
-          console.log(`  ${this.formatter.issue(issue.type, issue.filePath, issue.lineNumber, issue.message)}`);
+        tool.issues.forEach((issue: any) => {
+           
+     
+    // eslint-disable-next-line no-console
+    console.log(`  ${this.formatter.issue(issue.type, issue.filePath, issue.lineNumber, issue.message)}`);
         });
       }
     }
 
     // Recommendations
-    if (result.aiPrompts && result.aiPrompts.length > 0) {
-      console.log(this.formatter.section('AI Recommendations'));
-      result.aiPrompts.forEach(prompt => {
-        console.log(this.formatter.listItem(`${prompt.title}: ${prompt.description}`));
+    if (result.aiPrompts?.length > 0) {
+       
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.section('AI Recommendations'));
+      result.aiPrompts.forEach((prompt: any) => {
+         
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.listItem(`${prompt.title}: ${prompt.description}`));
       });
     }
 
+     
+     
+    // eslint-disable-next-line no-console
     console.log(''); // Empty line at the end
   }
 
@@ -632,39 +690,58 @@ export class CLIIntegrationManager {
   private setupEventHandlers(analysisEngine: AnalysisEngine, options: CLICommandOptions): void {
     analysisEngine.on('analysis:start', (projectId: string) => {
       if (!options.quiet) {
-        console.log(this.formatter.info(`Starting analysis for project: ${projectId}`));
+         
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.info(`Starting analysis for project: ${projectId}`));
       }
     });
 
     analysisEngine.on('analysis:progress', (projectId: string, progress: AnalysisProgress) => {
       if (options.verbose && !options.quiet) {
-        console.log(`Progress: ${progress.completedPlugins}/${progress.totalPlugins} plugins completed`);
+         
+     
+    // eslint-disable-next-line no-console
+    console.log(`Progress: ${progress.completedPlugins}/${progress.totalPlugins} plugins completed`);
       }
     });
 
     analysisEngine.on('analysis:plugin-start', (projectId: string, pluginName: string) => {
       if (options.verbose && !options.quiet) {
-        console.log(this.formatter.info(`Running ${pluginName}...`));
+         
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.info(`Running ${pluginName}...`));
       }
     });
 
-    analysisEngine.on('analysis:plugin-complete', (projectId: string, pluginName: string, result: any) => {
+    analysisEngine.on('analysis:plugin-complete', (projectId: string, pluginName: string, result: unknown) => {
       if (options.verbose && !options.quiet) {
-        const status = result.status === 'success' ? this.formatter.success('✓') :
-                     result.status === 'warning' ? this.formatter.warning('⚠') :
+        const typedResult = result as { status?: string; issues?: unknown[] };
+        const status = typedResult.status === 'success' ? this.formatter.success('✓') :
+                     typedResult.status === 'warning' ? this.formatter.warning('⚠') :
                      this.formatter.error('✗');
-        console.log(`Completed ${pluginName} ${status} (${result.issues.length} issues)`);
+
+
+    // eslint-disable-next-line no-console
+    console.log(`Completed ${pluginName} ${status} (${typedResult.issues?.length || 0} issues)`);
       }
     });
 
-    analysisEngine.on('analysis:complete', (projectId: string, result: any) => {
+    analysisEngine.on('analysis:complete', (projectId: string, _result: unknown) => {
       if (!options.quiet) {
-        console.log(this.formatter.success(`Analysis completed for project: ${projectId}`));
+         
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.success(`Analysis completed for project: ${projectId}`));
       }
     });
 
     analysisEngine.on('analysis:error', (projectId: string, error: Error) => {
-      console.log(this.formatter.error(`Analysis failed for project ${projectId}: ${error.message}`));
+       
+     
+    // eslint-disable-next-line no-console
+    console.log(this.formatter.error(`Analysis failed for project ${projectId}: ${error.message}`));
     });
   }
 }

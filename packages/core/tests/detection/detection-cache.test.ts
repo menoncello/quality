@@ -261,10 +261,10 @@ describe('DetectionCache', () => {
       cache.setCachedConfig(testDir + '/config', { test: true });
       cache.setCachedDependencies(testDir, { deps: [] });
       cache.setCachedResult(testDir, {
-        project: {} as any,
+        project: {} as unknown,
         tools: [],
         dependencies: [],
-        structure: {} as any,
+        structure: {} as unknown,
         issues: [],
         recommendations: [],
         timestamp: Date.now(),
@@ -399,10 +399,10 @@ describe('DetectionCache', () => {
 
     it('should enforce size limit for result cache', () => {
       const mockResult: DetectionResult = {
-        project: {} as any,
+        project: {} as unknown,
         tools: [],
         dependencies: [],
-        structure: {} as any,
+        structure: {} as unknown,
         issues: [],
         recommendations: [],
         timestamp: Date.now(),

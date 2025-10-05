@@ -207,7 +207,7 @@ describe('PluginManager', () => {
     it('should get plugin by name', () => {
       const plugin = pluginManager.getPlugin('test-plugin');
       expect(plugin).toBeDefined();
-      expect(plugin!.name).toBe('test-plugin');
+      expect(plugin?.name).toBe('test-plugin');
     });
 
     it('should return undefined for non-existent plugin', () => {
@@ -293,7 +293,7 @@ describe('PluginManager', () => {
         }
       };
 
-      await pluginManager.initializePlugins(pluginConfigs);
+      await pluginManager.initializePlugins(pluginConfigs as any);
       // Plugin initialization called with correct configuration
       expect(pluginManager.getPlugin('test-plugin')).toBeDefined();
     });

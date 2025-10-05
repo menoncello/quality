@@ -3,40 +3,44 @@ import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test';
 // Mock modules at the top level before imports
 mock.module('@dev-quality/core', () => ({
   CoverageAnalysisEngine: mock(() => ({
-    analyzeCoverage: mock(() => Promise.resolve({
-      summary: {
-        overallCoverage: 85,
-        lineCoverage: 85,
-        branchCoverage: 85,
-        functionCoverage: 85,
-        grade: 'B',
-        qualityScore: 82,
-        riskLevel: 'low',
-      },
-      coverage: {
-        files: [],
-        criticalPaths: [],
-        recommendations: [],
-      },
-    })),
+    analyzeCoverage: mock(() =>
+      Promise.resolve({
+        summary: {
+          overallCoverage: 85,
+          lineCoverage: 85,
+          branchCoverage: 85,
+          functionCoverage: 85,
+          grade: 'B',
+          qualityScore: 82,
+          riskLevel: 'low',
+        },
+        coverage: {
+          files: [],
+          criticalPaths: [],
+          recommendations: [],
+        },
+      })
+    ),
     exportReport: mock(() => Promise.resolve('mock report')),
   })),
   BunTestAdapter: mock(() => ({
     initialize: mock(() => Promise.resolve()),
-    execute: mock(() => Promise.resolve({
-      toolName: 'bun-test',
-      executionTime: 100,
-      status: 'success',
-      issues: [],
-      metrics: {
-        issuesCount: 0,
-        errorsCount: 0,
-        warningsCount: 0,
-        infoCount: 0,
-        fixableCount: 0,
-        score: 85,
-      },
-    })),
+    execute: mock(() =>
+      Promise.resolve({
+        toolName: 'bun-test',
+        executionTime: 100,
+        status: 'success',
+        issues: [],
+        metrics: {
+          issuesCount: 0,
+          errorsCount: 0,
+          warningsCount: 0,
+          infoCount: 0,
+          fixableCount: 0,
+          score: 85,
+        },
+      })
+    ),
     cleanup: mock(() => Promise.resolve()),
   })),
 }));

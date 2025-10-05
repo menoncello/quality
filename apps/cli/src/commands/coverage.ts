@@ -169,9 +169,13 @@ export class CoverageCommand {
       for (const pair of pairs) {
         const [key, value] = pair.split(':');
         if (key && value) {
+          const trimmedKey = key.trim() as keyof typeof thresholds;
           const numValue = parseInt(value, 10);
           if (!isNaN(numValue) && numValue >= 0 && numValue <= 100) {
-            thresholds[key.trim()] = numValue;
+            // Check if the key is valid
+            if (trimmedKey in thresholds) {
+              thresholds[trimmedKey] = numValue;
+            }
           }
         }
       }

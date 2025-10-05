@@ -1,4 +1,4 @@
-import type { AnalysisPlugin, AnalysisContext, ToolResult, Logger } from './analysis-plugin.js';
+import type { AnalysisPlugin, AnalysisContext, ToolResult, Logger, CacheInterface } from './analysis-plugin.js';
 
 /**
  * Plugin sandbox configuration
@@ -36,7 +36,7 @@ export class PluginSandbox {
     timeout?: number
   ): Promise<ToolResult> {
     const pluginName = plugin.name;
-    const executionTimeout = timeout || this.config.maxExecutionTime;
+    const executionTimeout = timeout ?? this.config.maxExecutionTime;
 
     // Check if plugin is already running
     if (this.activePlugins.has(pluginName)) {
@@ -141,7 +141,7 @@ export class PluginSandbox {
     }
 
     // Check if project path is within allowed working directory
-    const { resolve, relative } = require('path');
+    const { relative } = require('path');
     const relativePath = relative(this.config.workingDirectory, context.projectPath);
 
     if (relativePath.startsWith('..')) {
@@ -169,7 +169,7 @@ export class PluginSandbox {
   /**
    * Create sandboxed logger with restricted output
    */
-  private createSandboxedLogger(originalLogger: Logger): Logger {
+  private createSandboxedLogger(_originalLogger: Logger): Logger {
     return {
       error: (message: string, ...args: unknown[]) => {
         this.logger.error(`[Plugin] ${message}`, ...args);
@@ -189,18 +189,18 @@ export class PluginSandbox {
   /**
    * Create sandboxed cache with restricted operations
    */
-  private createSandboxedCache(originalCache: any): any {
+  private createSandboxedCache(originalCache: CacheInterface): CacheInterface {
     return {
       get: async (key: string) => {
         // Validate cache key
-        if (typeof key !== 'string' || key.length > 256) {
+        if (typeof key !== 'string'  || key.length > 256) {
           throw new Error('Invalid cache key');
         }
         return originalCache.get(key);
       },
-      set: async (key: string, value: any, ttlMs?: number) => {
+      set: async (key: string, value: unknown, ttlMs?: number) => {
         // Validate cache key and value size
-        if (typeof key !== 'string' || key.length > 256) {
+        if (typeof key !== 'string'  || key.length > 256) {
           throw new Error('Invalid cache key');
         }
 
@@ -229,7 +229,7 @@ export class PluginSandbox {
       throw new Error('Invalid plugin result: missing or invalid toolName');
     }
 
-    if (typeof result.executionTime !== 'number' || result.executionTime < 0) {
+    if (typeof result.executionTime !== 'number'  || result.executionTime < 0) {
       throw new Error('Invalid plugin result: invalid executionTime');
     }
 
@@ -251,7 +251,7 @@ export class PluginSandbox {
    */
   private getCurrentMemoryUsage(): number {
     const { performance } = require('perf_hooks');
-    return performance.memory?.usedJSHeapSize || 0;
+    return performance.memory?.usedJSHeapSize ?? 0;
   }
 
   /**

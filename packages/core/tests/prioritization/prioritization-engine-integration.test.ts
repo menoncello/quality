@@ -1,14 +1,10 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
 import { IssuePrioritizationEngineImpl } from '../../src/prioritization/prioritization-engine-impl';
-import { WorkflowIntegration } from '../../src/prioritization/workflow-integration';
 import {
   Issue,
   ProjectContext,
-  TeamPreferences,
-  HistoricalData,
   PrioritizationRule,
-  IssueTrainingData,
-  IssueResolutionOutcome
+  IssueTrainingData
 } from '@dev-quality/types';
 
 describe('IssuePrioritizationEngine Integration Tests', () => {

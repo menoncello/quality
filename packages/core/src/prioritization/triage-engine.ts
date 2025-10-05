@@ -1,9 +1,7 @@
 import {
   IssuePrioritization,
   TriageSuggestion,
-  ProjectContext,
-  IssueContext,
-  IssueClassification
+  ProjectContext
 } from '../../../types/src/prioritization';
 
 import { WorkflowIntegration } from './workflow-integration';
@@ -26,10 +24,6 @@ export class TriageEngine {
     prioritizedIssues: IssuePrioritization[],
     context: ProjectContext
   ): Promise<TriageSuggestion[]> {
-    const suggestions = prioritizedIssues.map(issue =>
-      this.generateBaseTriageSuggestion(issue)
-    );
-
     // Apply workflow-specific adjustments
     const workflowAdjustedSuggestions = this.workflowIntegration.generateWorkflowSuggestions(
       prioritizedIssues,
@@ -109,7 +103,7 @@ export class TriageEngine {
     let validOutcomes = 0;
 
     for (let i = 0; i < suggestions.length; i++) {
-      const suggestion = suggestions[i];
+      const _suggestion = suggestions[i];
       const outcome = outcomes[i];
 
       if (outcome) {
@@ -140,11 +134,11 @@ export class TriageEngine {
    * Generate base triage suggestion for a single issue
    */
   private generateBaseTriageSuggestion(issue: IssuePrioritization): TriageSuggestion {
-    const { finalScore, classification, context } = issue;
+    const { finalScore } = issue;
 
     // Determine action based on score and context
     let action: TriageSuggestion['action'];
-    let estimatedEffort = this.estimateEffort(issue);
+    const estimatedEffort = this.estimateEffort(issue);
 
     if (finalScore >= 9) {
       action = 'fix-now';
@@ -201,7 +195,7 @@ export class TriageEngine {
       'documentation': 0.5,
       'feature': 2.5
     };
-    effort *= effortMultipliers[issue.classification.category] || 1.0;
+    effort *= effortMultipliers[issue.classification.category]  || 1.0;
 
     // Adjust for severity
     if (issue.classification.severity === 'critical') effort *= 1.5;
@@ -222,10 +216,10 @@ export class TriageEngine {
     if (classification.category === 'documentation') return 'technical-writers';
 
     // Suggest based on component
-    if (context.componentType.includes('ui') || context.componentType.includes('frontend')) {
+    if (context.componentType.includes('ui')  || context.componentType.includes('frontend')) {
       return 'frontend-team';
     }
-    if (context.componentType.includes('api') || context.componentType.includes('backend')) {
+    if (context.componentType.includes('api') ?? context.componentType.includes('backend')) {
       return 'backend-team';
     }
     if (context.componentType.includes('test')) {
@@ -294,7 +288,7 @@ export class TriageEngine {
       reasons.push('High business value');
     }
 
-    return reasons.join('. ') + '.';
+    return `${reasons.join('. ')  }.`;
   }
 
   /**
@@ -343,7 +337,7 @@ export class TriageEngine {
   /**
    * Balance workload across team members
    */
-  private balanceWorkload(suggestions: TriageSuggestion[], context: ProjectContext): void {
+  private balanceWorkload(suggestions: TriageSuggestion[], _context: ProjectContext): void {
     // Simple workload balancing - in a real implementation, this would track actual team member workload
     const teamMembers = ['frontend-team', 'backend-team', 'qa-team', 'security-team'];
     const workloadDistribution = new Map<string, number>();
@@ -354,19 +348,19 @@ export class TriageEngine {
     // Distribute assignments
     suggestions.forEach(suggestion => {
       if (suggestion.assignee && workloadDistribution.has(suggestion.assignee)) {
-        const currentWorkload = workloadDistribution.get(suggestion.assignee)!;
+        const currentWorkload = workloadDistribution.get(suggestion.assignee);
 
         // If team member is overloaded, suggest alternative
-        if (currentWorkload > 10) { // Arbitrary threshold
+        if ((currentWorkload as any) > 10) { // Arbitrary threshold
           const alternatives = teamMembers.filter(m => m !== suggestion.assignee);
           const leastLoaded = alternatives.reduce((min, member) =>
-            (workloadDistribution.get(member) || 0) < (workloadDistribution.get(min) || 0) ? member : min
+            (workloadDistribution.get(member)  ?? 0) < (workloadDistribution.get(min) ?? 0) ? member : min
           );
           suggestion.assignee = leastLoaded;
         }
 
         // Update workload
-        workloadDistribution.set(suggestion.assignee!, currentWorkload + suggestion.estimatedEffort);
+        workloadDistribution.set(suggestion.assignee, (currentWorkload as any) + suggestion.estimatedEffort);
       }
     });
   }
@@ -378,13 +372,13 @@ export class TriageEngine {
     if (!context.currentSprint) return;
 
     const daysUntilSprintEnd = Math.ceil(
-      (context.currentSprint.endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      ((context.currentSprint as any).endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
     );
 
     suggestions.forEach(suggestion => {
-      if (suggestion.deadline && suggestion.deadline > context.currentSprint!.endDate) {
+      if (suggestion.deadline && suggestion.deadline > (context.currentSprint as any).endDate) {
         // Move deadline before sprint end if it's currently after
-        suggestion.deadline = new Date(context.currentSprint!.endDate);
+        suggestion.deadline = new Date((context.currentSprint as any).endDate);
       }
 
       // Adjust reasoning for sprint context
@@ -397,7 +391,7 @@ export class TriageEngine {
   /**
    * Apply risk-based adjustments
    */
-  private applyRiskAdjustments(suggestions: TriageSuggestion[], context: ProjectContext): void {
+  private applyRiskAdjustments(suggestions: TriageSuggestion[], _context: ProjectContext): void {
     suggestions.forEach(suggestion => {
       // High priority security items should always be addressed immediately
       if (suggestion.priority >= 8 && suggestion.reasoning.includes('Security')) {
@@ -459,7 +453,7 @@ export class TriageEngine {
   /**
    * Create triage rule from pattern
    */
-  private createRuleFromPattern(pattern: TriagePattern, context: ProjectContext): TriageRuleRecommendation | null {
+  private createRuleFromPattern(pattern: TriagePattern, _context: ProjectContext): TriageRuleRecommendation | null {
     if (pattern.confidence < 0.7) return null;
 
     return {
@@ -516,7 +510,7 @@ export class TriageEngine {
     const distribution: Record<string, number> = {};
 
     suggestions.forEach(suggestion => {
-      distribution[suggestion.action] = (distribution[suggestion.action] || 0) + 1;
+      distribution[suggestion.action] = (distribution[suggestion.action]  || 0) + 1;
     });
 
     return distribution;
@@ -536,7 +530,7 @@ export class TriageEngine {
       recommendations.push('High rejection rate - review triage criteria and team preferences');
     }
 
-    const lowConfidenceCount = report.confidenceDistribution['low (<0.5)'] || 0;
+    const lowConfidenceCount = report.confidenceDistribution['low (<0.5)']  || 0;
     if (lowConfidenceCount / report.totalSuggestions > 0.2) {
       recommendations.push('Many low-confidence suggestions - gather more training data or adjust confidence thresholds');
     }

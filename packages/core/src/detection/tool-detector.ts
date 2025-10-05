@@ -3,6 +3,16 @@ import { join, basename, extname } from 'node:path';
 import { fileUtils } from '@dev-quality/utils';
 import { DetectedTool, ConfigFile } from './types';
 
+interface PackageJson {
+  name?: string;
+  version?: string;
+  scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
+}
+
 export class ToolDetector {
   private readonly TOOL_CONFIGS = [
     // Linting and Formatting
@@ -142,7 +152,10 @@ export class ToolDetector {
               config: configContent,
             });
           } catch (error) {
-            console.warn(`Failed to parse config file ${configPath}:`, error);
+             
+     
+    // eslint-disable-next-line no-console
+    console.warn(`Failed to parse config file ${configPath}:`, error);
           }
         }
       }
@@ -154,7 +167,7 @@ export class ToolDetector {
   private async detectSingleTool(
     rootPath: string,
     toolConfig: { tool: string; configs: string[]; versionDep: string },
-    packageJson: any
+    packageJson: PackageJson
   ): Promise<DetectedTool | null> {
     const configPath = this.findConfigPath(rootPath, toolConfig.configs);
     if (!configPath) {
@@ -167,7 +180,7 @@ export class ToolDetector {
 
       return {
         name: toolConfig.tool,
-        version: version || 'unknown',
+        version: version ?? 'unknown',
         configPath,
         configFormat: this.getConfigFormat(basename(configPath)),
         enabled: true,
@@ -175,7 +188,10 @@ export class ToolDetector {
         config: configContent,
       };
     } catch (error) {
-      console.warn(`Failed to detect tool ${toolConfig.tool}:`, error);
+       
+     
+    // eslint-disable-next-line no-console
+    console.warn(`Failed to detect tool ${toolConfig.tool}:`, error);
       return null;
     }
   }
@@ -227,12 +243,12 @@ export class ToolDetector {
         if (filename.endsWith('.json')) return 'json';
         if (filename.endsWith('.js')) return 'js';
         if (filename.endsWith('.ts')) return 'ts';
-        if (filename.endsWith('.yaml') || filename.endsWith('.yml')) return 'yaml';
+        if (filename.endsWith('.yaml')  || filename.endsWith('.yml')) return 'yaml';
         return 'json'; // default
     }
   }
 
-  private extractVersion(packageJson: any, depName: string): string | null {
+  private extractVersion(packageJson: PackageJson, depName: string): string | null {
     const allDeps = {
       ...packageJson.dependencies,
       ...packageJson.devDependencies,
@@ -240,7 +256,7 @@ export class ToolDetector {
       ...packageJson.optionalDependencies,
     };
 
-    return allDeps[depName] || null;
+    return allDeps[depName] ?? null;
   }
 
   private getToolPriority(toolName: string): number {
@@ -262,10 +278,10 @@ export class ToolDetector {
       playwright: 9,
     };
 
-    return priorities[toolName] || 99;
+    return priorities[toolName]  || 99;
   }
 
-  private loadPackageJson(rootPath: string): any {
+  private loadPackageJson(rootPath: string): PackageJson {
     const packageJsonPath = join(rootPath, 'package.json');
     if (!existsSync(packageJsonPath)) {
       return {};
@@ -274,7 +290,10 @@ export class ToolDetector {
     try {
       return fileUtils.readJsonSync(packageJsonPath);
     } catch (error) {
-      console.warn(`Failed to load package.json:`, error);
+       
+     
+    // eslint-disable-next-line no-console
+    console.warn(`Failed to load package.json:`, error);
       return {};
     }
   }

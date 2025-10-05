@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
 import { ResultAggregator } from '../analysis/result-aggregator.js';
-import type { NormalizedResult, IssueStatistics, AggregatedCoverage, AggregatedPerformance } from '../analysis/result-aggregator.js';
+import type { IssueStatistics, AggregatedCoverage, AggregatedPerformance } from '../analysis/result-aggregator.js';
 import type { Logger } from '../plugins/analysis-plugin.js';
 
 describe('ResultAggregator', () => {
@@ -8,7 +8,7 @@ describe('ResultAggregator', () => {
   let mockLogger: Logger;
 
   // Helper function available to all describe blocks
-  const createMockResult = (toolName: string, issuesCount: number, errorsCount: number = 0): NormalizedResult => ({
+  const createMockResult = (toolName: string, issuesCount: number, errorsCount: number = 0): any => ({
     toolName,
     toolVersion: '1.0.0',
     status: 'success' as const,
@@ -212,10 +212,10 @@ describe('ResultAggregator', () => {
 
       const aggregated = aggregator.aggregateResults(results, 'test-project');
       expect(aggregated.coverage).toBeDefined();
-      expect(aggregated.coverage!.lines.percentage).toBe(80);
-      expect(aggregated.coverage!.functions.percentage).toBe(75);
-      expect(aggregated.coverage!.branches.percentage).toBe(60);
-      expect(aggregated.coverage!.statements.percentage).toBe(80);
+      expect(aggregated.coverage?.lines.percentage).toBe(80);
+      expect(aggregated.coverage?.functions.percentage).toBe(75);
+      expect(aggregated.coverage?.branches.percentage).toBe(60);
+      expect(aggregated.coverage?.statements.percentage).toBe(80);
     });
 
     it('should handle missing coverage data', () => {
@@ -336,13 +336,13 @@ describe('ResultAggregator', () => {
 
       const aggregated = aggregator.aggregateResults(results, 'test-project');
       expect(aggregated.performance).toBeDefined();
-      expect(aggregated.performance!.totalExecutionTime).toBe(2500);
-      expect(aggregated.performance!.averageExecutionTime).toBe(1250);
-      expect(aggregated.performance!.slowestTool).toBe('slow-tool');
-      expect(aggregated.performance!.fastestTool).toBe('fast-tool');
-      expect(aggregated.performance!.toolsExecuted).toBe(2);
-      expect(aggregated.performance!.filesProcessed).toBe(15);
-      expect(aggregated.performance!.linesOfCode).toBe(300);
+      expect(aggregated.performance.totalExecutionTime).toBe(2500);
+      expect(aggregated.performance.averageExecutionTime).toBe(1250);
+      expect(aggregated.performance.slowestTool).toBe('slow-tool');
+      expect(aggregated.performance.fastestTool).toBe('fast-tool');
+      expect(aggregated.performance.toolsExecuted).toBe(2);
+      expect(aggregated.performance.filesProcessed).toBe(15);
+      expect(aggregated.performance.linesOfCode).toBe(300);
     });
   });
 
@@ -489,13 +489,13 @@ describe('ResultAggregator', () => {
         issueStatistics: {
           total: results.reduce((sum, r) => sum + r.issues.length, 0),
           bySeverity: {
-            errors: results.reduce((sum, r) => sum + (r.errorsCount || 0), 0),
-            warnings: results.reduce((sum, r) => sum + (r.warningsCount || 0), 0),
+            errors: results.reduce((sum, r) => sum + (r.errorsCount ?? 0), 0),
+            warnings: results.reduce((sum, r) => sum + (r.warningsCount ?? 0), 0),
             info: 0
           },
           byCategory: {},
-          fixable: results.reduce((sum, r) => sum + (r.fixableCount || 0), 0),
-          critical: results.reduce((sum, r) => sum + (r.criticalCount || 0), 0)
+          fixable: results.reduce((sum, r) => sum + (r.fixableCount ?? 0), 0),
+          critical: results.reduce((sum, r) => sum + (r.criticalCount ?? 0), 0)
         }
       } as any, 'test-project', startTime);
 

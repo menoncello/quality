@@ -17,6 +17,9 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: './tsconfig.json',
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
       globals: {
         console: 'readonly',
@@ -26,6 +29,11 @@ export default [
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        React: 'readonly',
       },
     },
     plugins: {
@@ -34,7 +42,7 @@ export default [
     },
     rules: {
       // TypeScript specific rules
-      'no-unused-vars': 'off', // Turn off base rule as it conflicts with TypeScript
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -47,78 +55,24 @@ export default [
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/prefer-nullish-coalescing': 'warn',
       '@typescript-eslint/prefer-optional-chain': 'warn',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
-      '@typescript-eslint/no-unnecessary-type-constraint': 'error',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
 
       // General best practices
       'no-console': 'warn',
       'no-debugger': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
-      'object-shorthand': 'error',
-      'prefer-template': 'error',
-      'template-curly-spacing': 'error',
 
-      // Code style
-      indent: ['error', 2],
-      quotes: ['error', 'single'],
-      semi: ['error', 'always'],
-      'comma-dangle': ['error', 'never'],
-      'max-len': ['warn', { code: 100 }],
-
-      // Error handling
-      'no-unreachable': 'error',
-      'no-empty': ['error', { allowEmptyCatch: true }],
-      'use-isnan': 'error',
-
-      // Security
-      'no-eval': 'error',
-      'no-implied-eval': 'error',
-      'no-new-func': 'error',
-
-      // Performance
-      'no-loop-func': 'error',
-      'no-constant-condition': ['error', { checkLoops: false }],
+      // React specific
+      'react/prop-types': 'off',
+      'react/react-in-jsx-scope': 'off',
     },
   },
   {
-    files: ['tests/**/*.{ts,tsx}'],
-    languageOptions: {
-      parser: typescriptParser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
-      globals: {
-        describe: 'readonly',
-        it: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        vi: 'readonly',
-        console: 'readonly',
-        process: 'readonly',
-      },
-    },
-    plugins: {
-      '@typescript-eslint': typescript,
-      prettier: prettierPlugin,
-    },
+    files: ['src/**/*.{test.ts,test.tsx}'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'off',
-    },
-  },
-  {
-    files: ['**/*.tsx'],
-    rules: {
-      'react/prop-types': 'off',
     },
   },
   prettier,

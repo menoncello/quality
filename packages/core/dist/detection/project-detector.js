@@ -31,9 +31,9 @@ export class ProjectDetector {
         const hasTypeScript = this.hasTypeScript(packageJson, rootPath);
         const hasTests = this.hasTests(packageJson, rootPath);
         return {
-            name: packageJson.name || 'unknown-project',
-            version: packageJson.version || '1.0.0',
-            description: packageJson.description || '',
+            name: packageJson.name ?? 'unknown-project',
+            version: packageJson.version ?? '1.0.0',
+            description: packageJson.description ?? '',
             type: projectType,
             frameworks,
             buildSystems,
@@ -56,7 +56,7 @@ export class ProjectDetector {
         const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
         const depNames = Object.keys(dependencies);
         // Check for monorepo
-        if (packageJson.workspaces || this.hasMonorepoConfig(rootPath)) {
+        if (packageJson.workspaces ?? this.hasMonorepoConfig(rootPath)) {
             return 'monorepo';
         }
         // Check for frontend frameworks
@@ -120,21 +120,13 @@ export class ProjectDetector {
     }
     hasTests(packageJson, rootPath) {
         const testScripts = packageJson.scripts
-            ? Object.keys(packageJson.scripts).filter(key => key.includes('test') || key.includes('spec'))
+            ? Object.keys(packageJson.scripts).filter(key => key.includes('test') ?? key.includes('spec'))
             : [];
         const testDeps = Object.keys({
             ...packageJson.dependencies,
             ...packageJson.devDependencies,
-        }).filter(dep => dep.includes('jest') ||
-            dep.includes('vitest') ||
-            dep.includes('mocha') ||
-            dep.includes('cypress') ||
-            dep.includes('playwright') ||
-            dep.includes('test') ||
-            dep.includes('bun-test'));
-        const hasTestDir = existsSync(join(rootPath, 'test')) ||
-            existsSync(join(rootPath, 'tests')) ||
-            existsSync(join(rootPath, '__tests__'));
+        }).filter(dep => dep.includes('jest') || dep.includes('vitest') || dep.includes('mocha') || dep.includes('cypress') || dep.includes('playwright') || dep.includes('test') || dep.includes('bun-test'));
+        const hasTestDir = existsSync(join(rootPath, 'test')) || existsSync(join(rootPath, 'tests')) || existsSync(join(rootPath, '__tests__'));
         return testScripts.length > 0 || testDeps.length > 0 || hasTestDir;
     }
     hasMonorepoConfig(rootPath) {

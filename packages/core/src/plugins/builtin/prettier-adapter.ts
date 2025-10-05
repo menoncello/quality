@@ -48,46 +48,46 @@ export class PrettierAdapter extends BaseToolAdapter {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    const cfg = config.config as any;
+    const cfg = (config as any).config as any;
 
-    if (cfg.configFile && typeof cfg.configFile !== 'string') {
+    if (cfg?.configFile && typeof cfg.configFile !== 'string') {
       errors.push('Prettier configFile must be a string');
     }
 
-    if (cfg.ignorePath && typeof cfg.ignorePath !== 'string') {
+    if (cfg?.ignorePath && typeof cfg.ignorePath !== 'string') {
       errors.push('Prettier ignorePath must be a string');
     }
 
-    if (cfg.extensions && !Array.isArray(cfg.extensions)) {
+    if (cfg?.extensions && !Array.isArray(cfg.extensions)) {
       errors.push('Prettier extensions must be an array');
     }
 
-    if (cfg.check !== undefined && typeof cfg.check !== 'boolean') {
+    if (cfg?.check !== undefined && typeof cfg.check !== 'boolean') {
       errors.push('Prettier check must be a boolean');
     }
 
-    if (cfg.write !== undefined && typeof cfg.write !== 'boolean') {
+    if (cfg?.write !== undefined && typeof cfg.write !== 'boolean') {
       errors.push('Prettier write must be a boolean');
     }
 
     // Validate specific Prettier options
     const numericOptions = ['tabWidth'];
     for (const option of numericOptions) {
-      if (cfg[option] !== undefined && typeof cfg[option] !== 'number') {
+      if (cfg?.[option] !== undefined && typeof cfg[option] !== 'number') {
         errors.push(`Prettier ${option} must be a number`);
       }
     }
 
     const booleanOptions = ['useTabs', 'semi', 'singleQuote', 'bracketSpacing'];
     for (const option of booleanOptions) {
-      if (cfg[option] !== undefined && typeof cfg[option] !== 'boolean') {
+      if (cfg?.[option] !== undefined && typeof cfg[option] !== 'boolean') {
         errors.push(`Prettier ${option} must be a boolean`);
       }
     }
 
     const stringOptions = ['trailingComma', 'arrowParens'];
     for (const option of stringOptions) {
-      if (cfg[option] !== undefined && typeof cfg[option] !== 'string') {
+      if (cfg?.[option] !== undefined && typeof cfg[option] !== 'string') {
         errors.push(`Prettier ${option} must be a string`);
       }
     }
@@ -109,7 +109,7 @@ export class PrettierAdapter extends BaseToolAdapter {
       this.prettierPath = prettierPath;
 
       // Try to load Prettier
-      const prettier = await import(prettierPath);
+      await import(prettierPath);
       return true;
     } catch {
       try {
@@ -185,7 +185,7 @@ Usage:
 
     const config = this.getToolConfig();
     const relevantFiles = context.changedFiles.filter(file =>
-      this.shouldProcessFile(file, config.extensions as string[])
+      this.shouldProcessFile(file, (config as any).extensions as string[])
     );
 
     if (relevantFiles.length === 0) {
@@ -205,7 +205,7 @@ Usage:
   /**
    * Build Prettier command
    */
-  private buildPrettierCommand(context: AnalysisContext, config: any, files?: string[]): { cmd: string; args: string[] } {
+  private buildPrettierCommand(context: AnalysisContext, config: unknown, files?: string[]): { cmd: string; args: string[] } {
     const useLocalPrettier = !!this.prettierPath;
     const cmd = useLocalPrettier ? 'node' : 'prettier';
     const args: string[] = [];
@@ -231,47 +231,47 @@ Usage:
     }
 
     // Add configuration options
-    if (config.configFile) {
-      args.push('--config', config.configFile);
+    if ((config as any).configFile) {
+      args.push('--config', (config as any).configFile);
     }
 
-    if (config.ignorePath) {
-      args.push('--ignore-path', config.ignorePath);
+    if ((config as any).ignorePath) {
+      args.push('--ignore-path', (config as any).ignorePath);
     }
 
     // Add formatting options
-    if (config.tabWidth !== undefined) {
-      args.push('--tab-width', config.tabWidth.toString());
+    if ((config as any).tabWidth !== undefined) {
+      args.push('--tab-width', (config as any).tabWidth.toString());
     }
 
-    if (config.useTabs !== undefined) {
-      args.push(config.useTabs ? '--use-tabs' : '--no-use-tabs');
+    if ((config as any).useTabs !== undefined) {
+      args.push((config as any).useTabs ? '--use-tabs' : '--no-use-tabs');
     }
 
-    if (config.semi !== undefined) {
-      args.push(config.semi ? '--semi' : '--no-semi');
+    if ((config as any).semi !== undefined) {
+      args.push((config as any).semi ? '--semi' : '--no-semi');
     }
 
-    if (config.singleQuote !== undefined) {
-      args.push(config.singleQuote ? '--single-quote' : '--no-single-quote');
+    if ((config as any).singleQuote !== undefined) {
+      args.push((config as any).singleQuote ? '--single-quote' : '--no-single-quote');
     }
 
-    if (config.trailingComma !== undefined) {
-      args.push('--trailing-comma', config.trailingComma);
+    if ((config as any).trailingComma !== undefined) {
+      args.push('--trailing-comma', (config as any).trailingComma);
     }
 
-    if (config.bracketSpacing !== undefined) {
-      args.push(config.bracketSpacing ? '--bracket-spacing' : '--no-bracket-spacing');
+    if ((config as any).bracketSpacing !== undefined) {
+      args.push((config as any).bracketSpacing ? '--bracket-spacing' : '--no-bracket-spacing');
     }
 
-    if (config.arrowParens !== undefined) {
-      args.push('--arrow-parens', config.arrowParens);
+    if ((config as any).arrowParens !== undefined) {
+      args.push('--arrow-parens', (config as any).arrowParens);
     }
 
     // Add check or write option
-    if (config.check) {
+    if ((config as any).check) {
       args.push('--check');
-    } else if (config.write) {
+    } else if ((config as any).write) {
       args.push('--write');
     } else {
       args.push('--check'); // Default to check mode
@@ -290,7 +290,7 @@ Usage:
   /**
    * Parse Prettier output to issues
    */
-  protected parseOutput(stdout: string, stderr: string, context: AnalysisContext): Issue[] {
+  protected parseOutput(stdout: string, stderr: string, _context: AnalysisContext): Issue[] {
     const issues: Issue[] = [];
 
     // Prettier outputs list of files that need formatting when using --check
@@ -355,7 +355,7 @@ Usage:
    */
   protected onInitialize(): void {
     // Check for Prettier configuration in project
-    const config = this.getToolConfig();
+    this.getToolConfig();
     const { join } = require('path');
 
     const possibleConfigs = [
@@ -366,8 +366,8 @@ Usage:
       '.prettierrc.json5',
       '.prettierrc.js',
       '.prettierrc.cjs',
-      'prettier.config.js',
-      'prettier.config.cjs'
+      'prettier.(config as any).js',
+      'prettier.(config as any).cjs'
     ];
 
     for (const configFile of possibleConfigs) {

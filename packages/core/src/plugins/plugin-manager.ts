@@ -1,7 +1,6 @@
 import type {
   AnalysisPlugin,
   PluginConfig,
-  ValidationResult,
   PluginMetrics,
   Logger,
   ToolConfiguration
@@ -23,7 +22,7 @@ export class PluginManager {
   /**
    * Register a plugin with the manager
    */
-  async registerPlugin(plugin: AnalysisPlugin, config?: PluginConfig): Promise<void> {
+  async registerPlugin(plugin: AnalysisPlugin, _config?: PluginConfig): Promise<void> {
     const pluginName = plugin.name;
 
     if (this.plugins.has(pluginName)) {
@@ -71,7 +70,7 @@ export class PluginManager {
 
     for (const [name, plugin] of this.plugins) {
       try {
-        const toolConfig = (pluginConfigs[name] || plugin.getDefaultConfig()) as ToolConfiguration;
+        const toolConfig = (pluginConfigs[name]  || plugin.getDefaultConfig()) as unknown as ToolConfiguration;
         const validation = plugin.validateConfig(toolConfig);
 
         if (!validation.valid) {
@@ -85,10 +84,10 @@ export class PluginManager {
         // Convert ToolConfiguration to PluginConfig for initialize
         const pluginConfig = {
           enabled: toolConfig.enabled,
-          timeout: this.getConfigValue(toolConfig, 'timeout', 30000),
-          cacheEnabled: this.getConfigValue(toolConfig, 'cacheEnabled', true),
+          timeout: this.getConfigValue(toolConfig, 'timeout', 30000) as number,
+          cacheEnabled: this.getConfigValue(toolConfig, 'cacheEnabled', true) as boolean,
           logLevel: this.getConfigValue(toolConfig, 'logLevel', 'info') as 'error' | 'warn' | 'info' | 'debug',
-          ...(toolConfig.config as Record<string, unknown>)
+          ...(toolConfig.config)
         };
 
         await plugin.initialize(pluginConfig);
@@ -136,7 +135,7 @@ export class PluginManager {
    */
   getPluginMetrics(name: string): PluginMetrics | undefined {
     const plugin = this.plugins.get(name);
-    if (plugin && plugin.getMetrics) {
+    if (plugin?.getMetrics) {
       return plugin.getMetrics();
     }
     return this.pluginMetrics.get(name);
@@ -252,9 +251,9 @@ export class PluginManager {
   /**
    * Helper method to get configuration value from ToolConfiguration
    */
-  private getConfigValue(toolConfig: ToolConfiguration, key: string, defaultValue: any): any {
+  private getConfigValue(toolConfig: ToolConfiguration, key: string, defaultValue: unknown): unknown{
     if (toolConfig.config && typeof toolConfig.config === 'object') {
-      return (toolConfig.config as any)[key] ?? defaultValue;
+      return (toolConfig.config as any)[key]  ?? defaultValue;
     }
     return defaultValue;
   }

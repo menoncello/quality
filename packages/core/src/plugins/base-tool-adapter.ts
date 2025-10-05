@@ -7,7 +7,8 @@ import type {
   PluginMetrics,
   ToolConfiguration,
   Issue,
-  ToolMetrics
+  ToolMetrics,
+  CoverageData
 } from './analysis-plugin.js';
 
 /**
@@ -139,7 +140,7 @@ export abstract class BaseToolAdapter implements AnalysisPlugin {
   protected createToolResult(
     issues: Issue[],
     metrics: Partial<ToolMetrics> = {},
-    coverage?: any
+    coverage?: CoverageData
   ): ToolResult {
     const totalMetrics: ToolMetrics = {
       issuesCount: issues.length,
@@ -253,12 +254,12 @@ export abstract class BaseToolAdapter implements AnalysisPlugin {
    * Check if a file should be processed
    */
   protected shouldProcessFile(filePath: string, includePatterns?: string[], excludePatterns?: string[]): boolean {
-    const { basename, extname } = require('path');
+    const { basename } = require('path');
 
     // Check include patterns
     if (includePatterns && includePatterns.length > 0) {
       const included = includePatterns.some(pattern =>
-        this.matchPattern(filePath, pattern) || this.matchPattern(basename(filePath), pattern)
+        this.matchPattern(filePath, pattern)  || this.matchPattern(basename(filePath), pattern)
       );
       if (!included) return false;
     }
@@ -266,7 +267,7 @@ export abstract class BaseToolAdapter implements AnalysisPlugin {
     // Check exclude patterns
     if (excludePatterns && excludePatterns.length > 0) {
       const excluded = excludePatterns.some(pattern =>
-        this.matchPattern(filePath, pattern) || this.matchPattern(basename(filePath), pattern)
+        this.matchPattern(filePath, pattern)  || this.matchPattern(basename(filePath), pattern)
       );
       if (excluded) return false;
     }
@@ -298,9 +299,9 @@ export abstract class BaseToolAdapter implements AnalysisPlugin {
     const { spawn } = require('child_process');
 
     return new Promise((resolve, reject) => {
-      const timeout = options.timeout || 30000;
+      const timeout = options.timeout   ?? 30000;
       const child = spawn(command, args, {
-        cwd: options.cwd || process.cwd(),
+        cwd: options.cwd ?? process.cwd(),
         stdio: 'pipe'
       });
 
@@ -325,7 +326,7 @@ export abstract class BaseToolAdapter implements AnalysisPlugin {
         resolve({
           stdout,
           stderr,
-          exitCode: code || 0
+          exitCode: code ?? 0
         });
       });
 
@@ -391,7 +392,7 @@ export abstract class BaseToolAdapter implements AnalysisPlugin {
    */
   protected getConfigValue<T>(key: string, defaultValue: T): T {
     if (!this.config) return defaultValue;
-    return (this.config as any)[key] ?? defaultValue;
+    return (this.config as any)[key]  ?? defaultValue;
   }
 
   /**
@@ -406,6 +407,6 @@ export abstract class BaseToolAdapter implements AnalysisPlugin {
    */
   protected isFeatureEnabled(feature: string, defaultValue: boolean = false): boolean {
     const toolConfig = this.getToolConfig();
-    return (toolConfig[feature] as boolean) ?? defaultValue;
+    return (toolConfig[feature] as boolean)  || defaultValue;
   }
 }

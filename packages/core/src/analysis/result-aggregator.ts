@@ -1,19 +1,17 @@
 import type {
   NormalizedResult,
-  NormalizedIssue,
-  NormalizedMetrics
+  NormalizedIssue
 } from './result-normalizer.js';
+import type { ResultSummary, AIPrompt, CoverageData } from '../plugins/analysis-plugin.js';
 
 export interface Logger {
-  info(message: string, ...args: any[]): void;
-  warn(message: string, ...args: any[]): void;
-  error(message: string, ...args: any[]): void;
-  debug(message: string, ...args: any[]): void;
+  info(message: string, ...args: unknown[]): void;
+  warn(message: string, ...args: unknown[]): void;
+  error(message: string, ...args: unknown[]): void;
+  debug(message: string, ...args: unknown[]): void;
 }
 import type {
   AnalysisResult,
-  ResultSummary,
-  AIPrompt,
   ToolResult
 } from '../plugins/analysis-plugin.js';
 
@@ -90,7 +88,7 @@ export interface AggregatedCoverage {
     covered: number;
     percentage: number;
   };
-  toolCoverage: Record<string, any>;
+  toolCoverage: Record<string, unknown>;
 }
 
 /**
@@ -298,7 +296,7 @@ export class ResultAggregator {
 
     // Severity filter (lower index = higher severity)
     const severityLevels = ['error', 'warning', 'info'];
-    const minSeverityIndex = severityLevels.indexOf(this.config.filters.minSeverity || 'info');
+    const minSeverityIndex = severityLevels.indexOf(this.config.filters.minSeverity   ?? 'info');
     const issueSeverityIndex = severityLevels.indexOf(issue.severity);
 
     // Include issues with severity equal to or more severe than minSeverity
@@ -317,7 +315,7 @@ export class ResultAggregator {
     }
 
     // Path filter
-    for (const excludePath of this.config.filters.excludePaths || []) {
+    for (const excludePath of this.config.filters.excludePaths ?? []) {
       if (issue.filePath.includes(excludePath)) {
         return false;
       }
@@ -366,13 +364,13 @@ export class ResultAggregator {
       }
 
       // Count by category
-      stats.byCategory[issue.category] = (stats.byCategory[issue.category] || 0) + 1;
+      stats.byCategory[issue.category] = (stats.byCategory[issue.category]  || 0) + 1;
 
       // Count by tool
-      stats.byTool[issue.toolName] = (stats.byTool[issue.toolName] || 0) + 1;
+      stats.byTool[issue.toolName] = (stats.byTool[issue.toolName] ?? 0) + 1;
 
       // Count by file
-      stats.byFile[issue.filePath] = (stats.byFile[issue.filePath] || 0) + 1;
+      stats.byFile[issue.filePath] = (stats.byFile[issue.filePath] ?? 0) + 1;
 
       // Count fixable
       if (issue.fixable) {
@@ -394,7 +392,7 @@ export class ResultAggregator {
   private aggregateCoverage(results: NormalizedResult[]): AggregatedCoverage | null {
     const coverageResults = results
       .map(result => result.metrics.coverage)
-      .filter(coverage => coverage !== undefined) as any[];
+      .filter(coverage => coverage !== undefined) as CoverageData[];
 
     if (coverageResults.length === 0) {
       return null;
@@ -476,15 +474,15 @@ export class ResultAggregator {
     , results[0]); // Add initial value
 
     const toolsSucceeded = results.filter(result =>
-      result.status === 'success' || result.status === 'warning'
+      result.status === 'success'  || result.status === 'warning'
     ).length;
 
     const totalFilesProcessed = results.reduce((sum, result) =>
-      sum + (result.metrics.performance.filesProcessed || 0), 0
+      sum + (result.metrics.performance.filesProcessed ?? 0), 0
     );
 
     const totalLinesOfCode = results.reduce((sum, result) =>
-      sum + (result.metrics.performance.linesOfCode || 0), 0
+      sum + (result.metrics.performance.linesOfCode ?? 0), 0
     );
 
     return {
@@ -508,12 +506,12 @@ export class ResultAggregator {
     issueStats: IssueStatistics,
     coverage: AggregatedCoverage | null,
     performance: AggregatedPerformance,
-    results: NormalizedResult[]
+    _results: NormalizedResult[]
   ): number {
     let score = 100;
 
     // Ensure weights exist with defaults
-    const weights = this.config.weights || {
+    const weights = this.config.weights ?? {
       errors: 5,
       warnings: 1,
       info: 0.5,
@@ -522,20 +520,20 @@ export class ResultAggregator {
     };
 
     // Deduct points for issues
-    const errorDeduction = (issueStats.bySeverity?.errors || 0) * weights.errors;
-    const warningDeduction = (issueStats.bySeverity?.warnings || 0) * weights.warnings;
-    const infoDeduction = (issueStats.bySeverity?.info || 0) * weights.info;
+    const errorDeduction = (issueStats.bySeverity?.errors ?? 0) * weights.errors;
+    const warningDeduction = (issueStats.bySeverity?.warnings ?? 0) * weights.warnings;
+    const infoDeduction = (issueStats.bySeverity?.info ?? 0) * weights.info;
 
     score -= errorDeduction + warningDeduction + infoDeduction;
 
     // Add points for coverage
-    if (coverage && coverage.lines) {
+    if (coverage?.lines) {
       const coverageScore = (coverage.lines.percentage / 100) * weights.coverage;
       score = Math.min(100, score + coverageScore);
     }
 
     // Deduct points for poor performance
-    const performancePenalty = Math.max(0, ((performance.averageExecutionTime || 0) - 10000) / 1000); // 10s is baseline
+    const performancePenalty = Math.max(0, ((performance.averageExecutionTime ?? 0) - 10000) / 1000); // 10s is baseline
     score -= performancePenalty * weights.performance;
 
     return Math.max(0, Math.round(score));
@@ -564,8 +562,8 @@ export class ResultAggregator {
     const recommendations: string[] = [];
 
     // Error recommendations
-    if ((issueStats.bySeverity?.errors || 0) > 0) {
-      recommendations.push(`Fix ${issueStats.bySeverity?.errors || 0} error(s) to improve code quality`);
+    if ((issueStats.bySeverity?.errors ?? 0) > 0) {
+      recommendations.push(`Fix ${issueStats.bySeverity?.errors ?? 0} error(s) to improve code quality`);
     }
 
     // Coverage recommendations
@@ -574,7 +572,7 @@ export class ResultAggregator {
     }
 
     // Performance recommendations
-    if (performance && performance.averageExecutionTime > 30000) {
+    if (performance && performance.averageExecutionTime && performance.averageExecutionTime > 30000) {
       recommendations.push('Optimize tool performance - average execution time exceeds 30 seconds');
     }
 

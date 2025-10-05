@@ -3,10 +3,7 @@ import { IssueClassifier } from '../../src/prioritization/issue-classifier';
 import {
   Issue,
   IssueContext,
-  IssueClassification,
-  IssueTrainingData,
-  IssueResolutionOutcome,
-  ModelMetrics
+  IssueTrainingData
 } from '@dev-quality/types';
 
 describe('IssueClassifier', () => {
@@ -135,7 +132,7 @@ describe('IssueClassifier', () => {
     it('should handle errors gracefully when model is not ready', async () => {
       const faultyClassifier = new IssueClassifier();
       // Simulate model not being ready by making it null
-      (faultyClassifier as any).model = null;
+      (faultyClassifier as unknown).model = null;
 
       await expect(faultyClassifier.classifyIssue(mockIssue, mockContext)).rejects.toThrow(
         'Classification model not loaded'
@@ -373,7 +370,7 @@ describe('IssueClassifier', () => {
       // Create a context that might result in edge case classifications
       const edgeCaseContext: IssueContext = {
         ...mockContext,
-        criticality: 'medium' as any, // Valid
+        criticality: 'medium' as unknown, // Valid
         businessDomain: undefined
       };
 

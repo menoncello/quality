@@ -246,7 +246,7 @@ export interface ValidationWarning {
  * Project context for prioritization engine
  */
 export interface ProjectContext {
-  projectConfiguration: any; // Will be typed with ProjectConfiguration from index.ts
+  projectConfiguration: unknown; // Will be typed with ProjectConfiguration from index.ts
   teamPreferences: TeamPreferences;
   historicalData: HistoricalData;
   currentSprint?: SprintContext;

@@ -19,7 +19,7 @@ export class PluginLoader {
   async loadPlugin(pluginPath: string): Promise<AnalysisPlugin> {
     try {
       const module = await import(pluginPath);
-      const PluginClass = module.default || module.AnalysisPlugin;
+      const PluginClass = module.default ?? module.AnalysisPlugin;
 
       if (!PluginClass) {
         throw new Error(`No default export found in ${pluginPath}`);
@@ -82,7 +82,7 @@ export class PluginLoader {
           // Look for index.js or main.js in subdirectories
           const subDirFiles = await readdir(fullPath);
           const mainFile = subDirFiles.find(file =>
-            file === 'index.js' || file === 'main.js' || file.endsWith('.js')
+            file === 'index.js'  || file === 'main.js'  || file.endsWith('.js')
           );
 
           if (mainFile) {
@@ -120,7 +120,7 @@ export class PluginLoader {
     pluginManager: PluginManager,
     directory?: string
   ): Promise<void> {
-    let plugins: AnalysisPlugin[] = [];
+    const plugins: AnalysisPlugin[] = [];
 
     // Load built-in plugins first
     try {
@@ -175,7 +175,7 @@ export class PluginLoader {
    * Validate that a plugin implements the required interface
    */
   private isValidPlugin(plugin: unknown): plugin is AnalysisPlugin {
-    if (typeof plugin !== 'object' || plugin === null) {
+    if (typeof plugin !== 'object'  || plugin === null) {
       return false;
     }
 
@@ -199,9 +199,7 @@ export class PluginLoader {
    */
   private isPluginFile(filename: string): boolean {
     return (
-      filename.endsWith('.js') ||
-      filename.endsWith('.ts') ||
-      filename.endsWith('.mjs')
+      (filename.endsWith('.js') || filename.endsWith('.ts')) ?? filename.endsWith('.mjs')
     );
   }
 

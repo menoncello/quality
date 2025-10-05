@@ -135,7 +135,7 @@ export class TaskScheduler extends EventEmitter {
     }
 
     // Wait for running tasks to complete or timeout
-    const timeout = this.config.workerTimeout;
+    const timeout = this.config.workerTimeout || 60000; // Default 60 seconds
     const startTime = Date.now();
 
     while (this.runningTasks.size > 0 && Date.now() - startTime < timeout) {
@@ -155,17 +155,17 @@ export class TaskScheduler extends EventEmitter {
    */
   scheduleTask(
     nameOrPlugin: string | AnalysisPlugin,
-    contextOrFunction: AnalysisContext | (() => Promise<any>),
+    contextOrFunction: AnalysisContext | (() => Promise<unknown>),
     options: {
       priority?: number | string;
-      dependencies?: string[] | any[];
+      dependencies?: string[] | unknown[];
       timeout?: number;
       maxRetries?: number;
       retryAttempts?: number;
       retryDelay?: number;
       scheduledAt?: Date;
     } = {}
-  ): any {
+  ): ScheduledTask {
     // Handle test signature: (name, function, options)
     if (typeof nameOrPlugin === 'string' && typeof contextOrFunction === 'function') {
       const taskId = nameOrPlugin;
@@ -175,7 +175,7 @@ export class TaskScheduler extends EventEmitter {
         name: taskId,
         version: '1.0.0',
         initialize: async () => {},
-        execute: async (context: AnalysisContext) => {
+        execute: async (_context: AnalysisContext) => {
           // MockPlugin execute() called for task ${taskId}
           // Add small delay to ensure executionTime > 0
           await new Promise(resolve => setTimeout(resolve, 1));
@@ -183,18 +183,21 @@ export class TaskScheduler extends EventEmitter {
 
           // Transform function result into ToolResult
           if (result && typeof result === 'object') {
+            const hasSuccess = 'success' in result && typeof (result as Record<string, unknown>).success === 'boolean';
+            const isSuccess = hasSuccess ? (result as Record<string, unknown>).success !== false : true;
+
             return {
               toolName: taskId,
               executionTime: 100, // Mock execution time
-              status: result.success !== false ? 'success' : 'error',
+              status: isSuccess ? 'success' : 'error',
               issues: [],
               metrics: {
                 issuesCount: 0,
-                errorsCount: result.success === false ? 1 : 0,
+                errorsCount: isSuccess ? 0 : 1,
                 warningsCount: 0,
                 infoCount: 0,
                 fixableCount: 0,
-                score: result.success === false ? 0 : 100
+                score: isSuccess ? 100 : 0
               },
               ...result // Spread all properties from the result
             };
@@ -250,45 +253,35 @@ export class TaskScheduler extends EventEmitter {
         signal: undefined
       };
 
-      const task: any = {
-        id: taskId,
-        name: taskId,
-        priority: typeof options.priority === 'number' ?
-          (options.priority <= 3 ? 'low' : options.priority <= 7 ? 'normal' : options.priority <= 12 ? 'high' : 'critical') :
-          (options.priority || 'normal'),
-        dependencies: (options.dependencies as any[])?.map(dep => {
-          if (typeof dep === 'string') return { taskId: dep, type: 'completion' };
-          if (dep && typeof dep === 'object' && dep.taskId) return dep;
-          return { taskId: String(dep), type: 'completion' };
-        }) || [],
-        timeout: options.timeout || 5000,
-        status: 'pending',
-        createdAt: new Date()
-      };
+      // Return the actual ScheduledTask for the API, not the mock object
 
       // Store the task for execution
       const actualTask: ScheduledTask = {
         id: taskId,
         plugin: mockPlugin,
         context: mockContext,
-        priority: typeof options.priority === 'string' ? this.convertPriority(options.priority) : (options.priority || 0),
-        dependencies: (options.dependencies as any[])?.map(dep => {
+        priority: typeof options.priority === 'string' ? this.convertPriority(options.priority) : (options.priority ?? 0),
+        dependencies: (options.dependencies as unknown[])?.map(dep => {
         if (typeof dep === 'string') return dep;
-        if (dep && typeof dep === 'object' && dep.taskId) return dep.taskId;
+        if (dep && typeof dep === 'object' && 'taskId' in dep) {
+          return (dep as { taskId: string }).taskId;
+        }
         return String(dep);
-      }) || [],
-        timeout: options.timeout || this.config.workerTimeout,
+      })  || [],
+        timeout: options.timeout ?? this.config.workerTimeout ?? 30000,
         retryCount: 0,
-        maxRetries: (options.retryAttempts ? Math.max(0, options.retryAttempts - 1) : undefined) ?? options.maxRetries ?? this.config.maxRetries, // retryAttempts is total attempts, so maxRetries = retryAttempts - 1
+        maxRetries: (options.retryAttempts ? Math.max(0, options.retryAttempts - 1) : options.maxRetries) ?? this.config.maxRetries ?? 0, // retryAttempts is total attempts, so maxRetries = retryAttempts - 1
         createdAt: new Date(),
         scheduledAt: options.scheduledAt,
         startedAt: undefined,
-        completedAt: undefined
+        completedAt: undefined,
+        status: TaskStatus.PENDING
       };
 
       // Check queue size
-      if (this.taskQueue.length >= this.config.maxQueueSize) {
-        this.emit('queue:full', task);
+      const maxQueueSize = this.config.maxQueueSize ?? 1000;
+      if (this.taskQueue.length >= maxQueueSize) {
+        this.emit('queue:full', actualTask);
         throw new Error('Task queue is full');
       }
 
@@ -297,10 +290,10 @@ export class TaskScheduler extends EventEmitter {
 
       // Add to queue
       this.insertTaskByPriority(actualTask);
-      this.emit('task:scheduled', task);
+      this.emit('task:scheduled', actualTask);
 
       this.logger.debug(`Task scheduled: ${taskId}`);
-      return task;
+      return actualTask;
     }
 
     // Original implementation
@@ -311,18 +304,20 @@ export class TaskScheduler extends EventEmitter {
       plugin: nameOrPlugin as AnalysisPlugin,
       context: contextOrFunction as AnalysisContext,
       priority: typeof options.priority === 'number' ? options.priority : 0,
-      dependencies: (options.dependencies as string[]) || [],
-      timeout: options.timeout || this.config.workerTimeout,
+      dependencies: (options.dependencies as string[]) ?? [],
+      timeout: options.timeout ?? this.config.workerTimeout ?? 30000,
       retryCount: 0,
       maxRetries: (options.retryAttempts ? options.retryAttempts - 1 : undefined) ?? options.maxRetries ?? this.config.maxRetries ?? 0,
       createdAt: new Date(),
       scheduledAt: options.scheduledAt,
       startedAt: undefined,
-      completedAt: undefined
+      completedAt: undefined,
+      status: TaskStatus.PENDING
     };
 
     // Check queue size
-    if (this.taskQueue.length >= this.config.maxQueueSize) {
+    const maxQueueSize = this.config.maxQueueSize ?? 1000;
+    if (this.taskQueue.length >= maxQueueSize) {
       this.emit('queue:full', task);
       throw new Error('Task queue is full');
     }
@@ -335,7 +330,7 @@ export class TaskScheduler extends EventEmitter {
     this.emit('task:scheduled', task);
 
     this.logger.debug(`Task scheduled: ${taskId} for plugin: ${(nameOrPlugin as AnalysisPlugin).name}`);
-    return taskId;
+    return task;
   }
 
   /**
@@ -348,7 +343,7 @@ export class TaskScheduler extends EventEmitter {
       'high': 10,
       'critical': 15
     };
-    return priorityMap[priority] || 5;
+    return priorityMap[priority]  || 5;
   }
 
   /**
@@ -365,8 +360,8 @@ export class TaskScheduler extends EventEmitter {
 
     for (const task of tasks) {
       try {
-        const taskId = this.scheduleTask(task.plugin, task.context, task.options);
-        taskIds.push(taskId);
+        const scheduledTask = this.scheduleTask(task.plugin, task.context, task.options as Parameters<typeof this.scheduleTask>[2]);
+        taskIds.push(scheduledTask.id);
       } catch (error) {
         this.logger.error(`Failed to schedule task for plugin ${task.plugin.name}:`, error);
       }
@@ -381,9 +376,9 @@ export class TaskScheduler extends EventEmitter {
   cancelTask(taskId: string): boolean {
     // Check if task is already completed
     if (this.completedTasks.has(taskId)) {
-      const result = this.completedTasks.get(taskId)!;
+      const result = this.completedTasks.get(taskId);
       // Only return false if the task actually completed successfully, not if it was cancelled
-      if (result.status === TaskStatus.COMPLETED || result.status === TaskStatus.FAILED) {
+      if (result && (result.status === TaskStatus.COMPLETED || result.status === TaskStatus.FAILED)) {
         return false;
       }
     }
@@ -458,17 +453,19 @@ export class TaskScheduler extends EventEmitter {
   getTask(taskId: string): ScheduledTask | null {
     // Check running tasks
     if (this.runningTasks.has(taskId)) {
-      return this.runningTasks.get(taskId)!;
+      return this.runningTasks.get(taskId) || null;
     }
 
     // Check completed tasks
     if (this.completedTasks.has(taskId)) {
-      return this.completedTasks.get(taskId)!.task;
+      const result = this.completedTasks.get(taskId);
+      return result ? result.task : null;
     }
 
     // Check failed tasks
     if (this.failedTasks.has(taskId)) {
-      return this.failedTasks.get(taskId)!.task;
+      const result = this.failedTasks.get(taskId);
+      return result ? result.task : null;
     }
 
     // Check task queue
@@ -497,7 +494,7 @@ export class TaskScheduler extends EventEmitter {
    * Get task result
    */
   getTaskResult(taskId: string): TaskResult | null {
-    return this.completedTasks.get(taskId) || this.failedTasks.get(taskId) || null;
+    return this.completedTasks.get(taskId)  ?? this.failedTasks.get(taskId) ?? null;
   }
 
   /**
@@ -526,7 +523,7 @@ export class TaskScheduler extends EventEmitter {
       ? Array.from(this.workers.values()).filter(w => w.busy).length / this.workers.size
       : 0;
 
-    const queueUtilization = this.taskQueue.length / this.config.maxQueueSize;
+    const queueUtilization = this.taskQueue.length / (this.config.maxQueueSize ?? 100);
 
     return {
       totalTasks: this.taskCounter,
@@ -593,7 +590,7 @@ export class TaskScheduler extends EventEmitter {
 
     // For simple function-based tasks (like in tests), execute directly
     this.logger.debug(`Task execution check: plugin exists=${!!task.plugin}, plugin.name=${task.plugin?.name}, taskId=${taskId}, match=${task.plugin?.name === taskId}`);
-    if (task.plugin && task.plugin.name === taskId) {
+    if (task.plugin?.name === taskId) {
       this.logger.debug(`Executing task ${taskId} directly (maxRetries: ${task.maxRetries})`);
 
       let lastError: Error | null = null;
@@ -694,7 +691,7 @@ export class TaskScheduler extends EventEmitter {
           // Max retries reached for task ${taskId}, creating failed result
           const completedAt = new Date();
           task.completedAt = completedAt;
-          const executionTime = completedAt.getTime() - (task.startedAt?.getTime() || 0);
+          const executionTime = completedAt.getTime() - (task.startedAt?.getTime() ?? 0);
 
           const taskResult: TaskResult = {
             task,
@@ -730,7 +727,7 @@ export class TaskScheduler extends EventEmitter {
       if (lastError) {
         const completedAt = new Date();
         task.completedAt = completedAt;
-        const executionTime = completedAt.getTime() - (task.startedAt?.getTime() || 0);
+        const executionTime = completedAt.getTime() - (task.startedAt?.getTime() ?? 0);
 
         const taskResult: TaskResult = {
           task,
@@ -782,7 +779,7 @@ export class TaskScheduler extends EventEmitter {
    * Wait for all tasks to complete
    */
   async waitForCompletion(taskIds?: string[]): Promise<TaskResult[]> {
-    const targetTasks = taskIds || [];
+    const targetTasks = taskIds ?? [];
     const results: TaskResult[] = [];
 
     for (const taskId of targetTasks) {
@@ -892,7 +889,7 @@ export class TaskScheduler extends EventEmitter {
   private hasCircularDependency(
     task: ScheduledTask,
     completedTasks: string[],
-    runningTasks: string[]
+    _runningTasks: string[]
   ): boolean {
     const visited = new Set<string>();
     const recursionStack = new Set<string>();
@@ -901,7 +898,7 @@ export class TaskScheduler extends EventEmitter {
       if (recursionStack.has(taskId)) {
         return true; // Found a cycle
       }
-      if (visited.has(taskId) || completedTasks.includes(taskId)) {
+      if (visited.has(taskId)  || completedTasks.includes(taskId)) {
         return false; // Already processed or completed
       }
 
@@ -972,7 +969,7 @@ export class TaskScheduler extends EventEmitter {
    */
   private async executeTaskWithTimeout(task: ScheduledTask): Promise<ToolResult> {
     const timeoutPromise = new Promise<never>((_, reject) => {
-      const timeoutId = setTimeout(() => {
+      const _timeoutId = setTimeout(() => {
         reject(new Error(`Task timeout after ${task.timeout}ms`));
       }, task.timeout);
       // In a real implementation, you'd want to clear this timeout if the task completes
@@ -995,7 +992,7 @@ export class TaskScheduler extends EventEmitter {
    */
   private async handleTaskResult(task: ScheduledTask, result: ToolResult): Promise<void> {
     task.completedAt = new Date();
-    const executionTime = task.completedAt.getTime() - (task.startedAt?.getTime() || 0);
+    const executionTime = task.completedAt.getTime() - (task.startedAt?.getTime() ?? 0);
 
     const taskResult: TaskResult = {
       task,
@@ -1003,7 +1000,7 @@ export class TaskScheduler extends EventEmitter {
       result,
       executionTime,
       retryAttempt: task.retryCount,
-      completedAt: task.completedAt || new Date()
+      completedAt: task.completedAt ?? new Date()
     };
 
     this.completedTasks.set(task.id, taskResult);
@@ -1017,7 +1014,7 @@ export class TaskScheduler extends EventEmitter {
    */
   private async handleTaskError(task: ScheduledTask, error: Error): Promise<void> {
     task.completedAt = new Date();
-    const executionTime = task.completedAt.getTime() - (task.startedAt?.getTime() || 0);
+    const executionTime = task.completedAt.getTime() - (task.startedAt?.getTime() ?? 0);
 
     // Check if retry is possible
     if (this.config.enableRetry && task.retryCount < task.maxRetries) {
@@ -1039,7 +1036,7 @@ export class TaskScheduler extends EventEmitter {
       error,
       executionTime,
       retryAttempt: task.retryCount,
-      completedAt: task.completedAt || new Date()
+      completedAt: task.completedAt ?? new Date()
     };
 
     this.failedTasks.set(task.id, taskResult);
@@ -1052,7 +1049,7 @@ export class TaskScheduler extends EventEmitter {
    * Calculate retry delay with exponential backoff
    */
   private calculateRetryDelay(attempt: number): number {
-    return this.config.retryDelay * Math.pow(this.config.backoffMultiplier, attempt - 1);
+    return (this.config.retryDelay ?? 1000) * Math.pow(this.config.backoffMultiplier ?? 2, attempt - 1);
   }
 
   /**
@@ -1174,7 +1171,7 @@ export class TaskScheduler extends EventEmitter {
         await this.sleep(100);
       }
 
-      // Force shutdown any remaining workers
+      // Force shutdown unknown remaining workers
       this.workers.clear();
 
       this.logger.info('Task scheduler shutdown complete');
@@ -1259,8 +1256,8 @@ export class TaskScheduler extends EventEmitter {
     } else {
       const cutoffTime = Date.now() - olderThanMs;
       for (const [taskId, result] of this.completedTasks) {
-        const completedAt = result.task.completedAt || result.task.createdAt;
-        if (completedAt && completedAt.getTime() < cutoffTime) {
+        const completedAt = result.task.completedAt ?? result.task.createdAt;
+        if (completedAt?.getTime() < cutoffTime) {
           this.completedTasks.delete(taskId);
           cleanedCount++;
         }

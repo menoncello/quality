@@ -12,7 +12,11 @@ import type {
   CoverageTrend,
   CoverageMetadata,
   CoverageConfiguration,
-  CoverageThresholds
+  LineCoverage,
+  FunctionCoverage,
+  BranchCoverage,
+  StatementCoverage,
+  TestSuggestion
 } from '../types/coverage.js';
 
 import type { AnalysisContext, CoverageData } from '../plugins/analysis-plugin.js';
@@ -49,7 +53,7 @@ export class CoverageAnalyzer {
   async analyzeCoverage(
     basicCoverage: CoverageData,
     context: AnalysisContext,
-    detailedCoverageData?: any
+    detailedCoverageData?: unknown
   ): Promise<EnhancedCoverageData> {
     const files = await this.processFileCoverage(detailedCoverageData, context);
     const criticalPaths = await this.identifyCriticalPaths(files, context);
@@ -75,16 +79,17 @@ export class CoverageAnalyzer {
    * Process detailed file coverage information
    */
   private async processFileCoverage(
-    detailedData: any,
+    detailedData: unknown,
     context: AnalysisContext
   ): Promise<FileCoverage[]> {
     const files: FileCoverage[] = [];
 
-    if (!detailedData || !detailedData.files) {
+    const data = detailedData as { files?: Record<string, unknown> };
+    if (!data?.files) {
       return files;
     }
 
-    for (const [filePath, fileData] of Object.entries(detailedData.files)) {
+    for (const [filePath, fileData] of Object.entries(data.files)) {
       const relativePath = filePath.replace(context.projectPath, '');
 
       // Skip excluded files
@@ -92,7 +97,7 @@ export class CoverageAnalyzer {
         continue;
       }
 
-      const fileCoverage = this.processSingleFile(filePath, relativePath, fileData as any);
+      const fileCoverage = this.processSingleFile(filePath, relativePath, fileData);
       files.push(fileCoverage);
     }
 
@@ -105,21 +110,21 @@ export class CoverageAnalyzer {
   private processSingleFile(
     filePath: string,
     relativePath: string,
-    fileData: any
+    fileData: unknown
   ): FileCoverage {
-    const lines = this.processLineCoverage(fileData.l || {});
-    const functions = this.processFunctionCoverage(fileData.f || {});
-    const branches = this.processBranchCoverage(fileData.b || {});
-    const statements = this.processStatementCoverage(fileData.s || {});
+    const lines = this.processLineCoverage((fileData as any).l ?? {});
+    const functions = this.processFunctionCoverage((fileData as any).f ?? {});
+    const branches = this.processBranchCoverage((fileData as any).b ?? {});
+    const statements = this.processStatementCoverage((fileData as any).s ?? {});
 
     const totalLines = lines.length;
-    const coveredLines = lines.filter(l => l.covered).length;
+    const coveredLines = lines.filter((l: LineCoverage) => l.covered).length;
     const totalFunctions = functions.length;
-    const coveredFunctions = functions.filter(f => f.covered).length;
+    const coveredFunctions = functions.filter((f: FunctionCoverage) => f.covered).length;
     const totalBranches = branches.length;
-    const coveredBranches = branches.filter(b => b.covered).length;
+    const coveredBranches = branches.filter((b: BranchCoverage) => b.covered).length;
     const totalStatements = statements.length;
-    const coveredStatements = statements.filter(s => s.covered).length;
+    const coveredStatements = statements.filter((s: StatementCoverage) => s.covered).length;
 
     const lineCoverage = totalLines > 0 ? (coveredLines / totalLines) * 100 : 0;
     const functionCoverage = totalFunctions > 0 ? (coveredFunctions / totalFunctions) * 100 : 0;
@@ -156,7 +161,7 @@ export class CoverageAnalyzer {
   /**
    * Process line-level coverage
    */
-  private processLineCoverage(lineData: Record<string, number>): any[] {
+  private processLineCoverage(lineData: Record<string, number>): LineCoverage[] {
     const lines = [];
 
     for (const [lineNumStr, count] of Object.entries(lineData)) {
@@ -176,7 +181,7 @@ export class CoverageAnalyzer {
   /**
    * Process function-level coverage
    */
-  private processFunctionCoverage(functionData: Record<string, any>): any[] {
+  private processFunctionCoverage(functionData: Record<string, unknown>): FunctionCoverage[] {
     const functions = [];
 
     for (const [funcName, funcInfo] of Object.entries(functionData)) {
@@ -202,10 +207,10 @@ export class CoverageAnalyzer {
   /**
    * Process branch-level coverage
    */
-  private processBranchCoverage(branchData: Record<string, any>): any[] {
+  private processBranchCoverage(branchData: Record<string, unknown>): BranchCoverage[] {
     const branches = [];
 
-    for (const [branchKey, branchInfo] of Object.entries(branchData)) {
+    for (const [_branchKey, branchInfo] of Object.entries(branchData)) {
       if (Array.isArray(branchInfo)) {
         const [line, count] = branchInfo;
         branches.push({
@@ -226,7 +231,7 @@ export class CoverageAnalyzer {
   /**
    * Process statement-level coverage
    */
-  private processStatementCoverage(statementData: Record<string, any>): any[] {
+  private processStatementCoverage(statementData: Record<string, unknown>): StatementCoverage[] {
     const statements = [];
 
     for (const [stmtKey, count] of Object.entries(statementData)) {
@@ -247,7 +252,7 @@ export class CoverageAnalyzer {
    */
   private async identifyCriticalPaths(
     files: FileCoverage[],
-    context: AnalysisContext
+    _context: AnalysisContext
   ): Promise<CriticalPath[]> {
     const criticalPaths: CriticalPath[] = [];
 
@@ -270,8 +275,8 @@ export class CoverageAnalyzer {
         id: pathConfig.name.toLowerCase().replace(/\s+/g, '-'),
         name: pathConfig.name,
         description: pathConfig.description,
-        files: pathFiles.map(f => f.relativePath),
-        functions: pathFiles.flatMap(f => f.functions.map(fn => fn.name)),
+        files: pathFiles.map(f => (f as any).relativePath),
+        functions: pathFiles.flatMap(f => (f as any).functions.map((fn: any) => fn.name)),
         riskScore,
         impact: this.assessImpact(riskScore),
         currentCoverage: overallCoverage,
@@ -284,7 +289,7 @@ export class CoverageAnalyzer {
       });
     }
 
-    return criticalPaths.sort((a, b) => b.priority - a.priority);
+    return criticalPaths.sort((a, b) => (b as any).priority - a.priority);
   }
 
   /**
@@ -295,9 +300,7 @@ export class CoverageAnalyzer {
 
     // Look for authentication/authorization files
     const authFiles = files.filter(file =>
-      this.matchPattern(file.relativePath, '**/*auth*') ||
-      this.matchPattern(file.relativePath, '**/*login*') ||
-      this.matchPattern(file.relativePath, '**/*security*')
+      (this.matchPattern(file.relativePath, '**/*auth*') || this.matchPattern(file.relativePath, '**/*login*')) ?? this.matchPattern(file.relativePath, '**/*security*')
     );
 
     if (authFiles.length > 0) {
@@ -311,9 +314,7 @@ export class CoverageAnalyzer {
 
     // Look for API routes/controllers
     const apiFiles = files.filter(file =>
-      this.matchPattern(file.relativePath, '**/api/**') ||
-      this.matchPattern(file.relativePath, '**/routes/**') ||
-      this.matchPattern(file.relativePath, '**/controllers/**')
+      (this.matchPattern(file.relativePath, '**/api/**') || this.matchPattern(file.relativePath, '**/routes/**')) ?? this.matchPattern(file.relativePath, '**/controllers/**')
     );
 
     if (apiFiles.length > 0) {
@@ -327,10 +328,7 @@ export class CoverageAnalyzer {
 
     // Look for database operations
     const dbFiles = files.filter(file =>
-      this.matchPattern(file.relativePath, '**/*db*') ||
-      this.matchPattern(file.relativePath, '**/*database*') ||
-      this.matchPattern(file.relativePath, '**/*models*') ||
-      this.matchPattern(file.relativePath, '**/*schema*')
+      (this.matchPattern(file.relativePath, '**/*db*') || this.matchPattern(file.relativePath, '**/*database*')) ?? this.matchPattern(file.relativePath, '**/*models*') ?? this.matchPattern(file.relativePath, '**/*schema*')
     );
 
     if (dbFiles.length > 0) {
@@ -352,11 +350,11 @@ export class CoverageAnalyzer {
     files: FileCoverage[],
     criticalPaths: CriticalPath[]
   ): CoverageQualityScore {
-    const overallCoverage = files.reduce((sum, file) => sum + file.overallCoverage, 0) / files.length || 0;
-    const lineCoverage = files.reduce((sum, file) => sum + file.lineCoverage, 0) / files.length || 0;
-    const branchCoverage = files.reduce((sum, file) => sum + file.branchCoverage, 0) / files.length || 0;
-    const functionCoverage = files.reduce((sum, file) => sum + file.functionCoverage, 0) / files.length || 0;
-    const statementCoverage = files.reduce((sum, file) => sum + file.statementCoverage, 0) / files.length || 0;
+    const overallCoverage = files.length > 0 ? files.reduce((sum, file) => sum + file.overallCoverage, 0) / files.length : 0;
+    const lineCoverage = files.length > 0 ? files.reduce((sum, file) => sum + file.lineCoverage, 0) / files.length : 0;
+    const branchCoverage = files.length > 0 ? files.reduce((sum, file) => sum + file.branchCoverage, 0) / files.length : 0;
+    const functionCoverage = files.length > 0 ? files.reduce((sum, file) => sum + file.functionCoverage, 0) / files.length : 0;
+    const statementCoverage = files.length > 0 ? files.reduce((sum, file) => sum + file.statementCoverage, 0) / files.length : 0;
 
     const criticalPathCoverage = criticalPaths.length > 0
       ? criticalPaths.reduce((sum, path) => sum + path.currentCoverage, 0) / criticalPaths.length
@@ -364,7 +362,7 @@ export class CoverageAnalyzer {
 
     const testComplexity = this.calculateTestComplexity(files);
     const testMaintainability = this.calculateTestMaintainability(files);
-    const codeComplexity = files.reduce((sum, file) => sum + file.complexity, 0) / files.length || 0;
+    const codeComplexity = files.length > 0 ? files.reduce((sum, file) => sum + file.complexity, 0) / files.length : 0;
 
     const overall = this.calculateOverallQualityScore({
       overallCoverage,
@@ -407,16 +405,16 @@ export class CoverageAnalyzer {
 
     for (const file of files) {
       // Find uncovered functions
-      for (const func of file.functions.filter(f => !f.covered)) {
+      for (const func of file.functions.filter(f => !(f as any).covered)) {
         areas.push({
           filePath: file.filePath,
-          startLine: func.startLine,
-          endLine: func.endLine,
+          startLine: (func as any).startLine,
+          endLine: (func as any).endLine,
           type: 'function',
-          description: `Uncovered function: ${func.name}`,
+          description: `Uncovered function: ${(func as any).name}`,
           riskScore: this.calculateFunctionRiskScore(func),
           impact: this.assessFunctionImpact(func),
-          functionName: func.name,
+          functionName: (func as any).name,
           recommendation: this.generateFunctionTestRecommendation(func),
           priority: this.calculateFunctionPriority(func),
           suggestedTests: this.generateTestSuggestionsForFunction(func)
@@ -424,13 +422,13 @@ export class CoverageAnalyzer {
       }
 
       // Find uncovered branches
-      for (const branch of file.branches.filter(b => !b.covered)) {
+      for (const branch of file.branches.filter(b => !(b as any).covered)) {
         areas.push({
           filePath: file.filePath,
-          startLine: branch.lineNumber,
-          endLine: branch.lineNumber,
+          startLine: (branch as any).lineNumber,
+          endLine: (branch as any).lineNumber,
           type: 'branch',
-          description: `Uncovered branch at line ${branch.lineNumber}`,
+          description: `Uncovered branch at line ${(branch as any).lineNumber}`,
           riskScore: this.calculateBranchRiskScore(branch),
           impact: this.assessBranchImpact(branch),
           recommendation: this.generateBranchTestRecommendation(branch),
@@ -440,7 +438,7 @@ export class CoverageAnalyzer {
       }
     }
 
-    return areas.sort((a, b) => b.priority - a.priority);
+    return areas.sort((a, b) => (b as any).priority - a.priority);
   }
 
   /**
@@ -469,7 +467,7 @@ export class CoverageAnalyzer {
         },
         effort: 'medium',
         files: highRiskAreas.map(area => area.filePath),
-        functions: highRiskAreas.map(area => area.functionName).filter(Boolean),
+        functions: highRiskAreas.map(area => area.functionName).filter(Boolean) as string[],
         actionItems: [
           'Write unit tests for all critical uncovered functions',
           'Add integration tests for critical code paths',
@@ -533,7 +531,7 @@ export class CoverageAnalyzer {
   /**
    * Analyze coverage trends (placeholder implementation)
    */
-  private async analyzeTrends(context: AnalysisContext): Promise<CoverageTrend[]> {
+  private async analyzeTrends(_context: AnalysisContext): Promise<CoverageTrend[]> {
     // TODO: Implement trend analysis from historical data
     return [];
   }
@@ -577,12 +575,12 @@ export class CoverageAnalyzer {
     return Math.min(complexityScore + coverageScore, 10);
   }
 
-  private calculateComplexity(functions: any[], branches: any[]): number {
+  private calculateComplexity(functions: unknown[], branches: unknown[]): number {
     return Math.min(functions.length + branches.length, 10);
   }
 
   private calculateCriticalPathRiskScore(files: FileCoverage[]): number {
-    return files.reduce((sum, file) => sum + file.riskScore, 0) / files.length || 0;
+    return files.length > 0 ? files.reduce((sum, file) => sum + file.riskScore, 0) / files.length : 0;
   }
 
   private assessImpact(riskScore: number): 'low' | 'medium' | 'high' | 'critical' {
@@ -592,7 +590,7 @@ export class CoverageAnalyzer {
     return 'low';
   }
 
-  private assessBusinessImpact(files: FileCoverage[]): string {
+  private assessBusinessImpact(_files: FileCoverage[]): string {
     // TODO: Implement business impact assessment
     return 'Moderate impact on business functionality';
   }
@@ -600,9 +598,7 @@ export class CoverageAnalyzer {
   private isUserFacingCode(files: FileCoverage[]): boolean {
     // TODO: Implement user-facing detection
     return files.some(file =>
-      this.matchPattern(file.relativePath, '**/components/**') ||
-      this.matchPattern(file.relativePath, '**/pages/**') ||
-      this.matchPattern(file.relativePath, '**/views/**')
+      (this.matchPattern(file.relativePath, '**/components/**') || this.matchPattern(file.relativePath, '**/pages/**')) ?? this.matchPattern(file.relativePath, '**/views/**')
     );
   }
 
@@ -611,7 +607,7 @@ export class CoverageAnalyzer {
     return Math.min(riskScore * 10 + gap, 100);
   }
 
-  private generateCriticalPathRecommendations(files: FileCoverage[], currentCoverage: number, requiredCoverage: number): string[] {
+  private generateCriticalPathRecommendations(_files: FileCoverage[], currentCoverage: number, requiredCoverage: number): string[] {
     const recommendations = [];
 
     if (currentCoverage < requiredCoverage) {
@@ -623,12 +619,12 @@ export class CoverageAnalyzer {
     return recommendations;
   }
 
-  private calculateTestComplexity(files: FileCoverage[]): number {
+  private calculateTestComplexity(_files: FileCoverage[]): number {
     // TODO: Implement test complexity analysis
     return 75; // Placeholder
   }
 
-  private calculateTestMaintainability(files: FileCoverage[]): number {
+  private calculateTestMaintainability(_files: FileCoverage[]): number {
     // TODO: Implement test maintainability analysis
     return 80; // Placeholder
   }
@@ -644,7 +640,7 @@ export class CoverageAnalyzer {
     };
 
     return Object.entries(weights).reduce((sum, [key, weight]) => {
-      return sum + (metrics[key] || 0) * weight;
+      return sum + (metrics[key]  || 0) * weight;
     }, 0);
   }
 
@@ -663,60 +659,60 @@ export class CoverageAnalyzer {
     return 'F';
   }
 
-  private calculateFunctionRiskScore(func: any): number {
-    return Math.min(func.complexity * 2 + (func.parameters || 0), 10);
+  private calculateFunctionRiskScore(func: unknown): number {
+    return Math.min((func as any).complexity * 2 + ((func as any).parameters ?? 0), 10);
   }
 
-  private assessFunctionImpact(func: any): 'low' | 'medium' | 'high' | 'critical' {
+  private assessFunctionImpact(func: unknown): 'low' | 'medium' | 'high' | 'critical' {
     return this.assessImpact(this.calculateFunctionRiskScore(func));
   }
 
-  private generateFunctionTestRecommendation(func: any): string {
-    return `Write unit tests for function '${func.name}' covering all execution paths and edge cases.`;
+  private generateFunctionTestRecommendation(func: unknown): string {
+    return `Write unit tests for function '${(func as any).name}' covering all execution paths and edge cases.`;
   }
 
-  private calculateFunctionPriority(func: any): number {
+  private calculateFunctionPriority(func: unknown): number {
     return this.calculateFunctionRiskScore(func) * 10;
   }
 
-  private generateTestSuggestionsForFunction(func: any): any[] {
+  private generateTestSuggestionsForFunction(func: unknown): TestSuggestion[] {
     return [
       {
         type: 'unit' as const,
-        description: `Test ${func.name} with typical inputs`,
+        description: `Test ${(func as any).name} with typical inputs`,
         priority: this.calculateFunctionPriority(func),
         effort: 'low' as const
       },
       {
         type: 'unit' as const,
-        description: `Test ${func.name} with edge cases and error conditions`,
+        description: `Test ${(func as any).name} with edge cases and error conditions`,
         priority: this.calculateFunctionPriority(func) - 1,
         effort: 'medium' as const
       }
     ];
   }
 
-  private calculateBranchRiskScore(branch: any): number {
-    return branch.isCritical ? 8 : 4;
+  private calculateBranchRiskScore(branch: unknown): number {
+    return (branch as any).isCritical ? 8 : 4;
   }
 
-  private assessBranchImpact(branch: any): 'low' | 'medium' | 'high' | 'critical' {
+  private assessBranchImpact(branch: unknown): 'low' | 'medium' | 'high' | 'critical' {
     return this.assessImpact(this.calculateBranchRiskScore(branch));
   }
 
-  private generateBranchTestRecommendation(branch: any): string {
-    return `Add test to cover the uncovered branch at line ${branch.lineNumber}.`;
+  private generateBranchTestRecommendation(branch: unknown): string {
+    return `Add test to cover the uncovered branch at line ${(branch as any).lineNumber}.`;
   }
 
-  private calculateBranchPriority(branch: any): number {
+  private calculateBranchPriority(branch: unknown): number {
     return this.calculateBranchRiskScore(branch) * 10;
   }
 
-  private generateTestSuggestionsForBranch(branch: any): any[] {
+  private generateTestSuggestionsForBranch(branch: unknown): TestSuggestion[] {
     return [
       {
         type: 'unit' as const,
-        description: `Test condition leading to uncovered branch at line ${branch.lineNumber}`,
+        description: `Test condition leading to uncovered branch at line ${(branch as any).lineNumber}`,
         priority: this.calculateBranchPriority(branch),
         effort: 'low' as const
       }

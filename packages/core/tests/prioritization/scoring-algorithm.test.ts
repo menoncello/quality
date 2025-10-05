@@ -5,9 +5,7 @@ import {
   IssueContext,
   IssueClassification,
   ProjectContext,
-  PrioritizationConfiguration,
-  TeamPreferences,
-  HistoricalData
+  PrioritizationConfiguration
 } from '@dev-quality/types';
 
 describe('ScoringAlgorithm', () => {

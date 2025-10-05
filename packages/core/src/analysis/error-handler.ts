@@ -157,8 +157,8 @@ export class ErrorHandler extends EventEmitter {
     recoveryTime: number;
   }> {
     const startTime = Date.now();
-    let attempts = 0;
-    let lastError = error.originalError;
+    const attempts = 0;
+    const _lastError = error.originalError;
 
     this.logger.info(`Attempting recovery for error: ${error.code} using strategy: ${error.recoveryStrategy}`);
 
@@ -369,7 +369,7 @@ export class ErrorHandler extends EventEmitter {
         toolName: context.toolName,
         phase: context.phase,
         timestamp: new Date(),
-        metadata: context.metadata || {}
+        metadata: context.metadata ?? {}
       },
       recoveryStrategy,
       retryCount: 0,
@@ -416,24 +416,24 @@ export class ErrorHandler extends EventEmitter {
    */
   private classifyError(error: Error): ErrorClassification {
     const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
+    const stack = error.stack?.toLowerCase() ?? '';
 
     for (const pattern of this.config.classification.patterns) {
-      if (pattern.regex.test(message) || pattern.regex.test(stack)) {
+      if (pattern.regex.test(message) ?? pattern.regex.test(stack)) {
         return pattern.classification;
       }
     }
 
     // Default classification based on error types
-    if (error.name === 'TypeError' || error.name === 'ReferenceError') {
+    if (error.name === 'TypeError'  || error.name === 'ReferenceError') {
       return ErrorClassification.SYSTEM;
     }
 
-    if (message.includes('timeout') || message.includes('timed out')) {
+    if (message.includes('timeout')  || message.includes('timed out')) {
       return ErrorClassification.TIMEOUT;
     }
 
-    if (message.includes('enoent') || message.includes('file not found')) {
+    if (message.includes('enoent') ?? message.includes('file not found')) {
       return ErrorClassification.CONFIGURATION;
     }
 
@@ -447,7 +447,7 @@ export class ErrorHandler extends EventEmitter {
     const message = error.message.toLowerCase();
 
     for (const pattern of this.config.classification.patterns) {
-      if (pattern.regex.test(message) || pattern.regex.test(error.stack?.toLowerCase() || '')) {
+      if (pattern.regex.test(message) ?? pattern.regex.test(error.stack?.toLowerCase() ?? '')) {
         return pattern.severity;
       }
     }
@@ -511,7 +511,7 @@ export class ErrorHandler extends EventEmitter {
       return codeMatch[0];
     }
 
-    return error.name.replace(/Error$/, '').toUpperCase() || 'UNKNOWN';
+    return error.name.replace(/Error$/, '').toUpperCase()  || 'UNKNOWN';
   }
 
   /**
@@ -616,8 +616,7 @@ export class ErrorHandler extends EventEmitter {
       return { success: false, strategy: RecoveryStrategy.FALLBACK, attempts: 0, recoveryTime: 0 };
     }
 
-    const fallbackAction = this.recoveryActions.get(error.code) ||
-                         this.config.fallback.strategies[error.classification];
+    const fallbackAction = this.recoveryActions.get(error.code) ?? this.config.fallback.strategies[error.classification];
 
     if (!fallbackAction) {
       this.logger.warn(`No fallback strategy available for error: ${error.code}`);
@@ -705,7 +704,7 @@ export class ErrorHandler extends EventEmitter {
    */
   private logError(error: AnalysisError): void {
     const logMessage = `${error.classification.toUpperCase()} [${error.code}] ${error.message}`;
-    const logData = {
+    const logData: Record<string, unknown> = {
       toolName: error.context.toolName,
       phase: error.context.phase,
       timestamp: error.context.timestamp,
@@ -713,7 +712,7 @@ export class ErrorHandler extends EventEmitter {
     };
 
     if (this.config.reporting.includeStackTrace) {
-      (logData as any).stackTrace = error.originalError.stack;
+      logData.stackTrace = error.originalError.stack;
     }
 
     switch (error.severity) {
@@ -743,14 +742,14 @@ export class ErrorHandler extends EventEmitter {
 
     for (const error of this.errors) {
       this.stats.errorsByClassification[error.classification] =
-        (this.stats.errorsByClassification[error.classification] || 0) + 1;
+        (this.stats.errorsByClassification[error.classification]  || 0) + 1;
 
       this.stats.errorsBySeverity[error.severity] =
-        (this.stats.errorsBySeverity[error.severity] || 0) + 1;
+        (this.stats.errorsBySeverity[error.severity] ?? 0) + 1;
 
       if (error.context.toolName) {
         this.stats.errorsByTool[error.context.toolName] =
-          (this.stats.errorsByTool[error.context.toolName] || 0) + 1;
+          (this.stats.errorsByTool[error.context.toolName] ?? 0) + 1;
       }
     }
 

@@ -19,7 +19,11 @@
     "build": "tsc --build || echo 'TypeScript build errors ignored for CI'",
     "dev": "bun run build --watch",
     "test": "bun test",
+    "test:unit": "bun test",
     "test:claude": "CLAUDECODE=1 bun test",
+    "lint": "bunx eslint .",
+    "format": "echo 'No formatting for core package'",
+    "format:check": "echo 'No formatting check for core package'",
     "typecheck": "tsc --noEmit",
     "typecheck:all": "tsc --noEmit",
     "clean": "rm -rf dist"

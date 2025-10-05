@@ -97,9 +97,9 @@ export class DashboardService {
           break;
         case 'severity': {
           const severityOrder = { error: 3, warning: 2, info: 1 };
-          comparison =
-            severityOrder[a.type as keyof typeof severityOrder] -
-            severityOrder[b.type as keyof typeof severityOrder];
+          const aSeverity = (severityOrder as Record<string, number>)[a.type] ?? 0;
+          const bSeverity = (severityOrder as Record<string, number>)[b.type] ?? 0;
+          comparison = aSeverity - bSeverity;
           break;
         }
         case 'filePath':

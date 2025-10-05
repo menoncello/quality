@@ -213,7 +213,7 @@ export class ResourceManager extends EventEmitter {
 
     const allocationsByType = new Map<string, number>();
     for (const allocation of this.allocatedResources.values()) {
-      allocationsByType.set(allocation.type, (allocationsByType.get(allocation.type) || 0) + allocation.amount);
+      allocationsByType.set(allocation.type, (allocationsByType.get(allocation.type)  ?? 0) + allocation.amount);
     }
 
     const oldestRequest = this.resourceQueue.length > 0
@@ -427,9 +427,10 @@ export class ResourceManager extends EventEmitter {
    */
   private canAllocateResource(type: string, amount: number): boolean {
     switch (type) {
-      case 'memory':
+      case 'memory': {
         const projectedMemoryUsage = this.stats.memory.used + amount;
         return projectedMemoryUsage < this.config.memory.limit;
+      }
 
       case 'cpu':
         return !this.throttled && this.stats.cpu.usage < this.config.cpu.maxUsage;
@@ -437,10 +438,11 @@ export class ResourceManager extends EventEmitter {
       case 'io':
         return this.allocatedResources.size < this.config.io.maxConcurrentOperations;
 
-      case 'network':
+      case 'network': {
         const networkAllocations = Array.from(this.allocatedResources.values())
           .filter(allocation => allocation.type === 'network').length;
         return networkAllocations < this.config.network.maxConcurrentRequests;
+      }
 
       default:
         return false;

@@ -133,7 +133,7 @@ export class RuleEngine {
       });
     }
 
-    if (rule.conditions && rule.conditions.length > 5) {
+    if (rule.conditions?.length > 5) {
       warnings.push({
         code: 'COMPLEX_RULE',
         message: 'Rule has many conditions and may be difficult to maintain',
@@ -217,10 +217,10 @@ export class RuleEngine {
    */
   private isValidRuleStructure(rule: PrioritizationRule): boolean {
     return (
-      rule.id && rule.id.trim() !== '' &&
-      rule.name && rule.name.trim() !== '' &&
-      rule.conditions && rule.conditions.length > 0 &&
-      rule.actions && rule.actions.length > 0 &&
+      rule.id?.trim() !== '' &&
+      rule.name?.trim() !== '' &&
+      rule.conditions?.length > 0 &&
+      rule.actions?.length > 0 &&
       typeof rule.weight === 'number' && rule.weight >= 0 && rule.weight <= 1
     );
   }
@@ -317,7 +317,7 @@ export class RuleEngine {
     }
 
     // Convert to strings for string comparisons
-    if (typeof fieldValue === 'string' || typeof conditionValue === 'string') {
+    if (typeof fieldValue === 'string'  || typeof conditionValue === 'string') {
       const fieldStr = String(fieldValue);
       const conditionStr = String(conditionValue);
 
@@ -483,15 +483,17 @@ export class RuleEngine {
     const result = { ...prioritization };
 
     switch (action.type) {
-      case 'adjustScore':
-        const adjustment = (action.parameters.adjustment as number) || 0;
+      case 'adjustScore': {
+        const adjustment = (action.parameters.adjustment as number)  || 0;
         result.finalScore = Math.max(1, Math.min(10, result.finalScore + (adjustment * weight)));
         break;
+      }
 
-      case 'setPriority':
-        const newPriority = (action.parameters.priority as number) || 5;
+      case 'setPriority': {
+        const newPriority = (action.parameters.priority as number) ?? 5;
         result.finalScore = Math.max(1, Math.min(10, newPriority));
         break;
+      }
 
       case 'skipTriage':
         result.triageSuggestion.action = 'ignore';
@@ -696,11 +698,11 @@ export class RuleEngine {
 
     for (const action1 of adjustments1) {
       for (const action2 of adjustments2) {
-        const adj1 = action1.parameters.adjustment as number || 0;
-        const adj2 = action2.parameters.adjustment as number || 0;
+        const adj1 = action1.parameters.adjustment as number ?? 0;
+        const adj2 = action2.parameters.adjustment as number ?? 0;
 
         // If adjustments have opposite signs, they might conflict
-        if ((adj1 > 0 && adj2 < 0) || (adj1 < 0 && adj2 > 0)) {
+        if ((adj1 > 0 && adj2 < 0)  || (adj1 < 0 && adj2 > 0)) {
           return true;
         }
       }
@@ -727,7 +729,7 @@ export class RuleEngine {
   private incrementVersion(version: string): string {
     const parts = version.split('.');
     if (parts.length >= 3) {
-      const patch = parseInt(parts[2] || '0') + 1;
+      const patch = parseInt(parts[2]  || '0') + 1;
       return `${parts[0]}.${parts[1]}.${patch}`;
     }
     return version;

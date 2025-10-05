@@ -18,8 +18,8 @@ export declare class PluginManager {
     register(plugin: PluginInterface): void;
     get(name: string): PluginInterface | undefined;
     list(): PluginInterface[];
-    executeAnalysis(toolName: string, config: any, options: CommandOptions): Promise<AnalysisResult>;
-    validateConfiguration(toolName: string, config: any): boolean;
+    executeAnalysis(toolName: string, config: unknown, options: CommandOptions): Promise<AnalysisResult>;
+    validateConfiguration(toolName: string, config: unknown): boolean;
 }
 export declare const pluginManager: PluginManager;
 export { AutoConfigurationDetectionEngine } from './detection/detection-engine';

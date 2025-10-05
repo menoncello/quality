@@ -8,7 +8,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
 import { ResultNormalizer } from '../analysis/result-normalizer.js';
 import { ResultAggregator } from '../analysis/result-aggregator.js';
-import type { Logger, ToolResult, NormalizedResult } from '../plugins/analysis-plugin.js';
+import type { Logger, ToolResult } from '../plugins/analysis-plugin.js';
 
 describe('Result Aggregation Validation (DATA-001)', () => {
   let normalizer: ResultNormalizer;
@@ -90,8 +90,8 @@ describe('Result Aggregation Validation (DATA-001)', () => {
           issuesCount: 2,
           errorsCount: 1,
           warningsCount: 1,
-          fixableErrorCount: 0,
-          fixableWarningCount: 1,
+          infoCount: 0,
+          fixableCount: 1,
           score: 87
         }
       };
@@ -128,6 +128,8 @@ describe('Result Aggregation Validation (DATA-001)', () => {
           issuesCount: 1,
           errorsCount: 1,
           warningsCount: 0,
+          infoCount: 0,
+          fixableCount: 0,
           score: 90
         }
       };
@@ -149,6 +151,10 @@ describe('Result Aggregation Validation (DATA-001)', () => {
         issues: [],
         metrics: {
           issuesCount: 0,
+          errorsCount: 0,
+          warningsCount: 0,
+          infoCount: 0,
+          fixableCount: 0,
           score: 100
         }
       };
@@ -165,7 +171,7 @@ describe('Result Aggregation Validation (DATA-001)', () => {
   describe('Basic Result Aggregation', () => {
     it('should aggregate multiple tool results correctly', () => {
       // Create mock normalized results using the same pattern as working tests
-      const createMockResult = (toolName: string, issuesCount: number, errorsCount: number = 0): NormalizedResult => ({
+      const createMockResult = (toolName: string, issuesCount: number, errorsCount: number = 0): any => ({
         toolName,
         toolVersion: '1.0.0',
         status: 'success' as const,
@@ -243,7 +249,7 @@ describe('Result Aggregation Validation (DATA-001)', () => {
     });
 
     it('should aggregate results with no issues', () => {
-      const createMockResult = (toolName: string): NormalizedResult => ({
+      const createMockResult = (toolName: string): any => ({
         toolName,
         toolVersion: '1.0.0',
         status: 'success' as const,
@@ -291,7 +297,7 @@ describe('Result Aggregation Validation (DATA-001)', () => {
 
   describe('Data Integrity Validation', () => {
     it('should maintain data consistency through aggregation pipeline', () => {
-      const createMockResult = (toolName: string, issuesCount: number, errorsCount: number = 0): NormalizedResult => ({
+      const createMockResult = (toolName: string, issuesCount: number, errorsCount: number = 0): any => ({
         toolName,
         toolVersion: '1.0.0',
         status: 'success' as const,
@@ -357,7 +363,7 @@ describe('Result Aggregation Validation (DATA-001)', () => {
     });
 
     it('should handle error severity prioritization correctly', () => {
-      const createMockResult = (toolName: string, hasErrors: boolean): NormalizedResult => ({
+      const createMockResult = (toolName: string, hasErrors: boolean): any => ({
         toolName,
         toolVersion: '1.0.0',
         status: 'success' as const,
@@ -445,7 +451,7 @@ describe('Result Aggregation Validation (DATA-001)', () => {
     });
 
     it('should handle aggregation with mixed quality results', () => {
-      const createMockResult = (toolName: string, score: number, issuesCount: number): NormalizedResult => ({
+      const createMockResult = (toolName: string, score: number, issuesCount: number): any => ({
         toolName,
         toolVersion: '1.0.0',
         status: 'success' as const,

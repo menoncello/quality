@@ -57,7 +57,7 @@ export class PluginManager {
 
   async executeAnalysis(
     toolName: string,
-    config: any,
+    config: unknown,
     options: CommandOptions
   ): Promise<AnalysisResult> {
     const plugin = this.get(toolName);
@@ -65,16 +65,16 @@ export class PluginManager {
       throw new Error(`Plugin '${toolName}' not found`);
     }
 
-    return plugin.analyze(config, options);
+    return plugin.analyze(config as any, options);
   }
 
-  validateConfiguration(toolName: string, config: any): boolean {
+  validateConfiguration(toolName: string, config: unknown): boolean {
     const plugin = this.get(toolName);
     if (!plugin) {
       return false;
     }
 
-    return plugin.validate(config);
+    return plugin.validate(config as any);
   }
 }
 

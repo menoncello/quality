@@ -122,7 +122,8 @@ export class AutoConfigurationDetectionEngine {
         recommendations.push(...compatibility.recommendations);
         // Tool recommendations
         const toolNames = tools.map((t) => t.name);
-        if (!toolNames.includes('typescript') && project.hasTypeScript) {
+        const typedProject = project;
+        if (!toolNames.includes('typescript') && typedProject.hasTypeScript) {
             recommendations.push('Add TypeScript configuration');
         }
         if (!toolNames.includes('vitest') && !toolNames.includes('jest')) {

@@ -4,11 +4,14 @@
     "outDir": "dist",
     "rootDir": "src",
     "composite": true,
+    "strict": true,
+    "strictNullChecks": true,
     "noImplicitOverride": false,
     "noPropertyAccessFromIndexSignature": false,
-    "noUncheckedIndexedAccess": false
+    "noUncheckedIndexedAccess": false,
+    "types": ["bun-types"]
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "src/__tests__/**/*"],
+  "exclude": ["dist", "node_modules"],
   "references": [{ "path": "../types" }, { "path": "../utils" }]
 }

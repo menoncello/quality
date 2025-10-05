@@ -3,11 +3,7 @@ import { RuleEngine } from '../../src/prioritization/rule-engine';
 import {
   Issue,
   IssuePrioritization,
-  PrioritizationRule,
-  RuleCondition,
-  RuleAction,
-  ValidationResult,
-  ValidationError
+  PrioritizationRule
 } from '@dev-quality/types';
 
 describe('RuleEngine', () => {
@@ -348,7 +344,7 @@ describe('RuleEngine', () => {
         conditions: [
           {
             field: 'type',
-            operator: 'invalid-operator' as any,
+            operator: 'invalid-operator' as unknown,
             value: 'error'
           }
         ],

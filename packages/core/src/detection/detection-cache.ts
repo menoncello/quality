@@ -41,7 +41,7 @@ export class DetectionCache {
     this.dependencyCache = new Map();
     this.resultCache = new Map();
 
-    this.defaultTTL = options.ttl ?? 5 * 60 * 1000; // Default 5 minutes
+    this.defaultTTL = options.ttl   ?? 5 * 60 * 1000; // Default 5 minutes
     this.maxCacheSize = options.maxSize ?? 1000; // Default max 1000 entries
   }
 

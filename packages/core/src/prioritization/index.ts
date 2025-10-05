@@ -33,7 +33,7 @@ export type {
 
 // Default factory instance (lazy initialization to avoid circular dependencies)
 export const prioritizationFactory = {
-  createEngine: async (config?: Partial<any>) => {
+  createEngine: async (config?: Partial<unknown>) => {
     const { IssuePrioritizationEngineFactoryImpl } = await import('./prioritization-factory');
     const factory = new IssuePrioritizationEngineFactoryImpl();
     return factory.createEngine(config);
