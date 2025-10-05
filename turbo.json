@@ -71,6 +71,11 @@
       "cache": true,
       "inputs": ["src/**", "package.json", "eslint.config.js", ".eslintrc.*"]
     },
+    "lint:all": {
+      "outputs": [],
+      "cache": true,
+      "inputs": ["src/**", "package.json", "eslint.config.js", ".eslintrc.*"]
+    },
       "typecheck": {
       "dependsOn": ["^build"],
       "outputs": [],
