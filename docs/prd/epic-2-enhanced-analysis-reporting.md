@@ -41,7 +41,7 @@ As a developer, I want an enhanced interactive dashboard with drill-down capabil
 3. Comparative analysis between different runs
 4. Real-time updates during development
 5. Customizable dashboard layouts
-6. Integration with IDE for quick navigation
+6. Integration with IDE for quick navigationq
 
 ## Story 2.4 Comprehensive Reporting System
 

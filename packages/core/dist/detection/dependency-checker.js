@@ -82,7 +82,7 @@ export class DependencyChecker {
                     const issues = this.getCompatibilityIssues(name, version);
                     dependencies.push({
                         name,
-                        version: version,
+                        version,
                         type: depTypeMap[depType],
                         compatibility,
                         issues,

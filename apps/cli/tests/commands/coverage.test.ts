@@ -58,8 +58,6 @@ type MockProcess = {
   exit: ReturnType<typeof mock>;
 };
 
-/* eslint-disable */
-
 describe('CoverageCommand', () => {
   let coverageCommand: CoverageCommand;
   let mockConsole: MockConsole;

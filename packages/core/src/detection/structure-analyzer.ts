@@ -93,7 +93,7 @@ export class StructureAnalyzer {
       } catch (_error) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.warn('Failed to read package.json for monorepo type detection:');
         // Continue
       }
@@ -114,7 +114,7 @@ export class StructureAnalyzer {
       } catch (_error) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.warn('Failed to read package.json:');
         // Continue
       }

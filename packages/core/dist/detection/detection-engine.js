@@ -90,24 +90,24 @@ export class AutoConfigurationDetectionEngine {
             issues.push('Could not determine project type');
         }
         // Tool configuration issues
-        const enabledTools = tools.filter((t) => t.enabled);
+        const enabledTools = tools.filter(t => t.enabled);
         if (enabledTools.length === 0) {
             issues.push('No development tools detected');
         }
         // Dependency issues
-        if (compatibility.issues.length > 0) {
+        if (compatibility.issues?.length) {
             issues.push(...compatibility.issues);
         }
         // Structure issues
-        if (structure.sourceDirectories.length === 0) {
+        if (!structure.sourceDirectories?.length) {
             issues.push('No source directories found');
         }
-        if (structure.testDirectories.length === 0) {
+        if (!structure.testDirectories?.length) {
             issues.push('No test directories found - consider adding tests');
         }
         // Configuration issues
-        const hasLinting = tools.some((t) => t.name === 'eslint' && t.enabled);
-        const hasFormatting = tools.some((t) => t.name === 'prettier' && t.enabled);
+        const hasLinting = tools.some(t => t.name === 'eslint' && t.enabled);
+        const hasFormatting = tools.some(t => t.name === 'prettier' && t.enabled);
         if (!hasLinting) {
             issues.push('No linting tool detected - consider adding ESLint');
         }
@@ -119,9 +119,9 @@ export class AutoConfigurationDetectionEngine {
     generateRecommendations(project, tools, _configs, _dependencies, structure, compatibility) {
         const recommendations = [];
         // Add compatibility recommendations
-        recommendations.push(...compatibility.recommendations);
+        recommendations.push(...compatibility.recommendations ?? []);
         // Tool recommendations
-        const toolNames = tools.map((t) => t.name);
+        const toolNames = tools.map(t => t.name).filter(Boolean);
         const typedProject = project;
         if (!toolNames.includes('typescript') && typedProject.hasTypeScript) {
             recommendations.push('Add TypeScript configuration');
@@ -137,11 +137,12 @@ export class AutoConfigurationDetectionEngine {
             recommendations.push('Add Prettier for consistent code formatting');
         }
         // Structure recommendations
-        if (structure.complexity === 'complex' && !structure.isMonorepo) {
+        const typedStructure = structure;
+        if (typedStructure.complexity === 'complex' && !typedStructure.isMonorepo) {
             recommendations.push('Consider converting to monorepo structure for better organization');
         }
         // Performance recommendations
-        if (structure.packages.length > 5 && structure.workspaceType === 'npm') {
+        if ((typedStructure.packages?.length ?? 0) > 5 && typedStructure.workspaceType === 'npm') {
             recommendations.push('Consider using pnpm or yarn workspaces for better performance');
         }
         // Configuration recommendations
@@ -149,7 +150,7 @@ export class AutoConfigurationDetectionEngine {
             recommendations.push('Add Prettier for consistent code formatting');
         }
         // Testing recommendations
-        if (structure.testDirectories.length === 0) {
+        if (!typedStructure.testDirectories?.length) {
             recommendations.push('Set up testing structure with unit and integration tests');
         }
         return recommendations;

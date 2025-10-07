@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'fs';
-import path from 'path';
+import _path from 'path';
 
 const filesToFix = [
   './packages/core/src/plugins/builtin/bun-test-adapter.ts',

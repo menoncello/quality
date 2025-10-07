@@ -179,10 +179,14 @@ const handleClick = (index, _item, _value) => { /* only uses index */ };
 ### **Dashboard-Specific Anti-patterns**
 
 1. **Interface Mismatch:** Store properties not matching component usage
-2. **Ink Property Abuse:** Using non-existent styling properties
-3. **Type Confusion:** Date objects assigned to string properties
-4. **Console Logging:** Direct console statements in dashboard components
-5. **Mock Type Issues:** Mock engines not implementing proper interfaces
+2. **Ink Property Abuse:** Using non-existent styling properties (size, marginLeft, backgroundColor, capitalize)
+3. **Import Errors:** Using non-existent Ink components (TextInput, Checkbox)
+4. **Null Safety Issues:** Accessing potentially undefined values without optional chaining
+5. **Type Safety Violations:** Implicit any types in function parameters
+6. **Module Resolution:** Importing non-existent local modules
+7. **Type Confusion:** Date objects assigned to string properties
+8. **Console Logging:** Direct console statements in dashboard components
+9. **Mock Type Issues:** Mock engines not implementing proper interfaces
 
 ### **Dashboard Development Workflow**
 
@@ -204,9 +208,49 @@ interface TextProps {
   underline?: boolean;
   strikethrough?: boolean;
   color?: ColorName;
+  dimColor?: boolean;
+  // FORBIDDEN PROPERTIES (do not exist):
+  size?: never;           // Not supported on Text
   backgroundColor?: never; // Not supported on Text
   marginLeft?: never;     // Not supported on Text
+  capitalize?: never;     // Not supported on Text
+  marginTop?: never;      // Not supported on Text
 }
+```
+
+#### **Ink Component Import Patterns**
+```typescript
+// ❌ WRONG - Non-existent imports
+import { TextInput, Checkbox } from 'ink';
+
+// ✅ CORRECT - Use available Ink components
+import { Box, Text, useInput } from 'ink';
+
+// For input handling, use useInput hook:
+const [input, setInput] = useState('');
+useInput((input, key) => {
+  if (key.return) {
+    handleSubmit(input);
+  } else if (input) {
+    setInput(prev => prev + input);
+  }
+});
+```
+
+#### **Null Safety Patterns for Dashboard Components**
+```typescript
+// ❌ WRONG - Potential undefined access
+const runName = selectedRun.name;
+const score = issue.scoreDiff;
+
+// ✅ CORRECT - Proper null safety
+const runName = selectedRun?.name ?? 'Unknown';
+const score = issue.scoreDiff ?? 0;
+
+// For optional chaining with arrays:
+const filteredIssues = analysisResult?.issues?.filter(issue =>
+  issue.severity === 'error'
+) ?? [];
 ```
 
 #### **Store Interface Design**
@@ -241,6 +285,50 @@ const timestamp: string = new Date().toISOString();
 const displayDate: string = new Date().toLocaleDateString();
 ```
 
+#### **Function Parameter Type Safety**
+```typescript
+// ❌ WRONG - Implicit any types
+const handleSearch = (query) => { /* ... */ };
+const handleToggle = (checked) => { /* ... */ };
+
+// ✅ CORRECT - Explicit type annotations
+const handleSearch = (query: string) => { /* ... */ };
+const handleToggle = (checked: boolean) => { /* ... */ };
+
+// For event handlers with proper typing:
+const handleClick = (_index: number, _item: unknown, _value: unknown) => {
+  // Use underscore prefix for unused parameters
+};
+```
+
+#### **Box Layout vs Text Properties**
+```typescript
+// ❌ WRONG - Using margin properties on Text
+<Text marginLeft={2} color="blue">Content</Text>
+
+// ✅ CORRECT - Use Box for layout, Text for styling
+<Box paddingLeft={2}>
+  <Text color="blue">Content</Text>
+</Box>
+
+// ❌ WRONG - Using unsupported Text properties
+<Text size="small" capitalize>Banner</Text>
+
+// ✅ CORRECT - Use only supported Text properties
+<Text bold color="cyan">BANNER</Text>
+```
+
+#### **Missing Module Resolution**
+```typescript
+// ❌ WRONG - Importing non-existent local modules
+import VirtualizedList from './virtualized-list';
+
+// ✅ CORRECT - Use actual available modules or create them
+// Either create the file or use alternative approaches:
+import { VirtualizedList } from '../components/virtualized-list';
+// Or implement inline virtualization
+```
+
 ### **Quality Gates for Dashboard Development**
 
 - **TypeScript Compilation:** Must compile with strictNullChecks enabled
@@ -248,3 +336,295 @@ const displayDate: string = new Date().toLocaleDateString();
 - **Ink Component Validation:** All component properties verified against documentation
 - **Interface Consistency:** Store interfaces match component usage patterns
 - **No Console Statements:** All logging through proper utilities
+
+## **Learnings from Quality Analysis (Updated 2025-10-06)**
+
+### **Critical Ink Component Violations**
+
+Based on recent quality checks, the following patterns were identified as major sources of TypeScript errors:
+
+#### **1. Forbidden Text Properties**
+The most common violation (80+ occurrences) is using non-existent properties on Ink Text components:
+
+```typescript
+// ❌ NEVER USE THESE PROPERTIES ON TEXT COMPONENTS
+<Text size="small" marginLeft={2} backgroundColor="blue" capitalize>
+  Content
+</Text>
+
+// ✅ CORRECT APPROACH
+<Box paddingLeft={2}>
+  <Text bold color="blue">CONTENT</Text>
+</Box>
+```
+
+#### **2. Non-existent Ink Imports**
+Importing components that don't exist in the Ink library:
+
+```typescript
+// ❌ THESE IMPORTS DON'T EXIST
+import { TextInput, Checkbox } from 'ink';
+
+// ✅ CORRECT IMPORTS
+import { Box, Text, useInput, useApp } from 'ink';
+```
+
+#### **3. Null Safety Requirements**
+Multiple TypeScript strict null check violations:
+
+```typescript
+// ❌ POTENTIAL RUNTIME ERRORS
+const runName = selectedRun.name;
+const scoreDiff = issue.scoreDiff;
+
+// ✅ SAFE ACCESS PATTERNS
+const runName = selectedRun?.name ?? 'Unknown';
+const scoreDiff = issue.scoreDiff ?? 0;
+```
+
+### **Prevention Strategies**
+
+1. **Component Property Validation**: Always check Ink documentation before using component properties
+2. **TypeScript Strict Mode**: Enable all strict type checking options
+3. **Null Safety Training**: Require optional chaining for all potentially nullable values
+4. **Import Verification**: Verify all imports exist before using them
+5. **Regular Quality Checks**: Run type checking and formatting checks in development
+
+### **Impact Assessment**
+
+- **Ink Property Violations**: 80+ TypeScript errors
+- **Missing Modules**: 2 import errors causing build failures
+- **Null Safety Issues**: 15+ strict null check violations
+- **Type Safety**: 5+ implicit any type violations
+
+These updated standards should prevent similar issues in future dashboard development.
+
+## **Learnings from Quality Analysis (Updated 2025-10-07)**
+
+### **Critical ESLint Configuration Issues**
+
+The quality checks revealed fundamental ESLint configuration problems causing widespread parsing errors:
+
+#### **1. TypeScript Parsing Configuration**
+ESLint is not configured to parse TypeScript syntax, causing "Unexpected token" errors for:
+
+```typescript
+// ❌ ESLint PARSES THESE AS ERRORS
+interface AnalysisResult { ... }
+abstract class BaseCommand { ... }
+readonly property: string;
+implements PluginInterface
+const result: unknown = data;
+```
+
+**Solution**: Ensure `@typescript-eslint/parser` is configured and TypeScript files are properly associated.
+
+#### **2. Global Environment Variables**
+Multiple `no-undef` errors for standard Node.js and browser globals:
+
+```typescript
+// ❌ THESE CAUSE NO-UNDEF ERRORS
+process.env.NODE_ENV
+console.log('debug info');
+performance.now();
+setTimeout(callback, 1000);
+require('fs');
+global.Buffer;
+```
+
+**Solution**: Configure ESLint globals for Node.js environment:
+
+```javascript
+// eslint.config.js
+export default [
+  {
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        performance: 'readonly',
+        setTimeout: 'readonly',
+        require: 'readonly',
+        global: 'readonly',
+        Buffer: 'readonly'
+      }
+    }
+  }
+];
+```
+
+### **Code Quality Pattern Violations**
+
+#### **3. Unused Variable Patterns**
+Multiple instances of unused variables without proper naming convention:
+
+```typescript
+// ❌ UNUSED VARIABLES NOT PREFIXED
+import path from 'path';  // path imported but not used
+const handleClick = (index, item, value) => { /* only uses index */ };
+
+// ✅ CORRECT UNUSED VARIABLE HANDLING
+import _path from 'path';  // prefixed with underscore
+const handleClick = (index, _item, _value) => { /* only uses index */ };
+```
+
+#### **4. Regular Expression Safety**
+Invalid regex patterns causing parsing failures:
+
+```javascript
+// ❌ INVALID REGEX - UNTERMINATED GROUP
+const pattern = /\.(\([^)]+\) as any\)/;
+
+// ✅ VALID REGEX PATTERNS
+const pattern = /\.(\([^)]*\)\s+as\s+any\)/;
+const pattern = /\.(\([^)]*\))\s+as\s+any\)/;
+```
+
+#### **5. Import/Export Consistency**
+Inconsistent export patterns across modules:
+
+```typescript
+// ❌ MIXED EXPORT STYLES
+export interface AnalysisResult { ... }
+export default AnalysisEngine;
+
+// ✅ CONSISTENT EXPORTS
+export interface AnalysisResult { ... }
+export class AnalysisEngine { ... }
+export { AnalysisEngine };
+```
+
+### **ESLint Configuration Standards**
+
+#### **Required Parser Configuration**
+```javascript
+// eslint.config.js
+import typescriptParser from '@typescript-eslint/parser';
+
+export default [
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        project: './tsconfig.json'
+      }
+    }
+  }
+];
+```
+
+#### **Environment Configuration**
+```javascript
+// eslint.config.js
+export default [
+  {
+    languageOptions: {
+      globals: {
+        // Node.js globals
+        process: 'readonly',
+        require: 'readonly',
+        global: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+
+        // Browser/Performance globals
+        console: 'readonly',
+        performance: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly'
+      }
+    }
+  }
+];
+```
+
+#### **File Pattern Matching**
+```javascript
+// eslint.config.js
+export default [
+  {
+    ignores: [
+      '**/dist/**/*',
+      '**/node_modules/**/*',
+      'coverage/**/*',
+      'build/**/*',
+      '*.d.ts',
+      'temp/**/*',
+      '.stryker-tmp/**/*',
+      '**/.stryker-tmp/**/*'
+    ]
+  },
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    // TypeScript-specific rules
+  },
+  {
+    files: ['**/*.js', '**/*.jsx'],
+    // JavaScript-specific rules
+  }
+];
+```
+
+### **Prevention Strategies**
+
+#### **1. Configuration Validation**
+- Validate ESLint configuration before committing
+- Test configuration on sample TypeScript files
+- Ensure parser compatibility with TypeScript version
+
+#### **2. Global Environment Management**
+- Always specify environment globals in ESLint config
+- Use `eslint-env` comments for file-specific environments
+- Prefer explicit global declarations over implicit assumptions
+
+#### **3. Regex Safety Patterns**
+- Test regex patterns in isolation before use
+- Use regex testing tools for complex patterns
+- Escape special characters properly in string-based regex
+
+#### **4. Import/Export Standards**
+- Use consistent export patterns within modules
+- Prefer named exports for better tree-shaking
+- Validate imports exist before using them
+
+### **Quality Gates Update**
+
+#### **Pre-commit Requirements**
+- **ESLint Configuration**: Must parse TypeScript files correctly
+- **Global Variables**: Zero `no-undef` errors for standard globals
+- **Regex Validation**: All regex patterns must be syntactically valid
+- **Unused Variables**: All unused variables properly prefixed
+- **Import Consistency**: All imports must resolve to existing modules
+
+#### **Development Workflow Updates**
+1. **Configuration Testing**: Test ESLint config on sample files
+2. **Regex Validation**: Validate complex regex patterns separately
+3. **Global Setup**: Ensure environment globals are properly configured
+4. **Import Verification**: Check all imports resolve correctly
+5. **Variable Naming**: Audit unused variables and apply underscore prefix
+
+### **Impact Assessment**
+
+- **ESLint Configuration**: 200+ parsing errors due to TypeScript misconfiguration
+- **Global Variables**: 50+ `no-undef` errors for standard Node.js/browser globals
+- **Unused Variables**: 15+ violations of naming conventions
+- **Regex Issues**: 2 critical regex parsing failures
+- **Formatting**: 158 files with Prettier formatting issues
+
+### **Implementation Priority**
+
+1. **Critical**: Fix ESLint TypeScript parsing configuration
+2. **High**: Configure proper environment globals
+3. **Medium**: Address unused variable naming conventions
+4. **Medium**: Fix regex pattern validation
+5. **Low**: Resolve Prettier formatting consistency
+
+These updates address fundamental configuration issues that prevent proper code quality analysis and establish patterns for maintaining robust ESLint configuration in TypeScript projects.

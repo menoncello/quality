@@ -1,4 +1,4 @@
-import type { Logger } from '../plugins/analysis-plugin.js';
+import type { Logger, AnalysisResult, Issue, AIPrompt } from '../plugins/analysis-plugin.js';
 import type { AnalysisEngine, AnalysisProgress } from '../analysis/analysis-engine.js';
 import type { ReportConfig } from '../analysis/result-reporter.js';
 import { ReportFormat } from '../analysis/result-reporter.js';
@@ -530,50 +530,50 @@ export class CLIIntegrationManager {
   /**
    * Display analysis results in CLI format
    */
-  displayResults(result: any, options: CLICommandOptions): void {
+  displayResults(result: AnalysisResult, options: CLICommandOptions): void {
     if (options.quiet) {
       return;
     }
 
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.header('Code Quality Analysis Results'));
 
     // Summary
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.section('Summary'));
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Overall Score', `${result.overallScore}%`));
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Total Issues', result.summary.totalIssues.toString()));
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Errors', result.summary.totalErrors.toString()));
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Warnings', result.summary.totalWarnings.toString()));
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Fixable Issues', result.summary.totalFixable.toString()));
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Execution Time', this.formatter.formatDuration(result.duration)));
 
     // Tool results
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.section('Tool Results'));
 
     for (const tool of result.toolResults) {
@@ -583,43 +583,43 @@ export class CLIIntegrationManager {
 
        
      
-    // eslint-disable-next-line no-console
+     
     console.log(`\n${tool.toolName} ${statusIcon}`);
        
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Status', tool.status));
        
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Issues', tool.issues.length.toString()));
        
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.keyValue('Time', this.formatter.formatDuration(tool.executionTime)));
 
       if (!options.verbose && tool.issues.length > 0) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.log('Top issues:');
-        tool.issues.slice(0, 5).forEach((issue: any) => {
+        tool.issues.slice(0, 5).forEach((issue: Issue) => {
            
      
-    // eslint-disable-next-line no-console
+     
     console.log(`  ${this.formatter.issue(issue.type, issue.filePath, issue.lineNumber, issue.message)}`);
         });
         if (tool.issues.length > 5) {
            
      
-    // eslint-disable-next-line no-console
+     
     console.log(`  ... and ${tool.issues.length - 5} more issues`);
         }
       } else if (options.verbose) {
-        tool.issues.forEach((issue: any) => {
+        tool.issues.forEach((issue: Issue) => {
            
      
-    // eslint-disable-next-line no-console
+     
     console.log(`  ${this.formatter.issue(issue.type, issue.filePath, issue.lineNumber, issue.message)}`);
         });
       }
@@ -629,19 +629,19 @@ export class CLIIntegrationManager {
     if (result.aiPrompts?.length > 0) {
        
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.section('AI Recommendations'));
-      result.aiPrompts.forEach((prompt: any) => {
+      result.aiPrompts.forEach((prompt: AIPrompt) => {
          
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.listItem(`${prompt.title}: ${prompt.description}`));
       });
     }
 
      
      
-    // eslint-disable-next-line no-console
+     
     console.log(''); // Empty line at the end
   }
 
@@ -692,7 +692,7 @@ export class CLIIntegrationManager {
       if (!options.quiet) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.info(`Starting analysis for project: ${projectId}`));
       }
     });
@@ -701,7 +701,7 @@ export class CLIIntegrationManager {
       if (options.verbose && !options.quiet) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.log(`Progress: ${progress.completedPlugins}/${progress.totalPlugins} plugins completed`);
       }
     });
@@ -710,7 +710,7 @@ export class CLIIntegrationManager {
       if (options.verbose && !options.quiet) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.info(`Running ${pluginName}...`));
       }
     });
@@ -723,8 +723,8 @@ export class CLIIntegrationManager {
                      this.formatter.error('✗');
 
 
-    // eslint-disable-next-line no-console
-    console.log(`Completed ${pluginName} ${status} (${typedResult.issues?.length || 0} issues)`);
+     
+    console.log(`Completed ${pluginName} ${status} (${typedResult.issues?.length ?? 0} issues)`);
       }
     });
 
@@ -732,7 +732,7 @@ export class CLIIntegrationManager {
       if (!options.quiet) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.success(`Analysis completed for project: ${projectId}`));
       }
     });
@@ -740,7 +740,7 @@ export class CLIIntegrationManager {
     analysisEngine.on('analysis:error', (projectId: string, error: Error) => {
        
      
-    // eslint-disable-next-line no-console
+     
     console.log(this.formatter.error(`Analysis failed for project ${projectId}: ${error.message}`));
     });
   }
