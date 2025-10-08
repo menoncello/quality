@@ -106,11 +106,11 @@ export type {
   ProjectConfiguration,
   AnalysisResult,
   ValidationResult as PluginValidationResult
-} from './plugins/index.js';
+} from './plugins/index';
 
 
 // Coverage Analysis exports
-export * from './types/coverage.js';
+export * from './types/coverage';
 
 // Additional type exports for CLI compatibility
 export type {
@@ -119,18 +119,18 @@ export type {
   CoverageData,
   AnalysisContext,
   ToolConfiguration
-} from './plugins/analysis-plugin.js';
+} from './plugins/analysis-plugin';
 
 // Additional exports that CLI needs
-export { AnalysisEngine } from './analysis/analysis-engine.js';
-export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine.js';
-export { BunTestAdapter } from './plugins/builtin/bun-test-adapter.js';
+export { AnalysisEngine } from './analysis/analysis-engine';
+export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine';
+export { BunTestAdapter } from './plugins/builtin/bun-test-adapter';
 
 // Coverage related exports
-export type { CoverageReport, EnhancedCoverageData } from './types/coverage.js';
+export type { CoverageReport, EnhancedCoverageData } from './types/coverage';
 
 // Export AnalysisProgress type from analysis engine
-export type { AnalysisProgress } from './analysis/analysis-engine.js';
+export type { AnalysisProgress } from './analysis/analysis-engine';
 
 // Issue Prioritization Engine exports
-export * from './prioritization/index.js';
+export * from './prioritization/index';
