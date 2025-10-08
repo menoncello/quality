@@ -31,10 +31,10 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
-      "@dev-quality/*": ["packages/*/src"],
-      "@dev-quality/core": ["packages/core/src"],
-      "@dev-quality/types": ["packages/types/src"],
-      "@dev-quality/utils": ["packages/utils/src"],
+      "@dev-quality/*": ["packages/*/src", "packages/*/dist"],
+      "@dev-quality/core": ["packages/core/src", "packages/core/dist"],
+      "@dev-quality/types": ["packages/types/src", "packages/types/dist"],
+      "@dev-quality/utils": ["packages/utils/src", "packages/utils/dist"],
       "@/*": ["apps/*/src"]
     }
   },
