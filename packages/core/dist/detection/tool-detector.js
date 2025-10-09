@@ -136,7 +136,6 @@ export class ToolDetector {
                         });
                     }
                     catch (error) {
-                        // eslint-disable-next-line no-console
                         console.warn(`Failed to parse config file ${configPath}:`, error);
                     }
                 }
@@ -163,7 +162,6 @@ export class ToolDetector {
             };
         }
         catch (error) {
-            // eslint-disable-next-line no-console
             console.warn(`Failed to detect tool ${toolConfig.tool}:`, error);
             return null;
         }
@@ -257,7 +255,6 @@ export class ToolDetector {
             return fileUtils.readJsonSync(packageJsonPath);
         }
         catch (error) {
-            // eslint-disable-next-line no-console
             console.warn(`Failed to load package.json:`, error);
             return {};
         }

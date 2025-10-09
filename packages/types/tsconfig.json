@@ -1,11 +1,46 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "outDir": "dist",
     "rootDir": "src",
     "composite": true,
-    "strict": true,
-    "strictNullChecks": true
+    "baseUrl": ".",
+    "paths": {
+      "@dev-quality/*": ["../../packages/*/src", "../../packages/*/dist"],
+      "@dev-quality/core": ["../../packages/core/src", "../../packages/core/dist"],
+      "@dev-quality/types": ["../../packages/types/src", "../../packages/types/dist"],
+      "@dev-quality/utils": ["../../packages/utils/src", "../../packages/utils/dist"],
+      "@/*": ["../../apps/*/src"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/node_modules", "**/dist"]
 }

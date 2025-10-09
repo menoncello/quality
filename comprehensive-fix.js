@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'fs';
-import path from 'path';
+import _path from 'path';
 
 const fixCoverageAnalyzer = (filePath) => {
   let content = fs.readFileSync(filePath, 'utf8');

@@ -7,6 +7,10 @@ import type {
   CLIDashboardState,
   DashboardView,
   FilterState,
+  RealTimeUpdateEvent,
+  DashboardLayout,
+  PerformanceMetrics,
+  NavigationBreadcrumb,
   // NavigationState,
   // DashboardUIState,
   // DashboardResultsState,
@@ -31,6 +35,20 @@ interface DashboardStore extends CLIDashboardState {
   selectedIndex: number;
   currentResult: AnalysisResult | null;
 
+  // Prioritization state
+  prioritizedIssues: import('@dev-quality/types').IssuePrioritization[];
+  isProcessingPrioritization: boolean;
+  prioritizationProgress: number;
+  prioritizationError: string | null;
+  lastPrioritizedAt: Date | null;
+
+  // Enhanced features state
+  realTimeUpdates: RealTimeUpdateEvent[];
+  currentLayout: DashboardLayout | null;
+  availableLayouts: DashboardLayout[];
+  navigationBreadcrumbs: NavigationBreadcrumb[];
+  performanceMetrics: PerformanceMetrics | null;
+
   // Results actions
   setAnalysisResult: (result: AnalysisResult | null) => void;
   updateFilteredIssues: (issues: Issue[]) => void;
@@ -52,6 +70,36 @@ interface DashboardStore extends CLIDashboardState {
   addToNavigationHistory: (view: DashboardView, selectedIndex: number) => void;
   goBack: () => void;
 
+  // Prioritization actions
+  setPrioritizationData: (
+    prioritizations: import('@dev-quality/types').IssuePrioritization[]
+  ) => void;
+  setProcessingPrioritization: (isProcessing: boolean) => void;
+  setPrioritizationProgress: (progress: number) => void;
+  setPrioritizationError: (error: string | null) => void;
+  filterByPriority: (priorityLevels: string[]) => void;
+  sortByPriority: (order: SortOrder) => void;
+
+  // Real-time update actions
+  addRealTimeUpdate: (update: RealTimeUpdateEvent) => void;
+  clearRealTimeUpdates: () => void;
+
+  // Layout management actions
+  setCurrentLayout: (layout: DashboardLayout) => void;
+  addAvailableLayout: (layout: DashboardLayout) => void;
+  updateLayoutWidget: (
+    widgetId: string,
+    updates: Partial<import('../types/dashboard').WidgetConfig>
+  ) => void;
+
+  // Navigation actions
+  addNavigationBreadcrumb: (breadcrumb: NavigationBreadcrumb) => void;
+  removeNavigationBreadcrumb: (breadcrumbId: string) => void;
+  clearNavigationBreadcrumbs: () => void;
+
+  // Performance monitoring actions
+  updatePerformanceMetrics: (metrics: Partial<PerformanceMetrics>) => void;
+
   // Utility actions
   resetDashboard: () => void;
   clearFilters: () => void;
@@ -70,6 +118,12 @@ const initialState: CLIDashboardState = {
       minScore: null,
       maxScore: null,
       searchQuery: '',
+      // Priority-based filtering defaults
+      priorityLevels: ['critical', 'high', 'medium', 'low'],
+      minPriorityScore: null,
+      maxPriorityScore: null,
+      triageActions: [],
+      classificationCategories: [],
     },
     isAnalyzing: false,
     analysisProgress: null,
@@ -103,6 +157,20 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   sortOrder: initialState.ui.sortOrder,
   selectedIndex: initialState.navigation.selectedIndex,
   currentResult: initialState.results.currentResult,
+
+  // Initialize prioritization state
+  prioritizedIssues: [],
+  isProcessingPrioritization: false,
+  prioritizationProgress: 0,
+  prioritizationError: null,
+  lastPrioritizedAt: null,
+
+  // Initialize enhanced features state
+  realTimeUpdates: [],
+  currentLayout: null,
+  availableLayouts: [],
+  navigationBreadcrumbs: [],
+  performanceMetrics: null,
 
   ...initialState,
 
@@ -293,5 +361,127 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         ...state.results,
         filters: initialState.results.filters,
       },
+    })),
+
+  // Prioritization actions
+  setPrioritizationData: (prioritizations: import('@dev-quality/types').IssuePrioritization[]) =>
+    set(_state => ({
+      prioritizedIssues: prioritizations,
+      lastPrioritizedAt: new Date(),
+      prioritizationError: null,
+    })),
+
+  setProcessingPrioritization: (isProcessing: boolean) =>
+    set(state => ({
+      isProcessingPrioritization: isProcessing,
+      prioritizationProgress: isProcessing ? 0 : state.prioritizationProgress,
+    })),
+
+  setPrioritizationProgress: (progress: number) =>
+    set(_state => ({
+      prioritizationProgress: Math.min(100, Math.max(0, progress)),
+    })),
+
+  setPrioritizationError: (error: string | null) =>
+    set(_state => ({
+      prioritizationError: error,
+      isProcessingPrioritization: false,
+    })),
+
+  filterByPriority: (priorityLevels: string[]) =>
+    set(_state => {
+      const updatedFilters = {
+        ...get().results.filters,
+        priorityLevels,
+      };
+      return {
+        results: {
+          ...get().results,
+          filters: updatedFilters,
+        },
+        filters: updatedFilters,
+      };
+    }),
+
+  sortByPriority: (order: SortOrder) =>
+    set(_state => ({
+      ui: {
+        ...get().ui,
+        sortBy: 'priority',
+        sortOrder: order,
+      },
+      sortBy: 'priority',
+      sortOrder: order,
+    })),
+
+  // Real-time update actions
+  addRealTimeUpdate: (update: RealTimeUpdateEvent) =>
+    set(_state => ({
+      realTimeUpdates: [update, ...get().realTimeUpdates.slice(0, 99)], // Keep last 100 updates
+    })),
+
+  clearRealTimeUpdates: () =>
+    set(_state => ({
+      realTimeUpdates: [],
+    })),
+
+  // Layout management actions
+  setCurrentLayout: (layout: DashboardLayout) =>
+    set(_state => ({
+      currentLayout: layout,
+    })),
+
+  addAvailableLayout: (layout: DashboardLayout) =>
+    set(_state => ({
+      availableLayouts: [...get().availableLayouts.filter(l => l.id !== layout.id), layout],
+    })),
+
+  updateLayoutWidget: (
+    widgetId: string,
+    updates: Partial<import('../types/dashboard').WidgetConfig>
+  ) =>
+    set(state => {
+      if (!state.currentLayout) return state;
+
+      const updatedLayout = {
+        ...state.currentLayout,
+        widgets: state.currentLayout.widgets.map(widget =>
+          widget.id === widgetId ? { ...widget, ...updates } : widget
+        ),
+        updatedAt: new Date(),
+      };
+
+      return {
+        currentLayout: updatedLayout,
+        availableLayouts: state.availableLayouts.map(layout =>
+          layout.id === updatedLayout.id ? updatedLayout : layout
+        ),
+      };
+    }),
+
+  // Navigation actions
+  addNavigationBreadcrumb: (breadcrumb: NavigationBreadcrumb) =>
+    set(state => ({
+      navigationBreadcrumbs: [...state.navigationBreadcrumbs, breadcrumb],
+    })),
+
+  removeNavigationBreadcrumb: (breadcrumbId: string) =>
+    set(state => ({
+      navigationBreadcrumbs: state.navigationBreadcrumbs.filter(b => b.id !== breadcrumbId),
+    })),
+
+  clearNavigationBreadcrumbs: () =>
+    set(_state => ({
+      navigationBreadcrumbs: [],
+    })),
+
+  // Performance monitoring actions
+  updatePerformanceMetrics: (metrics: Partial<PerformanceMetrics>) =>
+    set(state => ({
+      performanceMetrics: {
+        ...state.performanceMetrics,
+        ...metrics,
+        timestamp: new Date(),
+      } as PerformanceMetrics,
     })),
 }));

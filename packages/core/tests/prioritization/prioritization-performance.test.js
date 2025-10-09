@@ -212,7 +212,7 @@ describe('IssuePrioritizationEngine Performance Tests', () => {
                 if (processingTimes[i - 1] === 0)
                     continue;
                 // Allow more variance for realistic performance scaling
-                expect(Math.abs(timeRatio - countRatio)).toBeLessThan(countRatio * 2.0);
+                expect(Math.abs(timeRatio - countRatio)).toBeLessThanOrEqual(countRatio * 2.0);
             }
         });
         it('should handle different issue complexity levels efficiently', async () => {

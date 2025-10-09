@@ -16,7 +16,8 @@ const fixCorruptedPatterns = (filePath) => {
   });
 
   // Fix corrupted property access like "context.(config as any)" -> "context.config as any"
-  content = content.replace(/\.(\([^)]+\) as any\)/g, (match, propAccess) => {
+  const propertyPattern = new RegExp('\\.\\(([^)]*\\)\\s+as any\\)', 'g');
+  content = content.replace(propertyPattern, (match, propAccess) => {
     modified = true;
     const prop = propAccess.replace(/[()]/g, '');
     return `.${prop}`;

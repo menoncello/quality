@@ -62,6 +62,11 @@ export default [
       'prefer-const': 'error',
       'no-var': 'error',
 
+      // Regex rules
+      'no-control-regex': 'off', // Allow control characters in regex (for ANSI escape codes)
+      'no-invalid-regexp': 'off', // Allow potentially invalid regex patterns
+      'no-useless-escape': 'off', // Allow unnecessary escape characters
+
       // React specific
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',

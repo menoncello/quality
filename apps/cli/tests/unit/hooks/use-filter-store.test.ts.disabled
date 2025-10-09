@@ -1,0 +1,443 @@
+/**
+ * Filter Store Hook Tests
+ */
+
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
+import { renderHook, act } from '@testing-library/react';
+import { useFilterStore } from '../../../src/hooks/useFilterStore';
+import type { Issue } from '@dev-quality/types';
+
+describe('useFilterStore', () => {
+  const mockIssues: Issue[] = [
+    {
+      id: '1',
+      type: 'error',
+      toolName: 'eslint',
+      filePath: '/src/components/Button.tsx',
+      lineNumber: 10,
+      message: 'Missing semicolon',
+      ruleId: 'semi',
+      fixable: true,
+      suggestion: 'Add semicolon',
+      score: 7,
+    },
+    {
+      id: '2',
+      type: 'warning',
+      toolName: 'typescript',
+      filePath: '/src/utils/helpers.ts',
+      lineNumber: 25,
+      message: 'Unused variable',
+      ruleId: 'no-unused-vars',
+      fixable: false,
+      score: 4,
+    },
+    {
+      id: '3',
+      type: 'error',
+      toolName: 'eslint',
+      filePath: '/src/services/api.ts',
+      lineNumber: 50,
+      message: 'Security vulnerability: eval() usage',
+      ruleId: 'no-eval',
+      fixable: true,
+      score: 9,
+    },
+  ];
+
+  beforeEach(() => {
+    // Reset store state before each test
+    const { result } = renderHook(() => useFilterStore());
+    act(() => {
+      result.current.resetAll();
+    });
+  });
+
+  afterEach(() => {
+    // Clean up any store state
+    const { result } = renderHook(() => useFilterStore());
+    act(() => {
+      result.current.resetAll();
+    });
+  });
+
+  describe('filter operations', () => {
+    it('should initialize with default filters', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      expect(result.current.filters.severity).toEqual([]);
+      expect(result.current.filters.tools).toEqual([]);
+      expect(result.current.filters.scoreRange).toEqual([1, 10]);
+      expect(result.current.search.query).toBe('');
+      expect(result.current.search.fields).toEqual(['message', 'filePath', 'ruleId', 'toolName']);
+    });
+
+    it('should apply severity filters correctly', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setFilters({ severity: ['error'] });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(2);
+      expect(filtered.every(issue => issue.type === 'error')).toBe(true);
+    });
+
+    it('should apply tool filters correctly', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setFilters({ tools: ['eslint'] });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(2);
+      expect(filtered.every(issue => issue.toolName === 'eslint')).toBe(true);
+    });
+
+    it('should apply score range filters correctly', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setFilters({ scoreRange: [8, 10] });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0].id).toBe('3');
+    });
+
+    it('should apply fixable filters correctly', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setFilters({ hasFix: true });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(2);
+      expect(filtered.every(issue => issue.fixable === true)).toBe(true);
+    });
+
+    it('should apply multiple filters correctly', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setFilters({
+          severity: ['error'],
+          tools: ['eslint'],
+          hasFix: true,
+        });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(2);
+      expect(filtered.every(issue =>
+        issue.type === 'error' &&
+        issue.toolName === 'eslint' &&
+        issue.fixable === true
+      )).toBe(true);
+    });
+  });
+
+  describe('search operations', () => {
+    it('should search by message text', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setSearch({ query: 'semicolon' });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0].message).toContain('semicolon');
+    });
+
+    it('should search by file path', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setSearch({
+          query: 'Button',
+          fields: ['filePath']
+        });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0].filePath).toContain('Button');
+    });
+
+    it('should handle case sensitive search', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setSearch({
+          query: 'ERROR',
+          caseSensitive: true
+        });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(0); // Should not match due to case sensitivity
+
+      act(() => {
+        result.current.setSearch({
+          query: 'error',
+          caseSensitive: true
+        });
+      });
+
+      const filteredCaseMatch = result.current.applyFilters(mockIssues);
+      expect(filteredCaseMatch).toHaveLength(2);
+    });
+
+    it('should handle regex search', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setSearch({
+          query: '(eslint|typescript)',
+          useRegex: true
+        });
+      });
+
+      const filtered = result.current.applyFilters(mockIssues);
+      expect(filtered).toHaveLength(3); // Should match all issues
+    });
+  });
+
+  describe('preset management', () => {
+    it('should save custom preset', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setFilters({ severity: ['error'] });
+      });
+
+      const saveResult = act(() => {
+        return result.current.savePreset('Test Preset', 'Test description');
+      });
+
+      expect(saveResult.success).toBe(true);
+      expect(result.current.presets.some(p => p.name === 'Test Preset')).toBe(true);
+    });
+
+    it('should load preset', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      // First save a preset
+      act(() => {
+        result.current.setFilters({ severity: ['error'] });
+        result.current.savePreset('Test Preset', 'Test description');
+      });
+
+      // Reset filters
+      act(() => {
+        result.current.clearFilters();
+      });
+
+      // Load preset
+      const loadResult = act(() => {
+        return result.current.loadPreset(result.current.presets.find(p => p.name === 'Test Preset')!.id);
+      });
+
+      expect(loadResult.success).toBe(true);
+      expect(result.current.filters.severity).toEqual(['error']);
+    });
+
+    it('should delete custom preset', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      // Save a preset
+      act(() => {
+        result.current.savePreset('Test Preset', 'Test description');
+      });
+
+      const presetToDelete = result.current.presets.find(p => p.name === 'Test Preset')!;
+
+      // Delete preset
+      const deleteResult = act(() => {
+        return result.current.deletePreset(presetToDelete.id);
+      });
+
+      expect(deleteResult.success).toBe(true);
+      expect(result.current.presets.some(p => p.name === 'Test Preset')).toBe(false);
+    });
+
+    it('should not allow deletion of default presets', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      const defaultPreset = result.current.presets.find(p => p.isDefault)!;
+
+      const deleteResult = act(() => {
+        return result.current.deletePreset(defaultPreset.id);
+      });
+
+      expect(deleteResult.success).toBe(false);
+      expect(deleteResult.error).toBe('Cannot delete default presets');
+    });
+  });
+
+  describe('input validation', () => {
+    it('should validate search queries', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      const validResult = result.current.validateSearchQuery('valid search query');
+      expect(validResult.isValid).toBe(true);
+
+      const invalidResult = result.current.validateSearchQuery('\x00\x01\x02');
+      expect(invalidResult.isValid).toBe(false);
+    });
+
+    it('should validate filter values', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      const validSeverity = result.current.validateFilterValue('error', 'severity');
+      expect(validSeverity.isValid).toBe(true);
+      expect(validSeverity.sanitized).toBe('error');
+
+      const invalidSeverity = result.current.validateFilterValue('invalid', 'severity');
+      expect(invalidSeverity.isValid).toBe(false);
+      expect(invalidSeverity.sanitized).toBe('');
+    });
+
+    it('should sanitize preset names', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      const saveResult = act(() => {
+        return result.current.savePreset('Test<script>alert("xss")</script>', 'Description');
+      });
+
+      expect(saveResult.success).toBe(true);
+      const savedPreset = result.current.presets.find(p => p.name.includes('Test'));
+      expect(savedPreset?.name).not.toContain('<script>');
+    });
+  });
+
+  describe('rate limiting', () => {
+    it('should rate limit filter changes', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      // Make rapid filter changes
+      act(() => {
+        result.current.setFilters({ severity: ['error'] });
+      });
+
+      act(() => {
+        result.current.setFilters({ tools: ['eslint'] });
+      });
+
+      // Should have error due to rate limiting
+      expect(result.current.lastError).toBe('Filter changes are rate limited. Please wait a moment.');
+    });
+
+    it('should rate limit search queries', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      // Make rapid search changes
+      act(() => {
+        result.current.setSearch({ query: 'first' });
+      });
+
+      act(() => {
+        result.current.setSearch({ query: 'second' });
+      });
+
+      // Should have error due to rate limiting
+      expect(result.current.lastError).toBe('Search queries are rate limited. Please wait a moment.');
+    });
+  });
+
+  describe('performance optimization', () => {
+    it('should debounce filter application', () => {
+      const { result } = renderHook(() => useFilterStore());
+      const applySpy = jest.spyOn(result.current, 'applyFilters');
+
+      // Use debounced version
+      act(() => {
+        result.current.debouncedApplyFilters(mockIssues);
+      });
+
+      // Should not be called immediately due to debouncing
+      expect(applySpy).not.toHaveBeenCalled();
+    });
+
+    it('should handle large datasets efficiently', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      // Create large dataset
+      const largeIssues: Issue[] = Array.from({ length: 1000 }, (_, index) => ({
+        id: `issue-${index}`,
+        type: index % 2 === 0 ? 'error' : 'warning',
+        toolName: 'eslint',
+        filePath: `/src/file-${index}.ts`,
+        lineNumber: index % 100 + 1,
+        message: `Issue ${index}`,
+        ruleId: `rule-${index % 10}`,
+        fixable: index % 3 === 0,
+        score: Math.floor(Math.random() * 10) + 1,
+      }));
+
+      const startTime = Date.now();
+      const filtered = result.current.applyFilters(largeIssues);
+      const endTime = Date.now();
+
+      expect(filtered).toHaveLength(1000);
+      expect(endTime - startTime).toBeLessThan(100); // Should complete in less than 100ms
+    });
+  });
+
+  describe('state management', () => {
+    it('should toggle filter panel', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      expect(result.current.isFilterPanelOpen).toBe(false);
+
+      act(() => {
+        result.current.toggleFilterPanel();
+      });
+
+      expect(result.current.isFilterPanelOpen).toBe(true);
+    });
+
+    it('should clear filters', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setFilters({ severity: ['error'] });
+        result.current.setSearch({ query: 'test' });
+      });
+
+      expect(result.current.filters.severity).toEqual(['error']);
+      expect(result.current.search.query).toBe('test');
+
+      act(() => {
+        result.current.clearFilters();
+      });
+
+      expect(result.current.filters.severity).toEqual([]);
+      expect(result.current.search.query).toBe('');
+    });
+
+    it('should reset all state', () => {
+      const { result } = renderHook(() => useFilterStore());
+
+      act(() => {
+        result.current.setFilters({ severity: ['error'] });
+        result.current.setSearch({ query: 'test' });
+        result.current.setFilterPanelOpen(true);
+      });
+
+      act(() => {
+        result.current.resetAll();
+      });
+
+      expect(result.current.filters.severity).toEqual([]);
+      expect(result.current.search.query).toBe('');
+      expect(result.current.isFilterPanelOpen).toBe(false);
+      expect(result.current.currentPresetId).toBe('fixable-issues');
+    });
+  });
+});

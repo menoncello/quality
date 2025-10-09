@@ -11,7 +11,7 @@ import { PrettierAdapter } from '../plugins/builtin/prettier-adapter.js';
 import { TypeScriptAdapter } from '../plugins/builtin/typescript-adapter.js';
 import { BunTestAdapter } from '../plugins/builtin/bun-test-adapter.js';
 import { createTestProject, cleanupTestProject, type TestProject } from './test-utils-simple.js';
-import type { AnalysisContext, ToolConfiguration, ProjectConfiguration } from '../plugins/analysis-plugin.js';
+import type { AnalysisContext, ToolConfiguration, ProjectConfiguration, PluginConfig } from '../plugins/analysis-plugin.js';
 
 describe('Built-in Tool Adapters', () => {
   let testProject: TestProject;
@@ -90,7 +90,15 @@ describe('Built-in Tool Adapters', () => {
       );
 
       // Initialize adapter first
-      await adapter.initialize(adapter.getDefaultConfig() as any);
+      const toolConfig = adapter.getDefaultConfig();
+      const pluginConfig: PluginConfig = {
+        enabled: toolConfig.enabled,
+        timeout: 30000,
+        cacheEnabled: true,
+        logLevel: 'info',
+        ...toolConfig.config
+      };
+      await adapter.initialize(pluginConfig);
 
       const context: AnalysisContext = {
                 projectPath: testProject.path,
@@ -167,7 +175,15 @@ describe('Built-in Tool Adapters', () => {
 
     it('should handle missing Prettier gracefully', async () => {
       // Initialize adapter first
-      await adapter.initialize(adapter.getDefaultConfig() as any);
+      const toolConfig = adapter.getDefaultConfig();
+      const pluginConfig: PluginConfig = {
+        enabled: toolConfig.enabled,
+        timeout: 30000,
+        cacheEnabled: true,
+        logLevel: 'info',
+        ...toolConfig.config
+      };
+      await adapter.initialize(pluginConfig);
 
       const context: AnalysisContext = {
                 projectPath: testProject.path,
@@ -240,7 +256,15 @@ describe('Built-in Tool Adapters', () => {
 
     it('should handle missing TypeScript gracefully', async () => {
       // Initialize adapter first
-      await adapter.initialize(adapter.getDefaultConfig() as any);
+      const toolConfig = adapter.getDefaultConfig();
+      const pluginConfig: PluginConfig = {
+        enabled: toolConfig.enabled,
+        timeout: 30000,
+        cacheEnabled: true,
+        logLevel: 'info',
+        ...toolConfig.config
+      };
+      await adapter.initialize(pluginConfig);
 
       // Check if TypeScript is actually available
       const isAvailable = await adapter.isAvailable();
@@ -285,14 +309,15 @@ describe('Built-in Tool Adapters', () => {
     });
 
     it('should provide default configuration', () => {
-      const config = adapter.getDefaultConfig();
+      const freshAdapter = new BunTestAdapter();
+      const config = freshAdapter.getDefaultConfig();
 
       expect(config.name).toBe('bun-test');
       expect(config.enabled).toBe(true);
       expect(config.config).toBeDefined();
       expect(config.config.coverage).toBe(true);
-      expect((config.config as any).coverageThreshold).toBeDefined();
-      expect((config.config as any).coverageThreshold.statements).toBe(80);
+      expect((config.config as { coverageThreshold?: { statements: number } }).coverageThreshold).toBeDefined();
+      expect((config.config as { coverageThreshold?: { statements: number } }).coverageThreshold?.statements).toBe(80);
     });
 
     it('should validate valid configuration', () => {
@@ -311,7 +336,8 @@ describe('Built-in Tool Adapters', () => {
         }
       };
 
-      const result = adapter.validateConfig(validConfig);
+      const freshAdapter = new BunTestAdapter();
+      const result = freshAdapter.validateConfig(validConfig);
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
@@ -327,14 +353,24 @@ describe('Built-in Tool Adapters', () => {
         }
       };
 
-      const result = adapter.validateConfig(invalidConfig);
+      const freshAdapter = new BunTestAdapter();
+      const result = freshAdapter.validateConfig(invalidConfig);
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
     it('should handle missing Bun Test gracefully', async () => {
       // Initialize adapter first
-      await adapter.initialize(adapter.getDefaultConfig() as any);
+      const freshAdapter = new BunTestAdapter();
+      const toolConfig = freshAdapter.getDefaultConfig();
+      const pluginConfig: PluginConfig = {
+        enabled: toolConfig.enabled,
+        timeout: 30000,
+        cacheEnabled: true,
+        logLevel: 'info',
+        ...toolConfig.config
+      };
+      await freshAdapter.initialize(pluginConfig);
 
       const context: AnalysisContext = {
                 projectPath: testProject.path,
@@ -342,14 +378,15 @@ describe('Built-in Tool Adapters', () => {
         logger: mockLogger
       };
 
-      const result = await adapter.execute(context);
+      const result = await freshAdapter.execute(context);
 
       expect(result.toolName).toBe('bun-test');
       expect(['success', 'error']).toContain(result.status); // Either works or fails gracefully
     });
 
     it('should check if Bun Test is available', async () => {
-      const isAvailable = await adapter.isAvailable();
+      const freshAdapter = new BunTestAdapter();
+      const isAvailable = await freshAdapter.isAvailable();
       expect(typeof isAvailable).toBe('boolean');
     });
   });
@@ -364,12 +401,15 @@ describe('Built-in Tool Adapters', () => {
       ];
 
       adapters.forEach(adapter => {
-        expect(adapter.name).toBeTruthy();
-        expect(adapter.version).toBeTruthy();
-        expect(adapter.getDefaultConfig).toBeDefined();
-        expect(adapter.validateConfig).toBeDefined();
-        expect(adapter.execute).toBeDefined();
-        expect(adapter.isAvailable).toBeDefined();
+        // Create fresh instance for BunTestAdapter to ensure methods are available
+        const freshAdapter = adapter instanceof BunTestAdapter ? new BunTestAdapter() : adapter;
+
+        expect(freshAdapter.name).toBeTruthy();
+        expect(freshAdapter.version).toBeTruthy();
+        expect(freshAdapter.getDefaultConfig).toBeDefined();
+        expect(freshAdapter.validateConfig).toBeDefined();
+        expect(freshAdapter.execute).toBeDefined();
+        expect(freshAdapter.isAvailable).toBeDefined();
       });
     });
 
@@ -384,10 +424,11 @@ describe('Built-in Tool Adapters', () => {
       for (const adapter of adapters) {
         try {
           await adapter.initialize({
-            name: adapter.name,
             enabled: true,
-            config: {}
-          } as any);
+            timeout: 30000,
+            cacheEnabled: true,
+            logLevel: 'info'
+          });
         } catch (error) {
           // Should handle initialization errors gracefully
           expect(error).toBeDefined();
@@ -398,7 +439,15 @@ describe('Built-in Tool Adapters', () => {
     it('should provide meaningful error messages', async () => {
       const adapter = new ESLintAdapter();
       // Initialize adapter first
-      await adapter.initialize(adapter.getDefaultConfig() as any);
+      const toolConfig = adapter.getDefaultConfig();
+      const pluginConfig: PluginConfig = {
+        enabled: toolConfig.enabled,
+        timeout: 30000,
+        cacheEnabled: true,
+        logLevel: 'info',
+        ...toolConfig.config
+      };
+      await adapter.initialize(pluginConfig);
 
       const context: AnalysisContext = {
                 projectPath: '/nonexistent/path',
@@ -490,7 +539,7 @@ describe('Built-in Tool Adapters', () => {
 
       const startTime = Date.now();
 
-      const results = configs.map(config => adapter.validateConfig(config as any));
+      const results = configs.map(config => adapter.validateConfig(config));
 
       const duration = Date.now() - startTime;
       expect(duration).toBeLessThan(500); // Should validate 100 configs within 500ms

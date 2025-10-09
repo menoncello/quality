@@ -36,7 +36,7 @@
     "test": {
       "dependsOn": ["build"],
       "outputs": [],
-      "cache": false,
+      "cache": true,
       "inputs": ["src/**", "tests/**", "package.json"],
       "passThroughEnv": ["NODE_ENV"]
     },

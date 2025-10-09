@@ -1,0 +1,546 @@
+/**
+ * Comparison Store Hook Tests
+ */
+
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
+import { renderHook, act } from '@testing-library/react';
+import { useComparisonStore } from '../../../src/hooks/useComparisonStore';
+import type { Issue } from '@dev-quality/types';
+
+describe('useComparisonStore', () => {
+  const mockBaselineRun = {
+    id: 'baseline-1',
+    timestamp: new Date('2025-01-01T10:00:00Z'),
+    version: 'v1.0.0',
+    commitHash: 'abc123',
+    branch: 'main',
+    metadata: {
+      totalIssues: 10,
+      criticalIssues: 3,
+      highIssues: 4,
+      mediumIssues: 2,
+      lowIssues: 1,
+      fixableIssues: 7,
+      score: 75,
+      executionTime: 5000,
+      tools: ['eslint', 'typescript'],
+    },
+    issues: [
+      {
+        id: 'issue-1',
+        type: 'error',
+        toolName: 'eslint',
+        filePath: '/src/test.ts',
+        lineNumber: 10,
+        message: 'Test issue',
+        ruleId: 'test-rule',
+        fixable: true,
+        score: 8,
+      },
+    ],
+    metrics: {
+      coverage: 85,
+      duplicates: 2,
+      newIssues: 0,
+      resolvedIssues: 0,
+      trends: {
+        severity: { error: 3, warning: 4, info: 3 },
+        tools: { eslint: 6, typescript: 4 },
+        categories: { security: 2, performance: 3, maintainability: 5 },
+      },
+    },
+  };
+
+  const mockComparisonRun = {
+    id: 'comparison-1',
+    timestamp: new Date('2025-01-02T10:00:00Z'),
+    version: 'v1.1.0',
+    commitHash: 'def456',
+    branch: 'main',
+    metadata: {
+      totalIssues: 8,
+      criticalIssues: 2,
+      highIssues: 3,
+      mediumIssues: 2,
+      lowIssues: 1,
+      fixableIssues: 6,
+      score: 80,
+      executionTime: 4500,
+      tools: ['eslint', 'typescript'],
+    },
+    issues: [
+      {
+        id: 'issue-1',
+        type: 'error',
+        toolName: 'eslint',
+        filePath: '/src/test.ts',
+        lineNumber: 10,
+        message: 'Test issue',
+        ruleId: 'test-rule',
+        fixable: true,
+        score: 8,
+      },
+      {
+        id: 'issue-2',
+        type: 'warning',
+        toolName: 'typescript',
+        filePath: '/src/new.ts',
+        lineNumber: 5,
+        message: 'New issue',
+        ruleId: 'new-rule',
+        fixable: false,
+        score: 5,
+      },
+    ],
+    metrics: {
+      coverage: 88,
+      duplicates: 1,
+      newIssues: 1,
+      resolvedIssues: 3,
+      trends: {
+        severity: { error: 2, warning: 4, info: 2 },
+        tools: { eslint: 5, typescript: 3 },
+        categories: { security: 1, performance: 3, maintainability: 4 },
+      },
+    },
+  };
+
+  beforeEach(() => {
+    // Reset store state before each test
+    const { result } = renderHook(() => useComparisonStore());
+    act(() => {
+      result.current.clearComparison();
+    });
+  });
+
+  afterEach(() => {
+    // Clean up any store state
+    const { result } = renderHook(() => useComparisonStore());
+    act(() => {
+      result.current.clearComparison();
+    });
+  });
+
+  describe('run management', () => {
+    it('should initialize with empty state', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      expect(result.current.runs).toEqual([]);
+      expect(result.current.comparisons).toEqual([]);
+      expect(result.current.currentComparison).toBeUndefined();
+      expect(result.current.isComparing).toBe(false);
+    });
+
+    it('should add a new run', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+      });
+
+      expect(result.current.runs).toHaveLength(1);
+      expect(result.current.runs[0].id).toBe('baseline-1');
+    });
+
+    it('should update existing run', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+      });
+
+      const updatedRun = { ...mockBaselineRun, version: 'v1.0.1' };
+      act(() => {
+        result.current.addRun(updatedRun);
+      });
+
+      expect(result.current.runs).toHaveLength(1);
+      expect(result.current.runs[0].version).toBe('v1.0.1');
+    });
+
+    it('should remove a run', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      expect(result.current.runs).toHaveLength(2);
+
+      act(() => {
+        result.current.removeRun('baseline-1');
+      });
+
+      expect(result.current.runs).toHaveLength(1);
+      expect(result.current.runs[0].id).toBe('comparison-1');
+    });
+
+    it('should get run by ID', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+      });
+
+      const foundRun = result.current.getRun('baseline-1');
+      expect(foundRun).toBeDefined();
+      expect(foundRun?.id).toBe('baseline-1');
+
+      const notFoundRun = result.current.getRun('non-existent');
+      expect(notFoundRun).toBeUndefined();
+    });
+
+    it('should update run properties', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+      });
+
+      act(() => {
+        result.current.updateRun('baseline-1', { version: 'v2.0.0' });
+      });
+
+      const updatedRun = result.current.getRun('baseline-1');
+      expect(updatedRun?.version).toBe('v2.0.0');
+    });
+  });
+
+  describe('comparison operations', () => {
+    it('should compare two runs', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      const comparisonResult = act(() => {
+        return result.current.compareRuns('baseline-1', 'comparison-1');
+      });
+
+      expect(comparisonResult).toBeDefined();
+      expect(comparisonResult.summary.totalIssuesDiff).toBe(-2);
+      expect(comparisonResult.summary.criticalIssuesDiff).toBe(-1);
+      expect(comparisonResult.summary.newIssuesCount).toBe(1);
+      expect(comparisonResult.summary.resolvedIssuesCount).toBe(3);
+    });
+
+    it('should throw error when comparing non-existent runs', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      expect(() => {
+        result.current.compareRuns('non-existent-1', 'non-existent-2');
+      }).toThrow('One or both runs not found');
+    });
+
+    it('should set current comparison', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      const comparisonResult = result.current.compareRuns('baseline-1', 'comparison-1');
+
+      act(() => {
+        result.current.setCurrentComparison(comparisonResult);
+      });
+
+      expect(result.current.currentComparison).toBe(comparisonResult);
+    });
+
+    it('should clear comparison', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      const comparisonResult = result.current.compareRuns('baseline-1', 'comparison-1');
+      act(() => {
+        result.current.setCurrentComparison(comparisonResult);
+      });
+
+      act(() => {
+        result.current.clearComparison();
+      });
+
+      expect(result.current.currentComparison).toBeUndefined();
+    });
+  });
+
+  describe('configuration management', () => {
+    it('should update comparison config', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      const newConfig = {
+        baselineRunId: 'test-baseline',
+        comparisonRunId: 'test-comparison',
+        metrics: ['totalIssues', 'score'],
+      };
+
+      act(() => {
+        result.current.updateComparisonConfig(newConfig);
+      });
+
+      expect(result.current.comparisonConfig.baselineRunId).toBe('test-baseline');
+      expect(result.current.comparisonConfig.comparisonRunId).toBe('test-comparison');
+      expect(result.current.comparisonConfig.metrics).toEqual(['totalIssues', 'score']);
+    });
+
+    it('should update filters', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.setFilters({
+          showNewIssues: false,
+          severityFilter: ['error'],
+        });
+      });
+
+      expect(result.current.comparisonConfig.filters.showNewIssues).toBe(false);
+      expect(result.current.comparisonConfig.filters.severityFilter).toEqual(['error']);
+    });
+
+    it('should update visualization settings', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.setVisualization({
+          showCharts: false,
+          showTrends: true,
+        });
+      });
+
+      expect(result.current.comparisonConfig.visualization.showCharts).toBe(false);
+      expect(result.current.comparisonConfig.visualization.showTrends).toBe(true);
+    });
+  });
+
+  describe('export functionality', () => {
+    it('should export comparison as JSON', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      const comparisonResult = result.current.compareRuns('baseline-1', 'comparison-1');
+      act(() => {
+        result.current.setCurrentComparison(comparisonResult);
+      });
+
+      const exportedJSON = result.current.exportComparison('json');
+      const parsed = JSON.parse(exportedJSON);
+
+      expect(parsed.summary.totalIssuesDiff).toBe(-2);
+      expect(parsed.baseline.id).toBe('baseline-1');
+      expect(parsed.comparison.id).toBe('comparison-1');
+    });
+
+    it('should export comparison as CSV', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      const comparisonResult = result.current.compareRuns('baseline-1', 'comparison-1');
+      act(() => {
+        result.current.setCurrentComparison(comparisonResult);
+      });
+
+      const exportedCSV = result.current.exportComparison('csv');
+
+      expect(exportedCSV).toContain('Metric,Baseline,Comparison,Difference,Trend');
+      expect(exportedCSV).toContain('Total Issues,10,8,-2,down');
+      expect(exportedCSV).toContain('Critical Issues,3,2,-1,down');
+    });
+
+    it('should export comparison as Markdown', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      const comparisonResult = result.current.compareRuns('baseline-1', 'comparison-1');
+      act(() => {
+        result.current.setCurrentComparison(comparisonResult);
+      });
+
+      const exportedMD = result.current.exportComparison('markdown');
+
+      expect(exportedMD).toContain('# Comparison Report');
+      expect(exportedMD).toContain('Total Issues');
+      expect(exportedMD).toContain('10');
+      expect(exportedMD).toContain('8');
+    });
+
+    it('should export runs as JSON', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      const exportedJSON = result.current.exportRuns('json');
+      const parsed = JSON.parse(exportedJSON);
+
+      expect(parsed).toHaveLength(2);
+      expect(parsed[0].id).toBe('comparison-1'); // Should be sorted by timestamp
+      expect(parsed[1].id).toBe('baseline-1');
+    });
+
+    it('should export runs as CSV', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      const exportedCSV = result.current.exportRuns('csv');
+
+      expect(exportedCSV).toContain('ID,Timestamp,Version,Total Issues');
+      expect(exportedCSV).toContain('comparison-1');
+      expect(exportedCSV).toContain('baseline-1');
+    });
+
+    it('should throw error when exporting without comparison', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      expect(() => {
+        result.current.exportComparison('json');
+      }).toThrow('No comparison to export');
+    });
+  });
+
+  describe('utility methods', () => {
+    it('should get recent runs', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      // Add runs with different timestamps
+      const oldRun = { ...mockBaselineRun, id: 'old-run', timestamp: new Date('2024-12-01') };
+      const newRun = { ...mockComparisonRun, id: 'new-run', timestamp: new Date('2025-01-02') };
+
+      act(() => {
+        result.current.addRun(oldRun);
+        result.current.addRun(newRun);
+      });
+
+      const recentRuns = result.current.getRecentRuns(1);
+      expect(recentRuns).toHaveLength(1);
+      expect(recentRuns[0].id).toBe('new-run');
+    });
+
+    it('should get run by ID', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+      });
+
+      const foundRun = result.current.getRunById('baseline-1');
+      expect(foundRun).toBeDefined();
+      expect(foundRun?.id).toBe('baseline-1');
+    });
+
+    it('should calculate trends for multiple runs', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      const thirdRun = {
+        ...mockComparisonRun,
+        id: 'third-run',
+        metadata: { ...mockComparisonRun.metadata, totalIssues: 5 },
+        metrics: {
+          ...mockComparisonRun.metrics,
+          trends: {
+            severity: { error: 1, warning: 3, info: 1 },
+            tools: { eslint: 3, typescript: 2 },
+            categories: { security: 0, performance: 2, maintainability: 3 },
+          },
+        },
+      };
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+        result.current.addRun(thirdRun);
+      });
+
+      const trends = result.current.calculateTrends(['baseline-1', 'comparison-1', 'third-run']);
+
+      expect(trends.severity).toHaveLength(3);
+      expect(trends.tools).toHaveLength(2);
+      expect(trends.categories).toHaveLength(3);
+    });
+  });
+
+  describe('UI state management', () => {
+    it('should toggle run selector', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      expect(result.current.showRunSelector).toBe(false);
+
+      act(() => {
+        result.current.toggleRunSelector();
+      });
+
+      expect(result.current.showRunSelector).toBe(true);
+
+      act(() => {
+        result.current.toggleRunSelector();
+      });
+
+      expect(result.current.showRunSelector).toBe(false);
+    });
+
+    it('should set run selector open state', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.setRunSelectorOpen(true);
+      });
+
+      expect(result.current.showRunSelector).toBe(true);
+
+      act(() => {
+        result.current.setRunSelectorOpen(false);
+      });
+
+      expect(result.current.showRunSelector).toBe(false);
+    });
+
+    it('should select baseline and comparison runs', () => {
+      const { result } = renderHook(() => useComparisonStore());
+
+      act(() => {
+        result.current.addRun(mockBaselineRun);
+        result.current.addRun(mockComparisonRun);
+      });
+
+      act(() => {
+        result.current.selectBaselineRun('baseline-1');
+      });
+
+      expect(result.current.selectedBaselineRun).toBe('baseline-1');
+      expect(result.current.comparisonConfig.baselineRunId).toBe('baseline-1');
+
+      act(() => {
+        result.current.selectComparisonRun('comparison-1');
+      });
+
+      expect(result.current.selectedComparisonRun).toBe('comparison-1');
+      expect(result.current.comparisonConfig.comparisonRunId).toBe('comparison-1');
+    });
+  });
+});

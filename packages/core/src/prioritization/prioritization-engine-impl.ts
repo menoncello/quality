@@ -95,7 +95,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
     } catch (error) {
        
      
-    // eslint-disable-next-line no-console
+     
     console.error('Error during issue prioritization:', error);
       // Return basic prioritization as fallback
       return this.createFallbackPrioritizations(issues, context, Math.round(performance.now() - startTime));
@@ -116,7 +116,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
     } catch (error) {
        
      
-    // eslint-disable-next-line no-console
+     
     console.error('Error training classification model:', error);
       throw new Error(`Failed to train model: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -147,7 +147,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
       if (conflicts.length > 0) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.warn('Rule conflicts detected:', conflicts);
       }
 
@@ -160,7 +160,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
     } catch (error) {
        
      
-    // eslint-disable-next-line no-console
+     
     console.error('Error updating prioritization rules:', error);
       throw error;
     }
@@ -224,7 +224,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
     } catch (error) {
        
      
-    // eslint-disable-next-line no-console
+     
     console.error('Error applying custom rules:', error);
       // Return base prioritizations if rule application fails
       return basePrioritizations;
@@ -243,7 +243,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
     const businessDomain = this.inferBusinessDomain(issue.filePath);
 
     return {
-      projectType: (projectContext.projectConfiguration as any)?.type || 'fullstack',
+      projectType: (projectContext.projectConfiguration as Record<string, unknown>)?.type as string ?? 'fullstack',
       filePath: issue.filePath,
       componentType,
       criticality,
@@ -388,7 +388,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
       } catch (error) {
          
      
-    // eslint-disable-next-line no-console
+     
     console.error(`Error classifying issue ${issues[i].id}:`, error);
         // Fall back to default classification
         classifications.push(this.createDefaultClassification(issues[i], contexts[i]));
@@ -618,7 +618,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
       'medium': 5,
       'low': 3
     };
-    return mapping[severity as keyof typeof mapping] || 5;
+    return mapping[severity] || 5;
   }
 
   private calculateImpactScore(issue: Issue, context: IssueContext): number {
@@ -638,7 +638,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
       'medium': 5,
       'low': 3
     };
-    return mapping[context.criticality as keyof typeof mapping] ?? 5;
+    return mapping[context.criticality] ?? 5;
   }
 
   /**
@@ -646,7 +646,7 @@ export class IssuePrioritizationEngineImpl implements IssuePrioritizationEngine 
    */
   private generateCacheKey(issues: Issue[], context: ProjectContext): string {
     const issuesHash = issues.map(i => `${i.id}-${i.ruleId}`).join('|');
-    const contextHash = `${(context.projectConfiguration as any)?.name || 'unknown'}`;
+    const contextHash = `${(context.projectConfiguration as Record<string, unknown>)?.name as string ?? 'unknown'}`;
     return `${issuesHash}-${contextHash}`;
   }
 
