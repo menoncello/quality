@@ -51,11 +51,12 @@ export { DependencyChecker } from './detection/dependency-checker';
 export { StructureAnalyzer } from './detection/structure-analyzer';
 export { DetectionCache } from './detection/detection-cache';
 // Coverage Analysis exports
-export * from './types/coverage.js';
+export * from './types/coverage';
 // Additional exports that CLI needs
-export { AnalysisEngine } from './analysis/analysis-engine.js';
-export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine.js';
-export { BunTestAdapter } from './plugins/builtin/bun-test-adapter.js';
+export { AnalysisEngine } from './analysis/analysis-engine';
+export { CoverageAnalysisEngine } from './analysis/coverage-analysis-engine';
+export { BunTestAdapter } from './plugins/builtin/bun-test-adapter';
 // Issue Prioritization Engine exports
-export * from './prioritization/index.js';
+export * from './prioritization/index';
+export { prioritizationFactory } from './prioritization/index';
 //# sourceMappingURL=index.js.map

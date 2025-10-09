@@ -134,3 +134,4 @@ export type { AnalysisProgress } from './analysis/analysis-engine';
 
 // Issue Prioritization Engine exports
 export * from './prioritization/index';
+export { prioritizationFactory } from './prioritization/index';
