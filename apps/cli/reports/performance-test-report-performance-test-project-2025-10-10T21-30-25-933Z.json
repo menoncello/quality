@@ -1,0 +1,99 @@
+{
+  "$schema": "https://dev-quality-cli.com/schemas/report/v1.json",
+  "metadata": {
+    "title": "Performance Test Report",
+    "description": "Performance test report",
+    "version": "1.0.0",
+    "generatedAt": "2025-10-10T21:30:25.926Z",
+    "reportId": "b879bad4-bbe0-4cf4-9188-50fc584d3f5b",
+    "format": "json",
+    "template": {
+      "id": "executive-summary",
+      "name": "Custom Executive Summary",
+      "type": "custom"
+    },
+    "configuration": {
+      "id": "perf-test-1760131825926",
+      "name": "Performance Test Report",
+      "filters": {
+        "severity": [
+          "error",
+          "warning",
+          "info"
+        ],
+        "tools": [],
+        "scoreRange": {
+          "min": 0,
+          "max": 100
+        },
+        "fixableOnly": false
+      }
+    },
+    "generator": {
+      "name": "DevQuality CLI",
+      "version": "1.0.0",
+      "timestamp": "2025-10-10T21:30:25.926Z"
+    }
+  },
+  "summary": {
+    "project": {
+      "id": "performance-test-project",
+      "analysisDate": "2025-10-10T21:30:25.924Z",
+      "duration": 100000,
+      "overallScore": 85
+    },
+    "issues": {
+      "total": 0,
+      "errors": 0,
+      "warnings": 0,
+      "info": 0,
+      "fixable": 0
+    },
+    "tools": [
+      {
+        "name": "eslint",
+        "status": "completed",
+        "executionTime": 20000,
+        "issuesCount": 0
+      },
+      {
+        "name": "typescript",
+        "status": "completed",
+        "executionTime": 30000,
+        "issuesCount": 0
+      }
+    ],
+    "metrics": {}
+  },
+  "executiveSummary": {
+    "overview": "The codebase has achieved an overall quality score of 85/100 with 10000 total issues identified. 0 errors require immediate attention, while 0 warnings suggest areas for improvement. 0 issues can be automatically resolved.",
+    "keyMetrics": [
+      {
+        "label": "Overall Score",
+        "value": "85/100",
+        "trend": "stable",
+        "significance": "low"
+      },
+      {
+        "label": "Total Issues",
+        "value": 10000,
+        "trend": "stable",
+        "significance": "high"
+      },
+      {
+        "label": "Fixable Issues",
+        "value": "0 (0%)",
+        "trend": "stable",
+        "significance": "medium"
+      }
+    ],
+    "priorities": [],
+    "recommendations": [],
+    "nextSteps": [
+      "Address high-priority security vulnerabilities",
+      "Fix critical build-breaking errors",
+      "Implement automated testing for uncovered areas",
+      "Set up code review processes for quality gates"
+    ]
+  }
+}

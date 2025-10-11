@@ -54,6 +54,7 @@
   },
   "dependencies": {
     "commander": "14.0.1",
+    "cron": "4.3.3",
     "ink": "6.3.1",
     "react": "19.1.1",
     "winston": "^3.11.0",

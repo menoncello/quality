@@ -51,10 +51,10 @@ export class PerformanceMonitor {
    * Start measuring a render operation
    */
   startRenderMeasurement(): () => void {
-    const startTime = performance.now();
+    const startTime = globalThis.performance.now();
 
     return () => {
-      const endTime = performance.now();
+      const endTime = globalThis.performance.now();
       const renderTime = endTime - startTime;
 
       this.metrics.renderTime = renderTime;
@@ -75,10 +75,10 @@ export class PerformanceMonitor {
    * Start measuring an update operation
    */
   startUpdateMeasurement(): () => void {
-    const startTime = performance.now();
+    const startTime = globalThis.performance.now();
 
     return () => {
-      const endTime = performance.now();
+      const endTime = globalThis.performance.now();
       const updateTime = endTime - startTime;
 
       this.metrics.updateTime = updateTime;
@@ -99,8 +99,8 @@ export class PerformanceMonitor {
    * Check memory usage and alert if necessary
    */
   checkMemoryUsage(): void {
-    if (typeof performance !== 'undefined' && (performance as any).memory) {
-      const memoryInfo = (performance as any).memory;
+    if (typeof globalThis.performance !== 'undefined' && (globalThis.performance as unknown as { memory?: { usedJSHeapSize: number } }).memory) {
+      const memoryInfo = (globalThis.performance as unknown as { memory: { usedJSHeapSize: number } }).memory;
       const memoryUsageMB = memoryInfo.usedJSHeapSize / (1024 * 1024);
 
       this.metrics.memoryUsage = memoryUsageMB;
@@ -119,7 +119,7 @@ export class PerformanceMonitor {
    * Check operation rate and alert if too high
    */
   checkOperationRate(): void {
-    const now = Date.now();
+    const _now = Date.now();
     const timeWindow = 1000; // 1 second
     const recentOperations = this.getOperationCountInTimeWindow(timeWindow);
 
@@ -236,8 +236,8 @@ Status: ${recentAlerts.length === 0 ? 'HEALTHY' : 'WARNING'}
     this.listeners.forEach(listener => {
       try {
         listener(alert);
-      } catch (error) {
-        console.error('Error in performance alert listener:', error);
+      } catch (_error) {
+        // console.error('Error in performance alert listener:', _error);
       }
     });
   }
@@ -272,7 +272,7 @@ export function usePerformanceMonitor(componentName: string) {
     };
   };
 
-  const measureUpdate = (operationName: string) => {
+  const measureUpdate = (_operationName: string) => {
     const stopMeasurement = monitor.startUpdateMeasurement();
 
     return () => {
@@ -293,7 +293,7 @@ export function usePerformanceMonitor(componentName: string) {
  * Search debouncing utility
  */
 export class SearchDebouncer {
-  private timeout: NodeJS.Timeout | null = null;
+  private timeout: ReturnType<typeof setTimeout> | null = null;
   private lastSearchTime: number = 0;
   private searchCount: number = 0;
 
@@ -302,13 +302,13 @@ export class SearchDebouncer {
   /**
    * Debounce a search function
    */
-  debounce<T extends any[]>(
-    searchFunction: (...args: T) => Promise<any>,
+  debounce<T extends unknown[]>(
+    searchFunction: (...args: T) => Promise<unknown>,
     onDebounceStart?: () => void,
     onDebounceEnd?: () => void
-  ): (...args: T) => Promise<any> {
-    return (...args: T): Promise<any> => {
-      return new Promise((resolve, reject) => {
+  ): (...args: T) => Promise<unknown> {
+    return (...args: T): Promise<unknown> => {
+      return new Promise<unknown>((resolve, reject) => {
         // Clear existing timeout
         if (this.timeout) {
           clearTimeout(this.timeout);
@@ -372,8 +372,8 @@ export class SearchDebouncer {
 /**
  * Create a debounced search function
  */
-export function createDebouncedSearch<T extends any[]>(
-  searchFunction: (...args: T) => Promise<any>,
+export function createDebouncedSearch<T extends unknown[]>(
+  searchFunction: (...args: T) => Promise<unknown>,
   debounceTime: number = 300,
   onDebounceStart?: () => void,
   onDebounceEnd?: () => void
@@ -410,6 +410,7 @@ export function setupGlobalPerformanceMonitoring() {
   // Log alerts to console in development
   if (process.env.NODE_ENV === 'development') {
     globalPerformanceMonitor.onAlert((alert) => {
+      // eslint-disable-next-line no-console
       console.warn(`[Performance Alert] ${alert.message}`);
     });
   }

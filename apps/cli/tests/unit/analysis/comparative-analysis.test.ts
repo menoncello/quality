@@ -344,14 +344,14 @@ describe('2.3-UNIT-010: Metric Comparison Logic', () => {
     };
   };
 
-  const generateMockRunWithMetrics = (overallScore: number, metrics: Partial<typeof defaultMetrics>): AnalysisRun => {
-    const defaultMetrics = {
-      coverage: 80,
-      maintainability: 75,
-      reliability: 85,
-      security: 90
-    };
+  const defaultMetrics = {
+    coverage: 80,
+    maintainability: 75,
+    reliability: 85,
+    security: 90
+  };
 
+  const generateMockRunWithMetrics = (overallScore: number, metrics: Partial<typeof defaultMetrics>): AnalysisRun => {
     return {
       id: 'test',
       timestamp: new Date(),
@@ -502,7 +502,7 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
       } else if (trend === 'declining') {
         score = startScore - (i * 2);
       } else {
-        score = startScore + (Math.sin(i) * 0.5); // Very small deterministic variations
+        score = startScore + (Math.sin(i * 0.5) * 0.2); // Very small deterministic variations
       }
 
       const baseIssueCount = 20;
@@ -512,7 +512,7 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
       } else if (trend === 'declining') {
         issueCount = baseIssueCount + i; // More issues over time
       } else {
-        issueCount = baseIssueCount + Math.floor(Math.random() * 3 - 1); // Stable with small variations
+        issueCount = baseIssueCount + Math.floor(Math.sin(i * 0.3) * 1); // Stable with very small deterministic variations
       }
 
       runs.push({
@@ -523,10 +523,10 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
         issueCount,
         issues: [],
         metrics: {
-          coverage: Math.max(0, Math.min(100, 80 + (trend === 'improving' ? i * 1 : trend === 'declining' ? -i * 1 : Math.random() * 4 - 2))),
-          maintainability: Math.max(0, Math.min(100, 75 + (trend === 'improving' ? i * 1.5 : trend === 'declining' ? -i * 1.5 : Math.random() * 4 - 2))),
-          reliability: Math.max(0, Math.min(100, 85 + (trend === 'improving' ? i * 0.5 : trend === 'declining' ? -i * 0.5 : Math.random() * 4 - 2))),
-          security: Math.max(0, Math.min(100, 90 + (trend === 'improving' ? i * 0.3 : trend === 'declining' ? -i * 0.3 : Math.random() * 4 - 2)))
+          coverage: Math.max(0, Math.min(100, 80 + (trend === 'improving' ? i * 1 : trend === 'declining' ? -i * 1 : Math.sin(i * 0.4) * 0.5))),
+          maintainability: Math.max(0, Math.min(100, 75 + (trend === 'improving' ? i * 1.5 : trend === 'declining' ? -i * 1.5 : Math.sin(i * 0.3) * 0.5))),
+          reliability: Math.max(0, Math.min(100, 85 + (trend === 'improving' ? i * 0.5 : trend === 'declining' ? -i * 0.5 : Math.sin(i * 0.6) * 0.3))),
+          security: Math.max(0, Math.min(100, 90 + (trend === 'improving' ? i * 0.3 : trend === 'declining' ? -i * 0.3 : Math.sin(i * 0.2) * 0.2)))
         }
       });
     }

@@ -1,0 +1,150 @@
+# <!-- Powered by BMAD™ Core -->
+
+gate:
+  story: '2.4.comprehensive-reporting-system'
+  title: 'Comprehensive Reporting System'
+  epic: '2.4'
+  date: '2025-10-10'
+  version: '1.0.0'
+  agent: 'Quinn (QA)'
+  decision: 'CONCERNS'
+
+trace:
+  totals:
+    requirements: 6
+    full: 2
+    partial: 4
+    none: 0
+  planning_ref: 'qa.qaLocation/assessments/2.4.comprehensive-reporting-system-test-design-20251010.md'
+  uncovered:
+    - ac: 'AC4'
+      reason: 'No integration tests for team collaboration tools (Slack, Teams, email, GitHub)'
+    - ac: 'AC3'
+      reason: 'Scheduling and automation system not implemented or tested'
+  notes: 'See qa.qaLocation/assessments/2.4.comprehensive-reporting-system-trace-20251010.md'
+
+requirements_coverage:
+  AC1:
+    description: 'Multiple export formats (JSON, HTML, Markdown, PDF)'
+    coverage: 'FULL'
+    tests:
+      - 'apps/cli/tests/unit/services/reporting/formatters/json-formatter.test.ts'
+      - 'apps/cli/tests/unit/services/reporting/formatters/html-formatter.test.ts'
+      - 'apps/cli/tests/unit/services/reporting/formatters/markdown-formatter.test.ts'
+      - 'apps/cli/tests/unit/services/reporting/formatters/pdf-formatter.test.ts'
+      - 'apps/cli/tests/commands/report.test.ts'
+      - 'apps/cli/tests/unit/services/reporting/report-generator.test.ts'
+
+  AC2:
+    description: 'Customizable report templates'
+    coverage: 'PARTIAL'
+    tests:
+      - 'apps/cli/tests/unit/services/reporting/report-generator.test.ts'
+      - 'apps/cli/tests/unit/services/reporting/template-service.basic.test.ts'
+    gaps:
+      - 'Template security validation against XSS'
+      - 'Template preview functionality'
+      - 'Template customization API validation'
+
+  AC3:
+    description: 'Automated report generation and scheduling'
+    coverage: 'PARTIAL'
+    tests:
+      - 'apps/cli/tests/unit/services/reporting/report-generator.test.ts'
+    gaps:
+      - 'Scheduled task system (node-cron)'
+      - 'Report configuration management with schedules'
+      - 'Event-driven report generation'
+      - 'Report generation queue with retry mechanisms'
+      - 'Notification system for completion'
+      - 'Report history and archiving'
+
+  AC4:
+    description: 'Integration with team collaboration tools'
+    coverage: 'NONE'
+    tests: []
+    gaps:
+      - 'Slack integration with webhook notifications'
+      - 'Microsoft Teams integration with adaptive cards'
+      - 'Email delivery system with SMTP configuration'
+      - 'GitHub integration for issue creation'
+      - 'Webhook system for custom integrations'
+      - 'Integration authentication and configuration'
+
+  AC5:
+    description: 'Executive summary generation'
+    coverage: 'FULL'
+    tests:
+      - 'apps/cli/tests/unit/services/reporting/report-generator.test.ts'
+      - 'apps/cli/tests/unit/services/reporting/formatters/html-formatter.test.ts'
+    gaps:
+      - 'AI-assisted summary generation algorithms'
+      - 'Trend analysis and insight generation'
+      - 'Natural language processing for narratives'
+
+  AC6:
+    description: 'Historical trend analysis reporting'
+    coverage: 'PARTIAL'
+    tests:
+      - 'apps/cli/tests/unit/services/reporting/report-generator.test.ts'
+      - 'apps/cli/tests/unit/services/reporting/formatters/html-formatter.test.ts'
+    gaps:
+      - 'Historical data aggregation service from SQLite'
+      - 'Trend calculation algorithms'
+      - 'Time-series analysis with moving averages'
+      - 'Comparative analysis between time periods'
+
+critical_gaps:
+  high:
+    - requirement: 'AC4'
+      issue: 'Team collaboration integrations completely missing'
+      impact: 'Core acceptance criterion not implemented'
+      recommendation: 'Implement integration services with proper mocking'
+
+    - requirement: 'AC3'
+      issue: 'Automated scheduling system not implemented'
+      impact: 'Key feature for automation missing'
+      recommendation: 'Create scheduler service with cron integration'
+
+  medium:
+    - requirement: 'AC2'
+      issue: 'Template security validation missing'
+      impact: 'Potential XSS vulnerability'
+      recommendation: 'Add security validation tests for template processing'
+
+    - requirement: 'AC5'
+      issue: 'AI enhancement for executive summaries missing'
+      impact: 'Feature not fully implemented as specified'
+      recommendation: 'Implement AI-powered insight generation'
+
+quality_metrics:
+  coverage_percentage: 33
+  critical_requirements_covered: 2
+  high_risk_gaps: 2
+  medium_risk_gaps: 2
+  test_types_found:
+    unit: 6
+    integration: 1
+    e2e: 0
+    performance: 0
+
+next_steps:
+  recommended_actions:
+    - 'Implement AC4 team collaboration integrations with comprehensive test coverage'
+    - 'Build AC3 automated scheduling system with proper error handling'
+    - 'Add AC2 template security validation tests'
+    - 'Enhance AC5 with AI-assisted summary generation'
+    - 'Complete AC6 historical trend analysis implementation'
+    - 'Add performance tests for large dataset processing'
+    - 'Create end-to-end tests for complete workflows'
+
+  test_design_needed: true
+  risk_assessment_needed: false
+  nfr_assessment_needed: true
+
+notes: |
+  Core reporting functionality (AC1) has excellent coverage with comprehensive format testing.
+  Executive summary generation (AC5) is well-tested at basic level but needs AI enhancement.
+  Major gaps exist in team integrations (AC4) and automation (AC3) which are critical features.
+  Template system (AC2) has foundation but missing security validation which is important.
+  Trend analysis (AC6) has partial implementation but needs completion for full functionality.

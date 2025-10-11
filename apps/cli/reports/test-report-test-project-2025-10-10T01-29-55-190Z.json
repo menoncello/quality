@@ -1,0 +1,187 @@
+{
+  "$schema": "https://dev-quality-cli.com/schemas/report/v1.json",
+  "metadata": {
+    "title": "Test Report",
+    "description": "Test report configuration",
+    "version": "1.0.0",
+    "generatedAt": "2025-10-10T01:29:55.190Z",
+    "reportId": "16a013dd-918a-4776-879a-aeb8d03ad475",
+    "format": "json",
+    "template": {
+      "id": "executive-summary",
+      "name": "Executive Summary",
+      "type": "builtin"
+    },
+    "configuration": {
+      "id": "test-config-1",
+      "name": "Test Report",
+      "filters": {}
+    },
+    "generator": {
+      "name": "DevQuality CLI",
+      "version": "1.0.0",
+      "timestamp": "2025-10-10T01:29:55.190Z"
+    }
+  },
+  "summary": {
+    "project": {
+      "id": "test-project",
+      "analysisDate": "2023-10-09T10:00:00.000Z",
+      "duration": 5000,
+      "overallScore": 75
+    },
+    "issues": {
+      "total": 2,
+      "errors": 1,
+      "warnings": 1,
+      "info": 0,
+      "fixable": 2
+    },
+    "tools": [
+      {
+        "name": "eslint",
+        "status": "success",
+        "executionTime": 2000,
+        "score": 80,
+        "issuesCount": 1
+      }
+    ],
+    "metrics": {
+      "coverage": {
+        "lines": {
+          "total": 100,
+          "covered": 80,
+          "percentage": 80
+        },
+        "functions": {
+          "total": 20,
+          "covered": 18,
+          "percentage": 90
+        },
+        "branches": {
+          "total": 50,
+          "covered": 35,
+          "percentage": 70
+        },
+        "statements": {
+          "total": 120,
+          "covered": 96,
+          "percentage": 80
+        }
+      }
+    }
+  },
+  "executiveSummary": {
+    "overview": "The codebase has achieved an overall quality score of 75/100 with 2 total issues identified. 1 errors require immediate attention, while 1 warnings suggest areas for improvement. 2 issues can be automatically resolved.",
+    "keyMetrics": [
+      {
+        "label": "Overall Score",
+        "value": "75/100",
+        "trend": "stable",
+        "significance": "medium"
+      },
+      {
+        "label": "Total Issues",
+        "value": 2,
+        "trend": "stable",
+        "significance": "low"
+      },
+      {
+        "label": "Fixable Issues",
+        "value": "2 (100%)",
+        "trend": "stable",
+        "significance": "low"
+      }
+    ],
+    "priorities": [
+      {
+        "title": "Fix Auto-correctable Errors",
+        "description": "Resolve 1 errors that can be automatically fixed",
+        "impact": "high",
+        "effort": "low"
+      }
+    ],
+    "recommendations": [
+      "Enable auto-fix for 2 resolveable issues"
+    ],
+    "nextSteps": [
+      "Address high-priority security vulnerabilities",
+      "Fix critical build-breaking errors",
+      "Implement automated testing for uncovered areas",
+      "Set up code review processes for quality gates"
+    ]
+  },
+  "toolResults": [
+    {
+      "toolName": "eslint",
+      "status": "success",
+      "executionTime": 2000,
+      "metrics": {
+        "issuesCount": 5,
+        "errorsCount": 1,
+        "warningsCount": 3,
+        "infoCount": 1,
+        "fixableCount": 2,
+        "score": 80,
+        "coverage": {
+          "lines": {
+            "total": 100,
+            "covered": 80,
+            "percentage": 80
+          },
+          "functions": {
+            "total": 20,
+            "covered": 18,
+            "percentage": 90
+          },
+          "branches": {
+            "total": 50,
+            "covered": 35,
+            "percentage": 70
+          },
+          "statements": {
+            "total": 120,
+            "covered": 96,
+            "percentage": 80
+          }
+        }
+      },
+      "issues": [
+        {
+          "id": "issue-1",
+          "type": "error",
+          "severity": "error",
+          "toolName": "eslint",
+          "location": {
+            "file": "src/test.js",
+            "line": 10
+          },
+          "message": "Unexpected console statement",
+          "rule": {
+            "id": "no-console"
+          },
+          "score": 8,
+          "fixable": true
+        }
+      ]
+    }
+  ],
+  "customSections": [
+    {
+      "id": "priorities",
+      "name": "Priorities",
+      "order": 4,
+      "config": {
+        "templateType": "priorities"
+      }
+    },
+    {
+      "id": "recommendations",
+      "name": "Recommendations",
+      "order": 5,
+      "config": {
+        "templateType": "recommendations"
+      }
+    }
+  ]
+}
