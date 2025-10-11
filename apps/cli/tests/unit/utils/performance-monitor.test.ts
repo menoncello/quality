@@ -489,16 +489,23 @@ describe('setupGlobalPerformanceMonitoring', () => {
 
     setupGlobalPerformanceMonitoring();
 
-    // Trigger an alert
+    // Trigger an alert manually
     globalPerformanceMonitor.updateThresholds({ maxRenderTime: 1 });
-    const stopMeasurement = globalPerformanceMonitor.startRenderMeasurement();
-    setTimeout(() => stopMeasurement(), 2);
 
-    setTimeout(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[Performance Alert]')
-      );
-    }, 10);
+    // Simulate a render measurement that takes longer than threshold
+    const stopMeasurement = globalPerformanceMonitor.startRenderMeasurement();
+
+    // Use busy wait to simulate time passing (like other tests in this file)
+    const start = performance.now();
+    while (performance.now() - start < 2) {
+      // Busy wait for 2ms (longer than 1ms threshold)
+    }
+
+    stopMeasurement();
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[Performance Alert]')
+    );
 
     process.env.NODE_ENV = originalEnv;
   });

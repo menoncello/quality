@@ -9,7 +9,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'bun:test';
 import { ESLintAdapter } from '../plugins/builtin/eslint-adapter.js';
 import { PrettierAdapter } from '../plugins/builtin/prettier-adapter.js';
 import { TypeScriptAdapter } from '../plugins/builtin/typescript-adapter.js';
-import { BunTestAdapter } from '../plugins/builtin/bun-test-adapter.js';
+import { BunTestAdapter } from '../plugins/builtin/bun-test-adapter';
 import { createTestProject, cleanupTestProject, type TestProject } from './test-utils-simple.js';
 import type { AnalysisContext, ToolConfiguration, ProjectConfiguration, PluginConfig } from '../plugins/analysis-plugin.js';
 

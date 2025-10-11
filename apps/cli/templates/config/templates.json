@@ -1,0 +1,735 @@
+[
+  {
+    "id": "a0978abb-403a-4bb4-a0a6-726b0059abc0",
+    "name": "Custom Template",
+    "description": "A custom template",
+    "sections": [
+      {
+        "id": "summary",
+        "name": "Summary",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "format": "html",
+    "templateType": "custom",
+    "content": "<h1>{{title}}</h1>",
+    "createdAt": "2025-10-10T01:30:59.640Z",
+    "updatedAt": "2025-10-10T01:30:59.640Z"
+  },
+  {
+    "id": "f3189a00-3659-4033-8fce-c9cffd8c7c05",
+    "name": "Custom Template",
+    "description": "A custom template",
+    "sections": [
+      {
+        "id": "summary",
+        "name": "Summary",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "format": "html",
+    "templateType": "custom",
+    "content": "<h1>{{title}}</h1>",
+    "author": "Test Author",
+    "version": "1.0.0",
+    "tags": [
+      "test"
+    ],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "createdAt": "2025-10-10T01:32:17.606Z",
+    "updatedAt": "2025-10-10T01:32:17.606Z"
+  },
+  {
+    "id": "4b22bea3-96e2-4eab-b305-84ac74ad7bf7",
+    "name": "Custom Executive Summary",
+    "sections": [
+      {
+        "id": "custom-section",
+        "name": "Custom Section",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "format": "html",
+    "templateType": "custom",
+    "content": "<h1>Custom</h1>",
+    "author": "Test Author",
+    "version": "1.0.0",
+    "tags": [
+      "test"
+    ],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "createdAt": "2025-10-10T01:32:17.608Z",
+    "updatedAt": "2025-10-10T01:32:17.608Z"
+  },
+  {
+    "id": "7cf8210d-78f7-44bf-98b8-405d8518ed4f",
+    "name": "Custom Template",
+    "description": "A custom template",
+    "sections": [
+      {
+        "id": "summary",
+        "name": "Summary",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "format": "html",
+    "templateType": "custom",
+    "content": "<h1>{{title}}</h1>",
+    "author": "Test Author",
+    "version": "1.0.0",
+    "tags": [
+      "test"
+    ],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "createdAt": "2025-10-10T01:34:15.317Z",
+    "updatedAt": "2025-10-10T01:34:15.318Z"
+  },
+  {
+    "id": "executive-summary",
+    "name": "Custom Executive Summary",
+    "description": "High-level overview for stakeholders and leadership",
+    "format": "html",
+    "author": "Test Author",
+    "version": "1.0.0",
+    "tags": [
+      "test"
+    ],
+    "category": "custom",
+    "templateType": "custom",
+    "content": "<h1>Custom</h1>",
+    "sections": [
+      {
+        "id": "custom-section",
+        "name": "Custom Section",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "primaryColor": "#2563eb",
+      "secondaryColor": "#64748b",
+      "theme": "light",
+      "fontFamily": "Arial, sans-serif",
+      "fontSize": "14px"
+    },
+    "variables": [],
+    "metadata": {},
+    "createdAt": "2025-10-10T01:35:52.490Z",
+    "updatedAt": "2025-10-10T01:35:52.490Z"
+  },
+  {
+    "name": "Custom Template",
+    "description": "A custom template",
+    "sections": [
+      {
+        "id": "summary",
+        "name": "Summary",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "format": "html",
+    "templateType": "custom",
+    "content": "<h1>{{title}}</h1>",
+    "author": "Test Author",
+    "version": "1.0.0",
+    "tags": [
+      "test"
+    ],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "createdAt": "2025-10-10T01:34:54.779Z",
+    "updatedAt": "2025-10-10T01:34:54.782Z",
+    "id": "88709985-2544-43c1-8339-1d6d929df4e2"
+  },
+  {
+    "name": "Custom Template",
+    "description": "A custom template",
+    "sections": [
+      {
+        "id": "summary",
+        "name": "Summary",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "format": "html",
+    "templateType": "custom",
+    "content": "<h1>{{title}}</h1>",
+    "author": "Test Author",
+    "version": "1.0.0",
+    "tags": [
+      "test"
+    ],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "createdAt": "2025-10-10T01:35:52.486Z",
+    "updatedAt": "2025-10-10T01:35:52.489Z",
+    "id": "675a112b-57cc-445e-bdf2-e4024d71c786"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "bff82a6e-c3ed-4840-ba86-fcb87a59ff1f",
+    "createdAt": "2025-10-10T17:44:30.439Z",
+    "updatedAt": "2025-10-10T17:44:30.440Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "c2c6d3c1-254e-41b6-8490-1e6a098b8c87",
+    "createdAt": "2025-10-10T17:44:30.441Z",
+    "updatedAt": "2025-10-10T17:44:30.441Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "73e7f8d4-485d-4464-afe1-9c6453760fe8",
+    "createdAt": "2025-10-10T17:44:30.441Z",
+    "updatedAt": "2025-10-10T17:44:30.442Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "275e9cf3-7d33-4eaa-a2e6-524aa332c531",
+    "createdAt": "2025-10-10T17:44:30.442Z",
+    "updatedAt": "2025-10-10T17:44:30.442Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "d66fb391-c4d8-4b76-a22a-49a61d7787b5",
+    "createdAt": "2025-10-10T17:44:30.442Z",
+    "updatedAt": "2025-10-10T17:44:30.443Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "c4be2a08-f3b6-44e1-ac70-fd5825d98f73",
+    "createdAt": "2025-10-10T17:45:00.897Z",
+    "updatedAt": "2025-10-10T17:45:00.898Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "55db10fd-4b91-4f36-93bc-84f859ae96ed",
+    "createdAt": "2025-10-10T17:45:00.899Z",
+    "updatedAt": "2025-10-10T17:45:00.899Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "2fa1ecc8-310d-489a-94e2-29a3baa59656",
+    "createdAt": "2025-10-10T17:45:00.900Z",
+    "updatedAt": "2025-10-10T17:45:00.900Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "a656c754-46a7-40f1-9a7c-4eb6e37c7608",
+    "createdAt": "2025-10-10T17:45:00.900Z",
+    "updatedAt": "2025-10-10T17:45:00.901Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "b27324aa-258f-4a4b-9d5a-e758b91cc772",
+    "createdAt": "2025-10-10T17:45:00.901Z",
+    "updatedAt": "2025-10-10T17:45:00.901Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "55bdef12-0ff2-40ba-94ea-a9e6e1a56a42",
+    "createdAt": "2025-10-10T17:45:15.923Z",
+    "updatedAt": "2025-10-10T17:45:15.924Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "bc1cf157-58ab-472f-91e0-b79df0a58557",
+    "createdAt": "2025-10-10T17:45:15.925Z",
+    "updatedAt": "2025-10-10T17:45:15.925Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "ad51ab90-9d3b-46be-ae9a-c9412356ac82",
+    "createdAt": "2025-10-10T17:45:15.925Z",
+    "updatedAt": "2025-10-10T17:45:15.925Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "ac6852a0-021b-41fa-8d41-1c0529aa5c80",
+    "createdAt": "2025-10-10T17:45:15.926Z",
+    "updatedAt": "2025-10-10T17:45:15.926Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "fac1a562-457f-45bc-aff3-3635addfd98a",
+    "createdAt": "2025-10-10T17:45:15.926Z",
+    "updatedAt": "2025-10-10T17:45:15.927Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "95cc2cdb-e896-4ce4-9532-7254da67f935",
+    "createdAt": "2025-10-10T17:45:15.927Z",
+    "updatedAt": "2025-10-10T17:45:15.927Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "152f0d0a-e593-430b-b630-0b8bd9e86010",
+    "createdAt": "2025-10-10T17:45:15.928Z",
+    "updatedAt": "2025-10-10T17:45:15.928Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "e67e062a-1530-482e-87e8-75b1d9c3a6bc",
+    "createdAt": "2025-10-10T17:45:15.929Z",
+    "updatedAt": "2025-10-10T17:45:15.929Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "90f54af6-2666-4f42-80a2-980de8bd927b",
+    "createdAt": "2025-10-10T17:45:15.929Z",
+    "updatedAt": "2025-10-10T17:45:15.929Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "3064093c-615b-47bf-a3fa-79e1966d9504",
+    "createdAt": "2025-10-10T17:45:15.930Z",
+    "updatedAt": "2025-10-10T17:45:15.930Z"
+  },
+  {
+    "name": "Test Custom Template",
+    "description": "Test template for security validation",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "main",
+        "name": "Main Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1,
+        "config": {}
+      }
+    ],
+    "version": "1.0.0",
+    "author": "Test",
+    "tags": [],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "6e19266e-4f79-414d-b467-405f85a6da4c",
+    "createdAt": "2025-10-10T17:45:15.931Z",
+    "updatedAt": "2025-10-10T17:45:15.931Z"
+  }
+]

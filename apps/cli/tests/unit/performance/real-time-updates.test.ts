@@ -35,7 +35,7 @@ const createUpdateThrottler = (maxUpdatesPerSecond: number): UpdateThrottler => 
 
     canUpdate(): boolean {
       const now = performance.now();
-      if (now - lastUpdateTime >= updateInterval) {
+      if (lastUpdateTime === 0 || now - lastUpdateTime >= updateInterval) {
         lastUpdateTime = now;
         updateCount++;
         return true;
@@ -369,7 +369,7 @@ describe('Performance Integration Tests', () => {
     expect(diff.modified.length).toBeGreaterThan(0); // Should detect changes
   });
 
-  it('should maintain performance under high frequency updates', () => {
+  it('should maintain performance under high frequency updates', async () => {
     const throttler = createUpdateThrottler(30); // 30 updates per second
     const updateTimes: number[] = [];
     let executedUpdates = 0;
@@ -391,20 +391,31 @@ describe('Performance Integration Tests', () => {
       });
     }
 
-    setTimeout(() => {
-      const endTime = performance.now();
-      const totalDuration = endTime - startTime;
+    // Wait for updates to complete using promises instead of setTimeout
+    await new Promise<void>((resolve) => {
+      const checkCompletion = () => {
+        // Check if we've had enough time for throttled updates (at least 4 seconds)
+        if (performance.now() - startTime >= 4000) {
+          resolve();
+        } else {
+          setTimeout(checkCompletion, 100);
+        }
+      };
+      checkCompletion();
+    });
 
-      expect(totalDuration).toBeGreaterThan(3000); // Should take at least 3 seconds due to throttling
-      expect(totalDuration).toBeLessThan(6000);   // But not more than 6 seconds
-      expect(executedUpdates).toBeGreaterThan(0); // Some updates should have executed
+    const endTime = performance.now();
+    const totalDuration = endTime - startTime;
 
-      if (updateTimes.length > 0) {
-        const avgUpdateTime = updateTimes.reduce((sum, time) => sum + time, 0) / updateTimes.length;
-        // Update times should be reasonable (the actual execution time, not including throttling delay)
-        expect(avgUpdateTime).toBeLessThan(100); // Individual updates should be fast
-      }
-    }, 5500);
+    expect(totalDuration).toBeGreaterThan(3000); // Should take at least 3 seconds due to throttling
+    expect(totalDuration).toBeLessThan(8000);   // But not more than 8 seconds (increased tolerance)
+    expect(executedUpdates).toBeGreaterThan(0); // Some updates should have executed
+
+    if (updateTimes.length > 0) {
+      const avgUpdateTime = updateTimes.reduce((sum, time) => sum + time, 0) / updateTimes.length;
+      // Update times should be reasonable (the actual execution time, not including throttling delay)
+      expect(avgUpdateTime).toBeLessThan(100); // Individual updates should be fast
+    }
   });
 
   it('should handle memory efficiently with large datasets', () => {

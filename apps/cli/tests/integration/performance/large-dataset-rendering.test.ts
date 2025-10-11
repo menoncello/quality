@@ -402,11 +402,12 @@ describe('2.3-INT-012: Incremental Rendering with 10K Items', () => {
         case 'scroll':
           virtualizedList.scrollToIndex(Math.floor(Math.random() * largeData.length));
           break;
-        case 'update':
+        case 'update': {
           const updateIndex = Math.floor(Math.random() * largeData.length);
           largeData[updateIndex] = { ...largeData[updateIndex], score: Math.random() * 10 };
           virtualizedList.updateItems([...largeData]);
           break;
+        }
         case 'get-visible':
           virtualizedList.getVisibleItems();
           break;
