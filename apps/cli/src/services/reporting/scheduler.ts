@@ -10,7 +10,7 @@ import { EventEmitter } from 'events';
 import { ReportGenerator, type ReportRequest } from './report-generator';
 import { SlackService, SlackConfig } from './integrations/slack-service';
 import { EmailService, EmailConfig } from './integrations/email-service';
-import type { AnalysisResult as CoreAnalysisResult } from '@dev-quality/core';
+import type { AnalysisResult as CoreAnalysisResult, ToolResult } from '@dev-quality/core';
 import type { AnalysisResult, Issue } from '../../types/analysis';
 import type { DashboardMetrics } from '../../types/dashboard';
 
@@ -445,7 +445,7 @@ export class ReportScheduler extends EventEmitter {
       timestamp: analysisData.timestamp.toISOString(),
       duration: analysisData.duration,
       overallScore: analysisData.overallScore,
-      toolResults: analysisData.toolResults.map(result => ({
+      toolResults: analysisData.toolResults.map((result: ToolResult) => ({
         toolName: result.toolName,
         executionTime: result.executionTime,
         status: result.status,

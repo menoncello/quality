@@ -62,6 +62,7 @@ export default [
         AbortController: 'readonly',
         AbortSignal: 'readonly',
         NodeJS: 'readonly',
+        fetch: 'readonly',
       }
     },
     plugins: {
@@ -115,6 +116,7 @@ export default [
         AbortController: 'readonly',
         AbortSignal: 'readonly',
         NodeJS: 'readonly',
+        fetch: 'readonly',
       }
     },
     rules: {

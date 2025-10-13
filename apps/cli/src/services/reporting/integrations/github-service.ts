@@ -5,7 +5,7 @@
  * Supports GitHub API v4 (GraphQL) and v3 (REST) for comprehensive integration.
  */
 
-import fetch from 'node-fetch';
+// Using native fetch (available in Bun/Node.js 18+)
 
 export interface GitHubConfig {
   token: string;
@@ -115,7 +115,11 @@ export class GitHubService {
         });
 
         if (response?.ok) {
-          const data = await response.json();
+          const data = await response.json() as {
+            number: number;
+            html_url: string;
+            id: number;
+          };
           return {
             success: true,
             data: {
@@ -221,7 +225,10 @@ export class GitHubService {
         });
 
         if (response?.ok) {
-          const data = await response.json();
+          const data = await response.json() as {
+            id: number;
+            html_url: string;
+          };
           return {
             success: true,
             data: {
@@ -322,7 +329,10 @@ export class GitHubService {
         });
 
         if (response?.ok) {
-          const data = await response.json();
+          const data = await response.json() as {
+            id: number;
+            url: string;
+          };
           return {
             success: true,
             data: {
@@ -450,7 +460,10 @@ export class GitHubService {
         });
 
         if (response?.ok) {
-          const data = await response.json();
+          const data = await response.json() as {
+            id: number;
+            html_url: string;
+          };
           return {
             success: true,
             data: {
@@ -657,7 +670,11 @@ export class GitHubService {
       });
 
       if (response?.ok) {
-        const userInfo = await response.json();
+        const userInfo = await response.json() as {
+          login: string;
+          name?: string;
+          email?: string;
+        };
         return {
           success: true,
           userInfo: {
@@ -711,7 +728,14 @@ export class GitHubService {
       );
 
       if (response?.ok) {
-        const data = await response.json();
+        const data = await response.json() as {
+          name: string;
+          full_name: string;
+          description?: string;
+          private: boolean;
+          default_branch: string;
+          language?: string;
+        };
         return {
           success: true,
           data: {

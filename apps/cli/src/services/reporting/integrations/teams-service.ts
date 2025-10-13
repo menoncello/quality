@@ -5,7 +5,7 @@
  * Supports adaptive cards, channel notifications, and message formatting.
  */
 
-import fetch from 'node-fetch';
+// Using native fetch (available in Bun/Node.js 18+)
 import { URL } from 'url';
 
 export interface TeamsConfig {

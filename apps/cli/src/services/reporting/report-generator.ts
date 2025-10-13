@@ -360,8 +360,8 @@ export class ReportGenerator {
             topIssues: reportData.issues.slice(0, 10), // Use actual issues from analysis result
           },
           // Pass through any custom fields from the original analysis result
-          ...((analysisResult as { customFields?: Record<string, unknown> }).customFields
-            ? { customFields: (analysisResult as { customFields: Record<string, unknown> }).customFields }
+          ...((analysisResult as unknown as { customFields?: Record<string, unknown> }).customFields
+            ? { customFields: (analysisResult as unknown as { customFields: Record<string, unknown> }).customFields }
             : {}),
         });
 
