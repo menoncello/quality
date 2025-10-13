@@ -6,6 +6,7 @@
  */
 
 import fetch from 'node-fetch';
+import { URL } from 'url';
 
 export interface TeamsConfig {
   webhookUrl: string;
@@ -67,15 +68,13 @@ export class TeamsService {
   /**
    * Send report notification to Teams
    */
-  async sendReportNotification(
-    reportData: {
-      title: string;
-      summary: string;
-      reportUrl?: string;
-      metrics: Record<string, any>;
-      projectName: string;
-    }
-  ): Promise<TeamsNotificationResult> {
+  async sendReportNotification(reportData: {
+    title: string;
+    summary: string;
+    reportUrl?: string;
+    metrics: Record<string, unknown>;
+    projectName: string;
+  }): Promise<TeamsNotificationResult> {
     const message = this.createReportMessage(reportData);
     return this.sendMessage(message);
   }
@@ -83,14 +82,12 @@ export class TeamsService {
   /**
    * Send failure notification to Teams
    */
-  async sendFailureNotification(
-    failureData: {
-      projectName: string;
-      error: string;
-      timestamp: Date;
-      retryAttempt?: number;
-    }
-  ): Promise<TeamsNotificationResult> {
+  async sendFailureNotification(failureData: {
+    projectName: string;
+    error: string;
+    timestamp: Date;
+    retryAttempt?: number;
+  }): Promise<TeamsNotificationResult> {
     const message = this.createFailureMessage(failureData);
     return this.sendMessage(message);
   }
@@ -98,15 +95,13 @@ export class TeamsService {
   /**
    * Send trend alert to Teams
    */
-  async sendTrendAlert(
-    trendData: {
-      projectName: string;
-      metric: string;
-      direction: 'up' | 'down';
-      changePercentage: number;
-      alertLevel: 'info' | 'warning' | 'critical';
-    }
-  ): Promise<TeamsNotificationResult> {
+  async sendTrendAlert(trendData: {
+    projectName: string;
+    metric: string;
+    direction: 'up' | 'down';
+    changePercentage: number;
+    alertLevel: 'info' | 'warning' | 'critical';
+  }): Promise<TeamsNotificationResult> {
     const message = this.createTrendMessage(trendData);
     return this.sendMessage(message);
   }
@@ -118,27 +113,31 @@ export class TeamsService {
     title: string;
     summary: string;
     reportUrl?: string;
-    metrics: Record<string, any>;
+    metrics: Record<string, unknown>;
     projectName: string;
   }): TeamsMessage {
-    const themeColor = this.getThemeColorForScore(reportData.metrics.overallScore || 0);
+    const themeColor = this.getThemeColorForScore((reportData.metrics.overallScore as number) ?? 0);
 
     const facts: TeamsFact[] = [
       { name: 'Project', value: reportData.projectName },
-      { name: 'Overall Score', value: `${reportData.metrics.overallScore || 0}/100` },
-      { name: 'Total Issues', value: reportData.metrics.totalIssues || 0 },
-      { name: 'Errors', value: reportData.metrics.errorCount || 0 },
-      { name: 'Warnings', value: reportData.metrics.warningCount || 0 }
+      { name: 'Overall Score', value: `${(reportData.metrics.overallScore as number) ?? 0}/100` },
+      { name: 'Total Issues', value: String((reportData.metrics.totalIssues as number) ?? 0) },
+      { name: 'Errors', value: String((reportData.metrics.errorCount as number) ?? 0) },
+      { name: 'Warnings', value: String((reportData.metrics.warningCount as number) ?? 0) },
     ];
 
     // Add fixable count if available
     if (reportData.metrics.fixableCount !== undefined) {
-      facts.push({ name: 'Fixable Issues', value: reportData.metrics.fixableCount });
+      facts.push({ name: 'Fixable Issues', value: String(reportData.metrics.fixableCount) });
     }
 
     // Add duration if available
     if (reportData.metrics.duration) {
-      facts.push({ name: 'Analysis Duration', value: `${(reportData.metrics.duration / 1000).toFixed(1)}s` });
+      const duration =
+        typeof reportData.metrics.duration === 'number'
+          ? reportData.metrics.duration
+          : Number(reportData.metrics.duration);
+      facts.push({ name: 'Analysis Duration', value: `${(duration / 1000).toFixed(1)}s` });
     }
 
     const sections: TeamsMessageSection[] = [
@@ -146,8 +145,8 @@ export class TeamsService {
         activityTitle: reportData.title,
         activitySubtitle: new Date().toLocaleString(),
         facts,
-        markdown: true
-      }
+        markdown: true,
+      },
     ];
 
     const actions: TeamsAction[] = [];
@@ -159,9 +158,9 @@ export class TeamsService {
         targets: [
           {
             os: 'default',
-            uri: reportData.reportUrl
-          }
-        ]
+            uri: reportData.reportUrl,
+          },
+        ],
       });
     }
 
@@ -172,7 +171,7 @@ export class TeamsService {
       summary: `Quality report for ${reportData.projectName}`,
       themeColor,
       sections,
-      potentialAction: actions.length > 0 ? actions : undefined
+      potentialAction: actions.length > 0 ? actions : undefined,
     };
   }
 
@@ -192,10 +191,10 @@ export class TeamsService {
         facts: [
           { name: 'Project', value: failureData.projectName },
           { name: 'Error', value: this.truncateMessage(failureData.error, 300) },
-          { name: 'Retry Attempt', value: failureData.retryAttempt?.toString() || '1' }
+          { name: 'Retry Attempt', value: failureData.retryAttempt?.toString() ?? '1' },
         ],
-        markdown: false
-      }
+        markdown: false,
+      },
     ];
 
     return {
@@ -204,7 +203,7 @@ export class TeamsService {
       text: `Failed to generate quality report for ${failureData.projectName}`,
       summary: `Report generation failed for ${failureData.projectName}`,
       themeColor: 'FF0000', // Red for failures
-      sections
+      sections,
     };
   }
 
@@ -228,11 +227,14 @@ export class TeamsService {
         facts: [
           { name: 'Project', value: trendData.projectName },
           { name: 'Metric', value: trendData.metric },
-          { name: 'Direction', value: `${trendData.direction === 'up' ? 'Improving' : 'Declining'} (${trendData.changePercentage.toFixed(1)}%)` },
-          { name: 'Alert Level', value: trendData.alertLevel.toUpperCase() }
+          {
+            name: 'Direction',
+            value: `${trendData.direction === 'up' ? 'Improving' : 'Declining'} (${trendData.changePercentage.toFixed(1)}%)`,
+          },
+          { name: 'Alert Level', value: trendData.alertLevel.toUpperCase() },
         ],
-        markdown: true
-      }
+        markdown: true,
+      },
     ];
 
     return {
@@ -241,7 +243,7 @@ export class TeamsService {
       text: `${trendData.metric} is ${trendData.direction === 'up' ? 'improving' : 'declining'} by ${trendData.changePercentage.toFixed(1)}%`,
       summary: `Trend alert for ${trendData.projectName}`,
       themeColor,
-      sections
+      sections,
     };
   }
 
@@ -258,37 +260,55 @@ export class TeamsService {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(message)
+          body: JSON.stringify(message),
         });
 
-        if (response.ok) {
+        if (response?.ok) {
           return {
             success: true,
-            messageId: `teams-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+            messageId: `teams-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           };
         }
 
         // Handle rate limiting (429)
-        if (response.status === 429) {
-          const retryAfter = response.headers.get('Retry-After');
-          const delay = retryAfter ? parseInt(retryAfter) * 1000 : this.calculateRetryDelay(retryCount);
+        if (response && response.status === 429) {
+          const retryAfter = response.headers?.get('Retry-After');
+          const delay = retryAfter
+            ? parseInt(retryAfter) * 1000
+            : this.calculateRetryDelay(retryCount);
           await this.sleep(delay);
           retryCount++;
           continue;
         }
 
         // Handle other HTTP errors
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-
-      } catch (error) {
+        if (response) {
+          let errorText = 'Unknown error';
+          try {
+            errorText = await response.text();
+          } catch {
+            // Use generic error format if text() fails
+          }
+          // Don't retry for client errors (4xx), except for rate limiting (429)
+          if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+            return {
+              success: false,
+              error: `HTTP ${response.status}`,
+              retryCount,
+            };
+          }
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        } else {
+          throw new Error('No response received from server');
+        }
+      } catch (_error) {
         retryCount++;
 
         if (retryCount > this.maxRetries) {
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            retryCount
+            error: 'Max retries exceeded',
+            retryCount,
           };
         }
 
@@ -300,7 +320,7 @@ export class TeamsService {
     return {
       success: false,
       error: 'Max retries exceeded',
-      retryCount
+      retryCount,
     };
   }
 
@@ -338,10 +358,14 @@ export class TeamsService {
    */
   private getThemeColorForAlert(alertLevel: 'info' | 'warning' | 'critical'): string {
     switch (alertLevel) {
-      case 'info': return '0080FF'; // Blue
-      case 'warning': return 'FFA500'; // Orange
-      case 'critical': return 'FF0000'; // Red
-      default: return '808080'; // Gray
+      case 'info':
+        return '0080FF'; // Blue
+      case 'warning':
+        return 'FFA500'; // Orange
+      case 'critical':
+        return 'FF0000'; // Red
+      default:
+        return '808080'; // Gray
     }
   }
 
@@ -377,18 +401,38 @@ export class TeamsService {
         title: 'Connection Test',
         text: 'Testing DevQuality CLI Teams integration',
         summary: 'Connection test message',
-        themeColor: '00FF00'
+        themeColor: '00FF00',
       };
 
-      const result = await this.sendMessage(testMessage);
-      return {
-        success: result.success,
-        error: result.error
-      };
-    } catch (error) {
+      // For connection tests, make a direct request without retry logic
+      const response = await fetch(this.config.webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testMessage),
+      });
+
+      if (response?.ok) {
+        return {
+          success: true,
+        };
+      } else {
+        let errorText = 'Unknown error';
+        try {
+          errorText = await response.text();
+        } catch {
+          errorText = `HTTP ${response.status} error`;
+        }
+        return {
+          success: false,
+          error: errorText,
+        };
+      }
+    } catch (_error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: _error instanceof Error ? _error.message : 'Unknown error',
       };
     }
   }
@@ -405,7 +449,7 @@ export class TeamsService {
    * Get current configuration
    */
   getConfig(): Omit<TeamsConfig, 'appPassword'> {
-    const { appPassword, ...safeConfig } = this.config;
+    const { appPassword: _appPassword, ...safeConfig } = this.config;
     return safeConfig;
   }
 }

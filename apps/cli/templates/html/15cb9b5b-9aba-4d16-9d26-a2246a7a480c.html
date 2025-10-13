@@ -1,0 +1,16 @@
+
+        <html>
+          <head><title>Dangerous Template</title></head>
+          <body>
+            {{#each issues}}
+            <div>{{this.message}}</div>
+            {{#if (lookup this "constructor")}}
+              <script>alert("Constructor access")</script>
+            {{/if}}
+            {{#if (this.constructor.prototype)}}
+              <script>alert("Prototype access")</script>
+            {{/if}}
+            {{/each}}
+          </body>
+        </html>
+      

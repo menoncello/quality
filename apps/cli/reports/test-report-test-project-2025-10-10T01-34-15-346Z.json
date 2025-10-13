@@ -78,9 +78,7 @@
         "effort": "low"
       }
     ],
-    "recommendations": [
-      "Enable auto-fix for 2 resolveable issues"
-    ],
+    "recommendations": ["Enable auto-fix for 2 resolveable issues"],
     "nextSteps": [
       "Address high-priority security vulnerabilities",
       "Fix critical build-breaking errors",

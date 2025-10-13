@@ -1,8 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 
 // Mock CLI application for E2E testing
 interface MockCLI {
-  executeCommand(command: string, args: string[]): Promise<{
+  executeCommand(
+    command: string,
+    args: string[]
+  ): Promise<{
     exitCode: number;
     stdout: string;
     stderr: string;
@@ -33,24 +36,33 @@ const createMockCLI = (): MockCLI => {
               coverage: 70 + Math.floor(Math.random() * 25),
               maintainability: 65 + Math.floor(Math.random() * 30),
               reliability: 75 + Math.floor(Math.random() * 20),
-              security: 80 + Math.floor(Math.random() * 15)
-            }
+              security: 80 + Math.floor(Math.random() * 15),
+            },
           }),
-          stderr: ''
+          stderr: '',
         };
       }
 
       if (command === 'compare') {
         return {
           exitCode: 0,
-          stdout: JSON.stringify(cli.currentState.comparisonData || {
-            run1: cli.currentState.lastAnalysis,
-            run2: cli.currentState.lastAnalysis,
-            differences: { addedIssues: [], removedIssues: [], modifiedIssues: [] },
-            metricChanges: { overallScore: 0, coverage: 0, maintainability: 0, reliability: 0, security: 0, issueCount: 0 },
-            trend: 'stable'
-          }),
-          stderr: ''
+          stdout: JSON.stringify(
+            cli.currentState.comparisonData || {
+              run1: cli.currentState.lastAnalysis,
+              run2: cli.currentState.lastAnalysis,
+              differences: { addedIssues: [], removedIssues: [], modifiedIssues: [] },
+              metricChanges: {
+                overallScore: 0,
+                coverage: 0,
+                maintainability: 0,
+                reliability: 0,
+                security: 0,
+                issueCount: 0,
+              },
+              trend: 'stable',
+            }
+          ),
+          stderr: '',
         };
       }
 
@@ -62,7 +74,7 @@ const createMockCLI = (): MockCLI => {
           return {
             exitCode: 1,
             stdout: '',
-            stderr: 'No comparison data available'
+            stderr: 'No comparison data available',
           };
         }
 
@@ -78,18 +90,18 @@ const createMockCLI = (): MockCLI => {
         return {
           exitCode: 0,
           stdout: exportContent,
-          stderr: ''
+          stderr: '',
         };
       }
 
       return {
         exitCode: 1,
         stdout: '',
-        stderr: `Unknown command: ${command}`
+        stderr: `Unknown command: ${command}`,
       };
     },
 
-    currentState: {}
+    currentState: {},
   } as MockCLI;
 
   return cli;
@@ -103,7 +115,7 @@ describe('2.3-E2E-004: Complete Comparison Workflow', () => {
     cli.currentState.project = {
       id: 'test-project',
       name: 'Test Project',
-      path: '/tmp/test-project'
+      path: '/tmp/test-project',
     };
   });
 
@@ -134,24 +146,27 @@ describe('2.3-E2E-004: Complete Comparison Workflow', () => {
       run1: firstAnalysis,
       run2: secondAnalysis,
       differences: {
-        addedIssues: [
-          { id: 'new-1', type: 'error', severity: 8, message: 'New critical issue' }
-        ],
+        addedIssues: [{ id: 'new-1', type: 'error', severity: 8, message: 'New critical issue' }],
         removedIssues: [
-          { id: 'fixed-1', type: 'warning', severity: 5, message: 'Previously fixed warning' }
+          { id: 'fixed-1', type: 'warning', severity: 5, message: 'Previously fixed warning' },
         ],
-        modifiedIssues: []
+        modifiedIssues: [],
       },
       metricChanges: {
         overallScore: secondAnalysis.overallScore - firstAnalysis.overallScore,
         coverage: secondAnalysis.metrics.coverage - firstAnalysis.metrics.coverage,
-        maintainability: secondAnalysis.metrics.maintainability - firstAnalysis.metrics.maintainability,
+        maintainability:
+          secondAnalysis.metrics.maintainability - firstAnalysis.metrics.maintainability,
         reliability: secondAnalysis.metrics.reliability - firstAnalysis.metrics.reliability,
         security: secondAnalysis.metrics.security - firstAnalysis.metrics.security,
-        issueCount: secondAnalysis.issueCount - firstAnalysis.issueCount
+        issueCount: secondAnalysis.issueCount - firstAnalysis.issueCount,
       },
-      trend: secondAnalysis.overallScore > firstAnalysis.overallScore ? 'improved' :
-             secondAnalysis.overallScore < firstAnalysis.overallScore ? 'degraded' : 'stable'
+      trend:
+        secondAnalysis.overallScore > firstAnalysis.overallScore
+          ? 'improved'
+          : secondAnalysis.overallScore < firstAnalysis.overallScore
+            ? 'degraded'
+            : 'stable',
     };
 
     // Step 4: Run comparison
@@ -234,26 +249,31 @@ describe('2.3-E2E-004: Complete Comparison Workflow', () => {
             id: `added-${i}-${j}`,
             type: 'error',
             severity: Math.floor(Math.random() * 10) + 1,
-            message: `Added issue ${j} in comparison ${i}`
+            message: `Added issue ${j} in comparison ${i}`,
           })),
           removedIssues: Array.from({ length: 5 }, (_, j) => ({
             id: `removed-${i}-${j}`,
             type: 'warning',
             severity: Math.floor(Math.random() * 10) + 1,
-            message: `Removed issue ${j} in comparison ${i}`
+            message: `Removed issue ${j} in comparison ${i}`,
           })),
-          modifiedIssues: []
+          modifiedIssues: [],
         },
         metricChanges: {
           overallScore: analyses[i + 1].overallScore - analyses[i].overallScore,
           coverage: analyses[i + 1].metrics.coverage - analyses[i].metrics.coverage,
-          maintainability: analyses[i + 1].metrics.maintainability - analyses[i].metrics.maintainability,
+          maintainability:
+            analyses[i + 1].metrics.maintainability - analyses[i].metrics.maintainability,
           reliability: analyses[i + 1].metrics.reliability - analyses[i].metrics.reliability,
           security: analyses[i + 1].metrics.security - analyses[i].metrics.security,
-          issueCount: analyses[i + 1].issueCount - analyses[i].issueCount
+          issueCount: analyses[i + 1].issueCount - analyses[i].issueCount,
         },
-        trend: analyses[i + 1].overallScore > analyses[i].overallScore ? 'improved' :
-               analyses[i + 1].overallScore < analyses[i].overallScore ? 'degraded' : 'stable'
+        trend:
+          analyses[i + 1].overallScore > analyses[i].overallScore
+            ? 'improved'
+            : analyses[i + 1].overallScore < analyses[i].overallScore
+              ? 'degraded'
+              : 'stable',
       };
 
       const startTime = performance.now();
@@ -265,7 +285,8 @@ describe('2.3-E2E-004: Complete Comparison Workflow', () => {
     }
 
     // Verify performance
-    const avgComparisonTime = comparisonTimes.reduce((sum, time) => sum + time, 0) / comparisonTimes.length;
+    const avgComparisonTime =
+      comparisonTimes.reduce((sum, time) => sum + time, 0) / comparisonTimes.length;
     const maxComparisonTime = Math.max(...comparisonTimes);
 
     expect(avgComparisonTime).toBeLessThan(500); // Average under 500ms
@@ -288,9 +309,13 @@ describe('2.3-E2E-004: Complete Comparison Workflow', () => {
       run1: firstAnalysis,
       run2: secondAnalysis,
       differences: {
-        addedIssues: [{ id: 'test-added', type: 'error', severity: 9, message: 'Test added issue' }],
-        removedIssues: [{ id: 'test-removed', type: 'warning', severity: 4, message: 'Test removed issue' }],
-        modifiedIssues: []
+        addedIssues: [
+          { id: 'test-added', type: 'error', severity: 9, message: 'Test added issue' },
+        ],
+        removedIssues: [
+          { id: 'test-removed', type: 'warning', severity: 4, message: 'Test removed issue' },
+        ],
+        modifiedIssues: [],
       },
       metricChanges: {
         overallScore: 15,
@@ -298,9 +323,9 @@ describe('2.3-E2E-004: Complete Comparison Workflow', () => {
         maintainability: 20,
         reliability: 5,
         security: 8,
-        issueCount: -3
+        issueCount: -3,
       },
-      trend: 'improved'
+      trend: 'improved',
     };
 
     // Run comparison
@@ -320,7 +345,9 @@ describe('2.3-E2E-004: Complete Comparison Workflow', () => {
     expect(jsonData.metricChanges.overallScore).toBe(15);
     expect(jsonData.trend).toBe('improved');
 
-    expect(csvExport.stdout).toContain(`${firstAnalysis.overallScore},${secondAnalysis.overallScore},15`);
+    expect(csvExport.stdout).toContain(
+      `${firstAnalysis.overallScore},${secondAnalysis.overallScore},15`
+    );
     expect(markdownExport.stdout).toContain('**Trend:** improved');
     expect(markdownExport.stdout).toContain('15');
   });

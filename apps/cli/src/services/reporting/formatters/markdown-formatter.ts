@@ -3,85 +3,16 @@
  * Generates GitHub-compatible Markdown reports with proper formatting
  */
 
+import type { AnalysisResult, Issue } from '../../../types/analysis';
 import type {
+  ReportData,
   ReportTemplate,
-  ReportConfiguration,
   ExecutiveSummary,
   TrendAnalysis,
-  HistoricalData
-} from '../report-generator';
-
-interface ToolResult {
-  toolName: string;
-  status: string;
-  executionTime: number;
-  metrics: { score: number };
-  issues: Issue[];
-  coverage?: unknown;
-}
-
-interface Issue {
-  type: string;
-  toolName: string;
-  filePath: string;
-  lineNumber: number;
-  columnNumber?: number;
-  message: string;
-  ruleId?: string;
-  score: number;
-  fixable: boolean;
-  suggestion?: string;
-}
-
-interface AnalysisResult {
-  projectId: string;
-  timestamp: string;
-  duration: number;
-  overallScore: number;
-  toolResults?: ToolResult[];
-}
-
-interface Metrics {
-  totalIssues: number;
-  errorCount: number;
-  warningCount: number;
-  infoCount: number;
-  fixableCount: number;
-  coverage?: {
-    lines: { percentage: number; covered: number; total: number };
-    functions: { percentage: number; covered: number; total: number };
-    branches: { percentage: number; covered: number; total: number };
-    statements: { percentage: number; covered: number; total: number };
-  };
-  toolResults?: Array<{
-    toolName: string;
-    issues: Issue[];
-  }>;
-}
-
-interface ReportSection {
-  type: string;
-  name?: string;
-  config?: unknown;
-}
-
-interface ReportData {
-  metadata: {
-    title: string;
-    description?: string;
-    version: string;
-    generatedAt: string;
-    reportId: string;
-  };
-  analysisResult: AnalysisResult;
-  issues: Issue[];
-  metrics: Metrics;
-  executiveSummary?: ExecutiveSummary;
-  trendAnalysis?: TrendAnalysis;
-  historicalData?: HistoricalData[];
-  template: ReportTemplate;
-  configuration: ReportConfiguration;
-}
+  HistoricalData,
+  Metrics,
+  ReportSection,
+} from '../types';
 
 export class MarkdownFormatter {
   /**
@@ -92,7 +23,9 @@ export class MarkdownFormatter {
       const markdown = this.buildMarkdownReport(data, template);
       return markdown;
     } catch (error) {
-      throw new Error(`Failed to generate Markdown report: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to generate Markdown report: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -131,13 +64,12 @@ export class MarkdownFormatter {
   private getHeader(metadata: ReportData['metadata'], analysisResult: AnalysisResult): string {
     const title = metadata?.title ?? 'Untitled Report';
     const description = metadata?.description ? `${metadata.description}\n` : '';
-    const generatedAt = metadata?.generatedAt ? new Date(metadata.generatedAt).toLocaleString() : new Date().toLocaleString();
+    const generatedAt = metadata?.generatedAt
+      ? new Date(metadata.generatedAt).toLocaleString()
+      : new Date().toLocaleString();
     const reportId = metadata?.reportId ?? 'unknown';
 
-    const header = [
-      `# ${this.escapeMarkdown(title)}`,
-      '',
-    ];
+    const header = [`# ${this.escapeMarkdown(title)}`, ''];
 
     if (description) {
       header.push(description);
@@ -164,7 +96,8 @@ export class MarkdownFormatter {
    * Render section based on type
    */
   private renderSection(section: ReportSection, data: ReportData): string {
-    const { analysisResult, issues, metrics, executiveSummary, trendAnalysis, historicalData } = data;
+    const { analysisResult, issues, metrics, executiveSummary, trendAnalysis, historicalData } =
+      data;
 
     switch (section.type) {
       case 'summary':
@@ -187,7 +120,11 @@ export class MarkdownFormatter {
   /**
    * Render executive summary section
    */
-  private renderSummarySection(analysisResult: AnalysisResult, metrics: Metrics, executiveSummary?: ExecutiveSummary): string {
+  private renderSummarySection(
+    analysisResult: AnalysisResult,
+    metrics: Metrics,
+    executiveSummary?: ExecutiveSummary
+  ): string {
     if (!executiveSummary) return '';
 
     const lines = [
@@ -199,7 +136,8 @@ export class MarkdownFormatter {
       '',
       ...executiveSummary.keyMetrics.map(metric => {
         const trend = metric.trend === 'up' ? '📈' : metric.trend === 'down' ? '📉' : '➡️';
-        const significance = metric.significance === 'high' ? '🔴' : metric.significance === 'medium' ? '🟡' : '🟢';
+        const significance =
+          metric.significance === 'high' ? '🔴' : metric.significance === 'medium' ? '🟡' : '🟢';
         return `- **${metric.label}**: ${metric.value} ${trend} ${significance}`;
       }),
       '',
@@ -210,8 +148,10 @@ export class MarkdownFormatter {
         '### Priorities',
         '',
         ...executiveSummary.priorities.map((priority, index) => {
-          const impact = priority.impact === 'high' ? '🔴' : priority.impact === 'medium' ? '🟡' : '🟢';
-          const effort = priority.effort === 'high' ? '🔴' : priority.effort === 'medium' ? '🟡' : '🟢';
+          const impact =
+            priority.impact === 'high' ? '🔴' : priority.impact === 'medium' ? '🟡' : '🟢';
+          const effort =
+            priority.effort === 'high' ? '🔴' : priority.effort === 'medium' ? '🟡' : '🟢';
           return [
             `#### ${index + 1}. ${this.escapeMarkdown(priority.title)}`,
             '',
@@ -219,7 +159,7 @@ export class MarkdownFormatter {
             '',
             `- **Impact**: ${impact} ${priority.impact}`,
             `- **Effort**: ${effort} ${priority.effort}`,
-            ''
+            '',
           ].join('\n');
         })
       );
@@ -264,7 +204,7 @@ export class MarkdownFormatter {
       `| **Info** | ${metrics.infoCount} |`,
       `| **Fixable Issues** | ${metrics.fixableCount} |`,
       `| **Analysis Time** | ${analysisResult.duration}ms |`,
-      ''
+      '',
     ];
 
     // Add coverage information if available
@@ -290,9 +230,11 @@ export class MarkdownFormatter {
       '|------|--------|--------|-------|-----------|'
     );
 
-    analysisResult.toolResults?.forEach(tool => {
+    analysisResult.toolResults?.forEach((tool: { toolName: string; status: string; issues: unknown[]; metrics: { score: number }; executionTime: number }) => {
       const status = tool.status === 'success' ? '✅' : tool.status === 'warning' ? '⚠️' : '❌';
-      lines.push(`| ${this.escapeMarkdown(tool.toolName)} | ${status} | ${tool.issues.length} | ${tool.metrics.score} | ${tool.executionTime} |`);
+      lines.push(
+        `| ${this.escapeMarkdown(tool.toolName)} | ${status} | ${tool.issues.length} | ${tool.metrics.score} | ${tool.executionTime} |`
+      );
     });
 
     lines.push('');
@@ -305,12 +247,9 @@ export class MarkdownFormatter {
    */
   private renderIssuesSection(issues: Issue[]): string {
     if (issues.length === 0) {
-      return [
-        '## Issues',
-        '',
-        '🎉 No issues found! Great job maintaining code quality.',
-        ''
-      ].join('\n');
+      return ['## Issues', '', '🎉 No issues found! Great job maintaining code quality.', ''].join(
+        '\n'
+      );
     }
 
     const lines = [
@@ -325,7 +264,7 @@ export class MarkdownFormatter {
       '- **Fixable**: ' + issues.filter(i => i.fixable).length + ' 🔧',
       '',
       '### Issue Details',
-      ''
+      '',
     ];
 
     // Group issues by file
@@ -341,10 +280,7 @@ export class MarkdownFormatter {
     // Render issues grouped by file
     let issueIndex = 1;
     for (const [file, fileIssues] of Array.from(issuesByFile.entries())) {
-      lines.push(
-        `#### 📁 \`${this.escapeMarkdown(file)}\` (${fileIssues.length} issues)`,
-        ''
-      );
+      lines.push(`#### 📁 \`${this.escapeMarkdown(file)}\` (${fileIssues.length} issues)`, '');
 
       fileIssues.forEach((issue: Issue) => {
         const severity = issue.type === 'error' ? '❌' : issue.type === 'warning' ? '⚠️' : 'ℹ️';
@@ -369,10 +305,7 @@ export class MarkdownFormatter {
         }
 
         if (issue.suggestion) {
-          lines.push(
-            `**Suggestion**: ${this.escapeMarkdown(issue.suggestion)}`,
-            ''
-          );
+          lines.push(`**Suggestion**: ${this.escapeMarkdown(issue.suggestion)}`, '');
         }
 
         lines.push('---');
@@ -388,7 +321,10 @@ export class MarkdownFormatter {
   /**
    * Render trends section
    */
-  private renderTrendsSection(trendAnalysis?: TrendAnalysis, historicalData?: HistoricalData[]): string {
+  private renderTrendsSection(
+    trendAnalysis?: TrendAnalysis,
+    historicalData?: HistoricalData[]
+  ): string {
     if (!trendAnalysis || !historicalData) return '';
 
     const lines = [
@@ -401,7 +337,7 @@ export class MarkdownFormatter {
       `| **Change** | ${trendAnalysis.changePercentage.toFixed(1)}% |`,
       `| **Direction** | ${trendAnalysis.direction} |`,
       `| **Confidence** | ${trendAnalysis.confidence.toFixed(0)}% |`,
-      ''
+      '',
     ];
 
     if (trendAnalysis.insights.length > 0) {
@@ -453,9 +389,9 @@ export class MarkdownFormatter {
       '',
       '```',
       this.generateASCIIBarChart({
-        'Errors': metrics.errorCount,
-        'Warnings': metrics.warningCount,
-        'Info': metrics.infoCount,
+        Errors: metrics.errorCount,
+        Warnings: metrics.warningCount,
+        Info: metrics.infoCount,
       }),
       '```',
       '',
@@ -468,7 +404,7 @@ export class MarkdownFormatter {
         )
       ),
       '```',
-      ''
+      '',
     ];
 
     if (metrics.coverage) {
@@ -477,10 +413,10 @@ export class MarkdownFormatter {
         '',
         '```',
         this.generateASCIIBarChart({
-          'Lines': metrics.coverage.lines.percentage,
-          'Functions': metrics.coverage.functions.percentage,
-          'Branches': metrics.coverage.branches.percentage,
-          'Statements': metrics.coverage.statements.percentage,
+          Lines: metrics.coverage.lines.percentage,
+          Functions: metrics.coverage.functions.percentage,
+          Branches: metrics.coverage.branches.percentage,
+          Statements: metrics.coverage.statements.percentage,
         }),
         '```',
         ''
@@ -498,7 +434,7 @@ export class MarkdownFormatter {
       `## ${this.escapeMarkdown(section.name ?? 'Custom Section')}`,
       '',
       'Custom section content would be rendered here based on configuration.',
-      ''
+      '',
     ].join('\n');
   }
 
@@ -531,7 +467,9 @@ export class MarkdownFormatter {
     const height = 10;
 
     // Create chart grid
-    const chart: string[][] = Array(height + 1).fill(null).map(() => Array(values.length).fill(' '));
+    const chart: string[][] = Array(height + 1)
+      .fill(null)
+      .map(() => Array(values.length).fill(' '));
 
     // Plot values
     values.forEach((value, index) => {
@@ -562,7 +500,9 @@ export class MarkdownFormatter {
    * Get report footer
    */
   private getFooter(metadata: ReportData['metadata']): string {
-    const generatedAt = metadata?.generatedAt ? new Date(metadata.generatedAt).toLocaleString() : new Date().toLocaleString();
+    const generatedAt = metadata?.generatedAt
+      ? new Date(metadata.generatedAt).toLocaleString()
+      : new Date().toLocaleString();
     const reportId = metadata?.reportId ?? 'unknown';
 
     return [
@@ -579,8 +519,6 @@ export class MarkdownFormatter {
    * Escape Markdown special characters
    */
   private escapeMarkdown(text: string): string {
-    return text
-      .replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&')
-      .replace(/\|/g, '\\|');
+    return text.replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&').replace(/\|/g, '\\|');
   }
 }

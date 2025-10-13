@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 
 // Mock the IDE integration functions for testing
 const sanitizeDeepLink = (url: string): string => {
@@ -24,7 +24,13 @@ const sanitizeDeepLink = (url: string): string => {
 };
 
 const validateProtocol = (url: string): { isValid: boolean; protocol?: string } => {
-  const allowedProtocols = ['vscode://', 'vscode-insiders://', 'idea://', 'phpstorm://', 'webstorm://'];
+  const allowedProtocols = [
+    'vscode://',
+    'vscode-insiders://',
+    'idea://',
+    'phpstorm://',
+    'webstorm://',
+  ];
 
   // Check for exact protocol matches first
   for (const protocol of allowedProtocols) {
@@ -137,16 +143,30 @@ describe('2.3-UNIT-018: IDE Deep Link Security', () => {
 
   describe('validateProtocol', () => {
     it('should allow known safe protocols', () => {
-      expect(validateProtocol('vscode://file/path')).toEqual({ isValid: true, protocol: 'vscode://' });
-      expect(validateProtocol('vscode-insiders://file/path')).toEqual({ isValid: true, protocol: 'vscode-insiders://' });
+      expect(validateProtocol('vscode://file/path')).toEqual({
+        isValid: true,
+        protocol: 'vscode://',
+      });
+      expect(validateProtocol('vscode-insiders://file/path')).toEqual({
+        isValid: true,
+        protocol: 'vscode-insiders://',
+      });
       expect(validateProtocol('idea://file/path')).toEqual({ isValid: true, protocol: 'idea://' });
-      expect(validateProtocol('phpstorm://file/path')).toEqual({ isValid: true, protocol: 'phpstorm://' });
-      expect(validateProtocol('webstorm://file/path')).toEqual({ isValid: true, protocol: 'webstorm://' });
+      expect(validateProtocol('phpstorm://file/path')).toEqual({
+        isValid: true,
+        protocol: 'phpstorm://',
+      });
+      expect(validateProtocol('webstorm://file/path')).toEqual({
+        isValid: true,
+        protocol: 'webstorm://',
+      });
     });
 
     it('should reject dangerous protocols', () => {
       expect(validateProtocol('javascript://alert("xss")')).toEqual({ isValid: false });
-      expect(validateProtocol('data:text/html,<script>alert(1)</script>')).toEqual({ isValid: false });
+      expect(validateProtocol('data:text/html,<script>alert(1)</script>')).toEqual({
+        isValid: false,
+      });
       expect(validateProtocol('vbscript://msgbox("test")')).toEqual({ isValid: false });
       expect(validateProtocol('file:///etc/passwd')).toEqual({ isValid: false });
       expect(validateProtocol('ftp://malicious-server')).toEqual({ isValid: false });

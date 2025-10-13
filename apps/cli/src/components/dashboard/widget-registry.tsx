@@ -129,73 +129,33 @@ class WidgetRegistryImpl {
 export const WidgetRegistry = new WidgetRegistryImpl();
 
 // Built-in widget factory functions
-export const createSummaryWidget: WidgetFactory = (
-  config,
-  isSelected,
-  onSelect,
-  onUpdate
-) => {
+export const createSummaryWidget: WidgetFactory = (config, isSelected, onSelect, onUpdate) => {
   return (
-    <BaseWidget
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onUpdate={onUpdate}
-    >
+    <BaseWidget config={config} isSelected={isSelected} onSelect={onSelect} onUpdate={onUpdate}>
       <SummaryWidgetContent config={config} />
     </BaseWidget>
   );
 };
 
-export const createIssuesWidget: WidgetFactory = (
-  config,
-  isSelected,
-  onSelect,
-  onUpdate
-) => {
+export const createIssuesWidget: WidgetFactory = (config, isSelected, onSelect, onUpdate) => {
   return (
-    <BaseWidget
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onUpdate={onUpdate}
-    >
+    <BaseWidget config={config} isSelected={isSelected} onSelect={onSelect} onUpdate={onUpdate}>
       <IssuesWidgetContent config={config} />
     </BaseWidget>
   );
 };
 
-export const createCoverageWidget: WidgetFactory = (
-  config,
-  isSelected,
-  onSelect,
-  onUpdate
-) => {
+export const createCoverageWidget: WidgetFactory = (config, isSelected, onSelect, onUpdate) => {
   return (
-    <BaseWidget
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onUpdate={onUpdate}
-    >
+    <BaseWidget config={config} isSelected={isSelected} onSelect={onSelect} onUpdate={onUpdate}>
       <CoverageWidgetContent config={config} />
     </BaseWidget>
   );
 };
 
-export const createTrendsWidget: WidgetFactory = (
-  config,
-  isSelected,
-  onSelect,
-  onUpdate
-) => {
+export const createTrendsWidget: WidgetFactory = (config, isSelected, onSelect, onUpdate) => {
   return (
-    <BaseWidget
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onUpdate={onUpdate}
-    >
+    <BaseWidget config={config} isSelected={isSelected} onSelect={onSelect} onUpdate={onUpdate}>
       <TrendsWidgetContent config={config} />
     </BaseWidget>
   );

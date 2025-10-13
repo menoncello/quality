@@ -2,20 +2,20 @@
  * Basic Unit Tests for Template Service
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'bun:test';
 
-// Mock file system operations
-vi.mock('node:fs', () => ({
-  readFileSync: vi.fn(),
-  writeFileSync: vi.fn(),
-  mkdirSync: vi.fn(),
-  existsSync: vi.fn(() => false),
-}));
+// Mock file system operations for Bun test
+const mockFs = {
+  readFileSync: () => '',
+  writeFileSync: () => {},
+  mkdirSync: () => {},
+  existsSync: () => false,
+};
 
-vi.mock('node:path', () => ({
-  resolve: vi.fn((...paths) => paths.join('/')),
-  join: vi.fn((...paths) => paths.join('/')),
-}));
+const mockPath = {
+  resolve: (...paths: string[]) => paths.join('/'),
+  join: (...paths: string[]) => paths.join('/'),
+};
 
 // Import after mocking
 import { TemplateService } from '../../../../src/services/reporting/template-service';
@@ -25,7 +25,6 @@ describe('TemplateService (Basic)', () => {
   let templateService: TemplateService;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     templateService = new TemplateService('/tmp/test-templates');
   });
 
@@ -180,8 +179,9 @@ describe('TemplateService (Basic)', () => {
         templateType: 'custom' as const,
       };
 
-      expect(() => templateService.createTemplate(invalidTemplateData))
-        .toThrow('Template validation failed');
+      expect(() => templateService.createTemplate(invalidTemplateData)).toThrow(
+        'Template validation failed'
+      );
     });
   });
 
@@ -221,8 +221,9 @@ describe('TemplateService (Basic)', () => {
     });
 
     it('should throw error when updating non-existent template', () => {
-      expect(() => templateService.updateTemplate('non-existent-id', { name: 'New Name' }))
-        .toThrow('Template not found: non-existent-id');
+      expect(() => templateService.updateTemplate('non-existent-id', { name: 'New Name' })).toThrow(
+        'Template not found: non-existent-id'
+      );
     });
   });
 
@@ -272,7 +273,10 @@ describe('TemplateService (Basic)', () => {
       const originalTemplate = templateService.getTemplate('executive-summary');
       expect(originalTemplate).toBeDefined();
 
-      const clonedTemplate = templateService.cloneTemplate('executive-summary', 'Cloned Executive Summary');
+      const clonedTemplate = templateService.cloneTemplate(
+        'executive-summary',
+        'Cloned Executive Summary'
+      );
 
       expect(clonedTemplate).toBeDefined();
       expect(clonedTemplate.id).not.toBe(originalTemplate?.id);
@@ -285,8 +289,9 @@ describe('TemplateService (Basic)', () => {
     });
 
     it('should throw error when cloning non-existent template', () => {
-      expect(() => templateService.cloneTemplate('non-existent-id'))
-        .toThrow('Template not found: non-existent-id');
+      expect(() => templateService.cloneTemplate('non-existent-id')).toThrow(
+        'Template not found: non-existent-id'
+      );
     });
   });
 });

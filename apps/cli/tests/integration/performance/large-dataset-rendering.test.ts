@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 
 // Mock virtualized list component for testing
 interface VirtualizedList {
@@ -20,8 +20,12 @@ const createVirtualizedList = (items: any[], windowSize: number = 10): Virtualiz
   return {
     items,
     windowSize,
-    get startIndex() { return startIndex; },
-    get endIndex() { return endIndex; },
+    get startIndex() {
+      return startIndex;
+    },
+    get endIndex() {
+      return endIndex;
+    },
 
     scrollToIndex(index: number): void {
       if (index < 0 || index >= items.length) return;
@@ -44,7 +48,7 @@ const createVirtualizedList = (items: any[], windowSize: number = 10): Virtualiz
       items.length = 0;
       startIndex = 0;
       endIndex = 0;
-    }
+    },
   };
 };
 
@@ -89,7 +93,7 @@ const createEventManager = (): EventManager => {
 
     cleanup(): void {
       listeners.clear();
-    }
+    },
   };
 };
 
@@ -143,8 +147,10 @@ describe('2.3-INT-011: Event Listener Cleanup for Memory Management', () => {
       unsubscriptionTimes.push(performance.now() - start);
     });
 
-    const avgSubscriptionTime = subscriptionTimes.reduce((a, b) => a + b, 0) / subscriptionTimes.length;
-    const avgUnsubscriptionTime = unsubscriptionTimes.reduce((a, b) => a + b, 0) / unsubscriptionTimes.length;
+    const avgSubscriptionTime =
+      subscriptionTimes.reduce((a, b) => a + b, 0) / subscriptionTimes.length;
+    const avgUnsubscriptionTime =
+      unsubscriptionTimes.reduce((a, b) => a + b, 0) / unsubscriptionTimes.length;
 
     expect(avgSubscriptionTime).toBeLessThan(0.1); // Should be very fast
     expect(avgUnsubscriptionTime).toBeLessThan(0.1); // Should be very fast
@@ -219,7 +225,7 @@ describe('2.3-INT-012: Incremental Rendering with 10K Items', () => {
       tool: ['eslint', 'typescript', 'prettier'][i % 3],
       filePath: `src/components/component${Math.floor(i / 10)}.tsx`,
       lineNumber: (i % 100) + 1,
-      score: Math.floor(Math.random() * 10) + 1
+      score: Math.floor(Math.random() * 10) + 1,
     }));
   };
 
@@ -264,11 +270,12 @@ describe('2.3-INT-012: Incremental Rendering with 10K Items', () => {
     for (let batch = 0; batch < 100; batch++) {
       // Generate updates for random items
       const updatedData = initialData.map(item => {
-        if (Math.random() < 0.1) { // 10% chance of update
+        if (Math.random() < 0.1) {
+          // 10% chance of update
           return {
             ...item,
             score: Math.floor(Math.random() * 10) + 1,
-            description: `Updated description for issue ${item.id} (batch ${batch})`
+            description: `Updated description for issue ${item.id} (batch ${batch})`,
           };
         }
         return item;
@@ -307,7 +314,7 @@ describe('2.3-INT-012: Incremental Rendering with 10K Items', () => {
       const modifiedIndex = Math.floor(Math.random() * baseData.length);
       baseData[modifiedIndex] = {
         ...baseData[modifiedIndex],
-        score: Math.floor(Math.random() * 10) + 1
+        score: Math.floor(Math.random() * 10) + 1,
       };
 
       virtualizedList.updateItems([...baseData]);
@@ -326,7 +333,7 @@ describe('2.3-INT-012: Incremental Rendering with 10K Items', () => {
       }
     }, 10);
 
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       setTimeout(() => {
         const endTime = performance.now();
         const totalTime = endTime - startTime;

@@ -2,7 +2,7 @@
  * Unit Tests for Markdown Formatter
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'bun:test';
 import { MarkdownFormatter } from '../../../../../src/services/reporting/formatters/markdown-formatter';
 
 // Mock data for testing
@@ -97,7 +97,8 @@ const mockMetrics = {
 };
 
 const mockExecutiveSummary = {
-  overview: 'The codebase has achieved an overall quality score of 75/100 with 3 total issues identified.',
+  overview:
+    'The codebase has achieved an overall quality score of 75/100 with 3 total issues identified.',
   keyMetrics: [
     {
       label: 'Overall Score',

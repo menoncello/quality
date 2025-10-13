@@ -5,9 +5,12 @@
  * proper input sanitization as required by Story 2.4 AC2.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'bun:test';
 import { TemplateService } from '../../../../src/services/reporting/template-service';
-import { ReportGenerator, type ReportTemplate } from '../../../../src/services/reporting/report-generator';
+import {
+  ReportGenerator,
+  type ReportTemplate,
+} from '../../../../src/services/reporting/report-generator';
 import type { AnalysisResult as CoreAnalysisResult, Issue } from '@dev-quality/core';
 import type { AnalysisResult, DashboardMetrics } from '../../../../../src/types/analysis';
 
@@ -51,7 +54,7 @@ describe('Template Security Validation', () => {
       '<script>document.location="evil.com";</script>',
       '<script>window.location="evil.com";</script>',
       '<base href="evil.com/">',
-      '<script>fetch(\'/api/secrets\', {method: \'POST\', body: document.cookie})</script>'
+      "<script>fetch('/api/secrets', {method: 'POST', body: document.cookie})</script>",
     ];
 
     xssPayloads.forEach((payload, index) => {
@@ -86,13 +89,18 @@ describe('Template Security Validation', () => {
                 message: payload,
                 ruleId: 'test-rule',
                 fixable: false,
-                score: 100
-              }
-            ]
-          }
+                score: 100,
+              },
+            ],
+          },
         };
 
-        const reportRequest = createTestReportRequest(maliciousData, 'html', maliciousTemplate, reportGenerator);
+        const reportRequest = createTestReportRequest(
+          maliciousData,
+          'html',
+          maliciousTemplate,
+          reportGenerator
+        );
         const result = await reportGenerator.generateReport(reportRequest);
 
         if (!result.success) {
@@ -113,12 +121,12 @@ describe('Template Security Validation', () => {
           if (payload.includes('<script>')) {
             // Legitimate template scripts have specific patterns, malicious payloads don't
             expect(content).not.toContain('alert("XSS")');
-            expect(content).not.toContain('alert(\'XSS\')');
+            expect(content).not.toContain("alert('XSS')");
           }
 
           // Check for dangerous event handlers from payload
           if (payload.includes('onerror=')) {
-            expect(content).not.toContain('onerror=alert(\'XSS\')');
+            expect(content).not.toContain("onerror=alert('XSS')");
           }
 
           // Check for javascript: URLs
@@ -131,12 +139,12 @@ describe('Template Security Validation', () => {
 
     it('prevents CSS injection attacks', async () => {
       const cssInjectionPayloads = [
-        '<style>body{background:url(javascript:alert(\'XSS\'))}</style>',
-        '<style>@import url(javascript:alert(\'XSS\'));</style>',
+        "<style>body{background:url(javascript:alert('XSS'))}</style>",
+        "<style>@import url(javascript:alert('XSS'));</style>",
         '<div style="background-image:url(javascript:alert(\'XSS\'))">',
         '<div style="behavior:url(x.htc);">',
         '<div style="expression(alert(\'XSS\'))">',
-        '<style>-moz-binding:url("xss.xml#xss")</style>'
+        '<style>-moz-binding:url("xss.xml#xss")</style>',
       ];
 
       for (const payload of cssInjectionPayloads) {
@@ -157,7 +165,7 @@ describe('Template Security Validation', () => {
           ...sampleData,
           reportTitle: 'CSS Injection Test',
           customCSS: payload,
-          customStyle: 'background:url(javascript:alert(\'XSS\'))'
+          customStyle: "background:url(javascript:alert('XSS'))",
         };
 
         const result = await reportGenerator.generateReport(
@@ -262,7 +270,7 @@ describe('Template Security Validation', () => {
         customFields: {
           authorName: '<img src=x onerror=alert("XSS in author")>',
           department: '<iframe src="javascript:alert(\'XSS in department\')"></iframe>',
-          notes: 'javascript:alert("XSS in notes")'
+          notes: 'javascript:alert("XSS in notes")',
         },
         summary: {
           ...sampleData.summary,
@@ -277,10 +285,10 @@ describe('Template Security Validation', () => {
               ruleId: 'test-rule',
               fixable: false,
               score: 100,
-              suggestion: '<iframe src="javascript:alert(\'XSS in suggestion\')"></iframe>'
-            }
-          ]
-        }
+              suggestion: '<iframe src="javascript:alert(\'XSS in suggestion\')"></iframe>',
+            },
+          ],
+        },
       };
 
       const template = `
@@ -413,7 +421,7 @@ describe('Template Security Validation', () => {
         '<div onclick="{{userInput}}">Click me</div>',
         '<iframe src="{{userInput}}"></iframe>',
         '<link rel="stylesheet" href="{{userInput}}">',
-        '<meta http-equiv="refresh" content="{{userInput}}">'
+        '<meta http-equiv="refresh" content="{{userInput}}">',
       ];
 
       for (const template of maliciousTemplates) {
@@ -460,10 +468,10 @@ describe('Template Security Validation', () => {
               message: '<img src=x onerror=alert("XSS in preview")>',
               ruleId: 'test-rule',
               fixable: false,
-              score: 100
-            }
-          ]
-        }
+              score: 100,
+            },
+          ],
+        },
       };
 
       const preview = await templateService.previewTemplate(maliciousTemplate, maliciousData);
@@ -478,6 +486,19 @@ describe('Template Security Validation', () => {
 });
 
 function createSampleAnalysisResult(): AnalysisResult {
+  // Create sample issue
+  const sampleIssue = {
+    id: '1',
+    type: 'error' as const,
+    toolName: 'eslint',
+    filePath: 'src/test.js',
+    lineNumber: 10,
+    message: 'Test security issue',
+    ruleId: 'security-rule',
+    fixable: true,
+    score: 90,
+  };
+
   return {
     id: 'security-test-1',
     projectId: 'security-test-project',
@@ -489,17 +510,17 @@ function createSampleAnalysisResult(): AnalysisResult {
         toolName: 'eslint',
         executionTime: 500,
         status: 'completed' as const,
-        issues: [],
+        issues: [sampleIssue],
         metrics: {
           totalIssues: 5,
           criticalIssues: 1,
           warningIssues: 3,
           infoIssues: 1,
           fixableIssues: 4,
-          overallScore: 85
+          overallScore: 85,
         },
-        coverage: null
-      }
+        coverage: null,
+      },
     ],
     summary: {
       totalIssues: 5,
@@ -508,27 +529,27 @@ function createSampleAnalysisResult(): AnalysisResult {
       infoIssues: 1,
       fixableIssues: 4,
       overallScore: 85,
-      topIssues: [
-        {
-          id: '1',
-          type: 'error',
-          toolName: 'eslint',
-          filePath: 'src/test.js',
-          lineNumber: 10,
-          message: 'Test security issue',
-          ruleId: 'security-rule',
-          fixable: true,
-          score: 90
-        }
-      ]
+      topIssues: [sampleIssue],
     },
-    aiPrompts: []
+    aiPrompts: [],
   };
 }
 
 // Helper function to create ReportRequest for tests
-function createTestReportRequest(analysisResult: AnalysisResult, format: string = 'html', template?: string, reportGenerator?: ReportGenerator) {
+function createTestReportRequest(
+  analysisResult: AnalysisResult,
+  format: string = 'html',
+  template?: string,
+  reportGenerator?: ReportGenerator
+) {
+  // Extract issues from tool results
   const issues: Issue[] = [];
+  analysisResult.toolResults.forEach(toolResult => {
+    if (toolResult.issues) {
+      issues.push(...toolResult.issues);
+    }
+  });
+
   const metrics: DashboardMetrics = {
     totalIssues: analysisResult.summary.totalIssues,
     errorCount: analysisResult.summary.criticalIssues,
@@ -538,33 +559,57 @@ function createTestReportRequest(analysisResult: AnalysisResult, format: string 
     overallScore: analysisResult.overallScore,
     coverage: null,
     toolsAnalyzed: analysisResult.toolResults.length,
-    duration: analysisResult.duration
+    duration: analysisResult.duration,
   };
 
-  // For security tests, always use built-in templates and pass malicious data instead
-  // The template rendering should sanitize the data appropriately
+  // If a custom template is provided, create a custom template in the generator
+  let templateId = 'executive-summary';
+  if (template && reportGenerator) {
+    // Create a custom template with the provided template content
+    const customTemplate = reportGenerator.createTemplate({
+      name: 'Test Security Template',
+      description: 'Template for security testing',
+      format: format as any,
+      templateType: 'custom',
+      content: template,
+      sections: [
+        {
+          id: 'custom-content',
+          name: 'Custom Content',
+          type: 'custom',
+          enabled: true,
+          order: 1,
+        },
+      ],
+      styles: {
+        theme: 'light',
+      },
+      variables: [],
+    });
+    templateId = customTemplate.id;
+  }
 
   return {
     configuration: {
       id: 'test-config',
       name: 'Test Report',
       description: 'Test report',
-      templateId: 'executive-summary', // Always use built-in template for security tests
+      templateId: templateId,
       format: format as any,
       recipients: [],
       filters: {
         severity: ['error', 'warning', 'info'],
-        tools: [],
+        tools: ['eslint'],
         scoreRange: { min: 0, max: 100 },
         fixableOnly: false,
-        dateRange: undefined
+        dateRange: undefined,
       },
       createdAt: new Date(),
       updatedAt: new Date(),
-      isActive: true
+      isActive: true,
     },
     analysisResult,
     issues,
-    metrics
+    metrics,
   };
 }

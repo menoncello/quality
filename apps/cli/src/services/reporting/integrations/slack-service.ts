@@ -5,7 +5,10 @@
  * Includes security validation, retry mechanisms, and proper error handling.
  */
 
-declare const fetch: (input: string | globalThis.Request, init?: globalThis.RequestInit) => Promise<globalThis.Response>;
+declare const fetch: (
+  input: string | globalThis.Request,
+  init?: globalThis.RequestInit
+) => Promise<globalThis.Response>;
 declare const URL: typeof globalThis.URL;
 
 export interface SlackConfig {
@@ -68,13 +71,16 @@ export class SlackService {
   /**
    * Send a report to Slack via webhook
    */
-  async sendReport(config: SlackConfig, reportData: {
-    title: string;
-    summary: string;
-    reportUrl?: string;
-    metrics: Record<string, unknown>;
-    priority: 'low' | 'medium' | 'high' | 'critical';
-  }): Promise<SlackDeliveryResult> {
+  async sendReport(
+    config: SlackConfig,
+    reportData: {
+      title: string;
+      summary: string;
+      reportUrl?: string;
+      metrics: Record<string, unknown>;
+      priority: 'low' | 'medium' | 'high' | 'critical';
+    }
+  ): Promise<SlackDeliveryResult> {
     this.validateConfig(config);
 
     const message = this.buildSlackMessage(config, reportData);
@@ -101,13 +107,16 @@ export class SlackService {
   /**
    * Build Slack message from report data
    */
-  private buildSlackMessage(config: SlackConfig, reportData: {
-    title: string;
-    summary: string;
-    reportUrl?: string;
-    metrics: Record<string, unknown>;
-    priority: 'low' | 'medium' | 'high' | 'critical';
-  }): SlackMessage {
+  private buildSlackMessage(
+    config: SlackConfig,
+    reportData: {
+      title: string;
+      summary: string;
+      reportUrl?: string;
+      metrics: Record<string, unknown>;
+      priority: 'low' | 'medium' | 'high' | 'critical';
+    }
+  ): SlackMessage {
     const color = this.getColorByPriority(reportData.priority);
     const text = this.buildMessageText(config, reportData);
 
@@ -118,7 +127,7 @@ export class SlackService {
       text: this.truncateText(this.escapeHtml(reportData.summary), 2000),
       fields: this.buildFields(reportData.metrics),
       footer: 'Quality Tracking CLI',
-      ts: Math.floor(Date.now() / 1000)
+      ts: Math.floor(Date.now() / 1000),
     };
 
     return {
@@ -126,19 +135,22 @@ export class SlackService {
       attachments: [attachment],
       channel: config.channel,
       username: config.username ?? 'Quality Tracking',
-      icon_emoji: config.iconEmoji ?? ':bar_chart:'
+      icon_emoji: config.iconEmoji ?? ':bar_chart:',
     };
   }
 
   /**
    * Build message text with mentions
    */
-  private buildMessageText(config: SlackConfig, reportData: {
-    title: string;
-    summary: string;
-    metrics: Record<string, unknown>;
-    priority: 'low' | 'medium' | 'high' | 'critical';
-  }): string {
+  private buildMessageText(
+    config: SlackConfig,
+    reportData: {
+      title: string;
+      summary: string;
+      metrics: Record<string, unknown>;
+      priority: 'low' | 'medium' | 'high' | 'critical';
+    }
+  ): string {
     let text = '';
 
     if (config.mentionChannel) {
@@ -167,13 +179,13 @@ export class SlackService {
         fields.push({
           title: this.formatFieldName(key),
           value: this.formatMetricValue(key, value),
-          short: true
+          short: true,
         });
       } else if (typeof value === 'string') {
         fields.push({
           title: this.formatFieldName(key),
           value: this.truncateText(this.escapeHtml(value), 100),
-          short: true
+          short: true,
         });
       }
     });
@@ -195,20 +207,19 @@ export class SlackService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(message)
+        body: JSON.stringify(message),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const result = await response.json() as { ts: string };
+      const result = (await response.json()) as { ts: string };
       return {
         success: true,
         messageId: result.ts || Date.now().toString(),
-        retryCount
+        retryCount,
       };
-
     } catch (error) {
       if (retryCount < this.MAX_RETRIES) {
         const delay = this.RETRY_DELAY_BASE * Math.pow(2, retryCount);
@@ -219,7 +230,7 @@ export class SlackService {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        retryCount
+        retryCount,
       };
     }
   }
@@ -364,25 +375,26 @@ export class SlackService {
 
       const testMessage: SlackMessage = {
         text: '🧪 Test message from Quality Tracking CLI',
-        attachments: [{
-          color: 'good',
-          title: 'Connection Test',
-          text: 'If you can see this, Slack integration is working correctly!',
-          footer: 'Quality Tracking CLI',
-          ts: Math.floor(Date.now() / 1000)
-        }],
+        attachments: [
+          {
+            color: 'good',
+            title: 'Connection Test',
+            text: 'If you can see this, Slack integration is working correctly!',
+            footer: 'Quality Tracking CLI',
+            ts: Math.floor(Date.now() / 1000),
+          },
+        ],
         channel: config.channel,
         username: config.username ?? 'Quality Tracking',
-        icon_emoji: config.iconEmoji ?? ':bar_chart:'
+        icon_emoji: config.iconEmoji ?? ':bar_chart:',
       };
 
       const result = await this.sendWithRetry(config.webhookUrl, testMessage, 0);
       return { success: result.success, error: result.error };
-
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }

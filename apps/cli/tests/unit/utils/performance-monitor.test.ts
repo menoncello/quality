@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import {
   PerformanceMonitor,
   usePerformanceMonitor,
   SearchDebouncer,
   createDebouncedSearch,
   globalPerformanceMonitor,
-  setupGlobalPerformanceMonitoring
+  setupGlobalPerformanceMonitoring,
 } from '../../../src/utils/performance-monitor';
 
 describe('PerformanceMonitor', () => {
@@ -107,7 +107,7 @@ describe('PerformanceMonitor', () => {
       const mockMemory = {
         usedJSHeapSize: 100 * 1024 * 1024, // 100MB
         totalJSHeapSize: 200 * 1024 * 1024,
-        jsHeapSizeLimit: 2048 * 1024 * 1024
+        jsHeapSizeLimit: 2048 * 1024 * 1024,
       };
 
       (performance as any).memory = mockMemory;
@@ -126,7 +126,7 @@ describe('PerformanceMonitor', () => {
       const mockMemory = {
         usedJSHeapSize: 600 * 1024 * 1024, // 600MB
         totalJSHeapSize: 700 * 1024 * 1024,
-        jsHeapSizeLimit: 2048 * 1024 * 1024
+        jsHeapSizeLimit: 2048 * 1024 * 1024,
       };
 
       (performance as any).memory = mockMemory;
@@ -208,7 +208,7 @@ describe('PerformanceMonitor', () => {
         message: 'Old alert',
         threshold: 100,
         actual: 150,
-        timestamp: now - 120000 // 2 minutes ago
+        timestamp: now - 120000, // 2 minutes ago
       };
 
       // Manually add old alert (since we can't easily create time-based alerts in tests)
@@ -230,7 +230,7 @@ describe('PerformanceMonitor', () => {
         updateTime: 23.2,
         memoryUsage: 128.7,
         operationCount: 42,
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       };
 
       const report = monitor.generateReport();
@@ -249,8 +249,8 @@ describe('PerformanceMonitor', () => {
           message: 'Render too slow',
           threshold: 100,
           actual: 150,
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       ];
 
       const report = monitor.generateReport();
@@ -281,8 +281,24 @@ describe('SearchDebouncer', () => {
   });
 
   it('should debounce function calls', async () => {
-    const mockFunction = vi.fn().mockResolvedValue('result');
-    const debouncedFn = debouncer.debounce(mockFunction);
+    const mockFunction = {
+      calls: [] as Array<Array<any>>,
+      mockResolvedValue: function(value: any) {
+        this.return = Promise.resolve(value);
+        return this;
+      },
+      mockImplementation: function(fn: Function) {
+        this.impl = fn;
+        return this;
+      }
+    };
+    mockFunction.mockResolvedValue('result');
+    mockFunction.mockImplementation((...args: any[]) => {
+      mockFunction.calls.push(args);
+      return mockFunction.return;
+    });
+
+    const debouncedFn = debouncer.debounce((...args: any[]) => mockFunction.impl(...args));
 
     // Call multiple times rapidly
     debouncedFn('query1');
@@ -290,35 +306,41 @@ describe('SearchDebouncer', () => {
     debouncedFn('query3');
 
     // Should not have been called yet
-    expect(mockFunction).not.toHaveBeenCalled();
+    expect(mockFunction.calls.length).toBe(0);
 
     // Wait for debounce
     await new Promise(resolve => setTimeout(resolve, 150));
 
     // Should have been called once with last argument
-    expect(mockFunction).toHaveBeenCalledTimes(1);
-    expect(mockFunction).toHaveBeenCalledWith('query3');
+    expect(mockFunction.calls.length).toBe(1);
+    expect(mockFunction.calls[0]).toEqual(['query3']);
   });
 
   it('should call debounce start/end callbacks', async () => {
-    const mockFunction = vi.fn().mockResolvedValue('result');
-    const onStart = vi.fn();
-    const onEnd = vi.fn();
+    const onStartCalls: Array<any> = [];
+    const onEndCalls: Array<any> = [];
+    const onStart = (...args: any[]) => onStartCalls.push(args);
+    const onEnd = (...args: any[]) => onEndCalls.push(args);
+    const mockFunction = () => Promise.resolve('result');
 
     const debouncedFn = debouncer.debounce(mockFunction, onStart, onEnd);
 
     debouncedFn('test');
 
-    expect(onStart).toHaveBeenCalledTimes(1);
-    expect(onEnd).not.toHaveBeenCalled();
+    expect(onStartCalls.length).toBe(1);
+    expect(onEndCalls.length).toBe(0);
 
     await new Promise(resolve => setTimeout(resolve, 150));
 
-    expect(onEnd).toHaveBeenCalledTimes(1);
+    expect(onEndCalls.length).toBe(1);
   });
 
   it('should cancel pending search', async () => {
-    const mockFunction = vi.fn().mockResolvedValue('result');
+    let callCount = 0;
+    const mockFunction = () => {
+      callCount++;
+      return Promise.resolve('result');
+    };
     const debouncedFn = debouncer.debounce(mockFunction);
 
     debouncedFn('test');
@@ -328,11 +350,15 @@ describe('SearchDebouncer', () => {
 
     await new Promise(resolve => setTimeout(resolve, 150));
 
-    expect(mockFunction).not.toHaveBeenCalled();
+    expect(callCount).toBe(0);
   });
 
   it('should track search statistics', async () => {
-    const mockFunction = vi.fn().mockResolvedValue('result');
+    let callCount = 0;
+    const mockFunction = () => {
+      callCount++;
+      return Promise.resolve('result');
+    };
     const debouncedFn = debouncer.debounce(mockFunction);
 
     const initialStats = debouncer.getStats();
@@ -357,21 +383,27 @@ describe('SearchDebouncer', () => {
   });
 
   it('should handle function errors', async () => {
-    const mockFunction = vi.fn().mockRejectedValue(new Error('Search failed'));
-    const onStart = vi.fn();
-    const onEnd = vi.fn();
+    const onStartCalls: Array<any> = [];
+    const onEndCalls: Array<any> = [];
+    const onStart = (...args: any[]) => onStartCalls.push(args);
+    const onEnd = (...args: any[]) => onEndCalls.push(args);
+    const mockFunction = () => Promise.reject(new Error('Search failed'));
 
     const debouncedFn = debouncer.debounce(mockFunction, onStart, onEnd);
 
     await expect(debouncedFn('test')).rejects.toThrow('Search failed');
-    expect(onStart).toHaveBeenCalledTimes(1);
-    expect(onEnd).toHaveBeenCalledTimes(1);
+    expect(onStartCalls.length).toBe(1);
+    expect(onEndCalls.length).toBe(1);
   });
 });
 
 describe('createDebouncedSearch', () => {
   it('should create debounced search with helpers', async () => {
-    const mockFunction = vi.fn().mockResolvedValue('result');
+    let callArgs: Array<any> = [];
+    const mockFunction = (...args: any[]) => {
+      callArgs.push(args);
+      return Promise.resolve('result');
+    };
     const debouncedSearch = createDebouncedSearch(mockFunction, 50);
 
     expect(typeof debouncedSearch.search).toBe('function');
@@ -382,11 +414,12 @@ describe('createDebouncedSearch', () => {
     debouncedSearch.search('test');
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    expect(mockFunction).toHaveBeenCalledWith('test');
+    expect(callArgs.length).toBe(1);
+    expect(callArgs[0]).toEqual(['test']);
   });
 
   it('should provide access to debouncer methods', () => {
-    const mockFunction = vi.fn();
+    const mockFunction = () => {};
     const debouncedSearch = createDebouncedSearch(mockFunction);
 
     const stats = debouncedSearch.getStats();
@@ -402,7 +435,8 @@ describe('createDebouncedSearch', () => {
 
 describe('usePerformanceMonitor', () => {
   it('should create performance monitor with component name', () => {
-    const { monitor, componentName, measureRender, measureUpdate } = usePerformanceMonitor('TestComponent');
+    const { monitor, componentName, measureRender, measureUpdate } =
+      usePerformanceMonitor('TestComponent');
 
     expect(monitor).toBeInstanceOf(PerformanceMonitor);
     expect(componentName).toBe('TestComponent');
@@ -463,29 +497,45 @@ describe('globalPerformanceMonitor', () => {
 });
 
 describe('setupGlobalPerformanceMonitoring', () => {
+  let originalSetInterval: typeof setInterval;
+  let originalConsoleWarn: typeof console.warn;
+  let setIntervalCalls: Array<any>;
+  let consoleCalls: Array<string>;
+
   beforeEach(() => {
-    vi.useFakeTimers();
+    originalSetInterval = global.setInterval;
+    originalConsoleWarn = console.warn;
+    setIntervalCalls = [];
+    consoleCalls = [];
+
+    global.setInterval = ((callback: Function, delay: number) => {
+      setIntervalCalls.push([callback, delay]);
+      return 123; // Mock timer ID
+    }) as typeof setInterval;
+
+    console.warn = (message: string) => {
+      consoleCalls.push(message);
+    };
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    global.setInterval = originalSetInterval;
+    console.warn = originalConsoleWarn;
   });
 
   it('should set up periodic monitoring', () => {
-    const setIntervalSpy = vi.spyOn(global, 'setInterval');
-
     setupGlobalPerformanceMonitoring();
 
-    expect(setIntervalSpy).toHaveBeenCalledTimes(2);
-    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 5000); // Memory check
-    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 1000); // Operation rate check
+    expect(setIntervalCalls.length).toBe(2);
+    expect(setIntervalCalls[0][1]).toBe(5000); // Memory check
+    expect(setIntervalCalls[1][1]).toBe(1000); // Operation rate check
+    expect(typeof setIntervalCalls[0][0]).toBe('function');
+    expect(typeof setIntervalCalls[1][0]).toBe('function');
   });
 
   it('should log alerts in development mode', () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
-
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     setupGlobalPerformanceMonitoring();
 
@@ -503,9 +553,8 @@ describe('setupGlobalPerformanceMonitoring', () => {
 
     stopMeasurement();
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[Performance Alert]')
-    );
+    expect(consoleCalls.length).toBeGreaterThan(0);
+    expect(consoleCalls.some(call => call.includes('[Performance Alert]'))).toBe(true);
 
     process.env.NODE_ENV = originalEnv;
   });

@@ -20,7 +20,7 @@ describe('WidgetRegistry', () => {
     it('should register built-in widget types', () => {
       const registrations = WidgetRegistry.getAllRegistrations();
       const widgetTypes = registrations.map(reg => reg.type);
-      
+
       expect(widgetTypes).toContain('summary');
       expect(widgetTypes).toContain('issues');
       expect(widgetTypes).toContain('coverage');
@@ -29,7 +29,7 @@ describe('WidgetRegistry', () => {
 
     it('should get registration by type', () => {
       const summaryReg = WidgetRegistry.getRegistration('summary');
-      
+
       expect(summaryReg).toBeDefined();
       expect(summaryReg?.name).toBe('Summary');
       expect(summaryReg?.description).toBe('Overall metrics and key insights');
@@ -37,13 +37,13 @@ describe('WidgetRegistry', () => {
 
     it('should return undefined for unknown widget type', () => {
       const unknownReg = WidgetRegistry.getRegistration('unknown');
-      
+
       expect(unknownReg).toBeUndefined();
     });
 
     it('should get available widget types for user selection', () => {
       const availableTypes = WidgetRegistry.getAvailableWidgetTypes();
-      
+
       expect(availableTypes).toHaveLength(4);
       expect(availableTypes.some(type => type.name === 'Summary')).toBe(true);
       expect(availableTypes.some(type => type.name === 'Issues')).toBe(true);
@@ -65,37 +65,22 @@ describe('WidgetRegistry', () => {
     const mockOnUpdate = vi.fn();
 
     it('should create widget for known type', () => {
-      const widget = WidgetRegistry.createWidget(
-        mockConfig,
-        false,
-        mockOnSelect,
-        mockOnUpdate
-      );
-      
+      const widget = WidgetRegistry.createWidget(mockConfig, false, mockOnSelect, mockOnUpdate);
+
       expect(widget).toBeDefined();
     });
 
     it('should return null for unknown widget type', () => {
       const unknownConfig = { ...mockConfig, type: 'unknown' as WidgetConfig['type'] };
-      const widget = WidgetRegistry.createWidget(
-        unknownConfig,
-        false,
-        mockOnSelect,
-        mockOnUpdate
-      );
-      
+      const widget = WidgetRegistry.createWidget(unknownConfig, false, mockOnSelect, mockOnUpdate);
+
       expect(widget).toBeNull();
     });
 
     it('should pass props correctly to widget factory', () => {
       const selectedConfig = { ...mockConfig, id: 'selected-widget' };
-      const widget = WidgetRegistry.createWidget(
-        selectedConfig,
-        true,
-        mockOnSelect,
-        mockOnUpdate
-      );
-      
+      const widget = WidgetRegistry.createWidget(selectedConfig, true, mockOnSelect, mockOnUpdate);
+
       expect(widget).toBeDefined();
       // The widget should be rendered with selected state
     });
@@ -104,7 +89,7 @@ describe('WidgetRegistry', () => {
   describe('Default Configuration', () => {
     it('should get default config for known widget type', () => {
       const defaultConfig = WidgetRegistry.getDefaultConfig('summary');
-      
+
       expect(defaultConfig).toBeDefined();
       expect(defaultConfig?.type).toBe('summary');
       expect(defaultConfig?.position).toEqual(
@@ -123,16 +108,16 @@ describe('WidgetRegistry', () => {
         position: { x: 10, y: 20, width: 60, height: 25 },
         config: { customOption: true },
       };
-      
+
       const defaultConfig = WidgetRegistry.getDefaultConfig('summary', overrides);
-      
+
       expect(defaultConfig?.position).toEqual(overrides.position);
       expect(defaultConfig?.config).toEqual(overrides.config);
     });
 
     it('should return null for unknown widget type', () => {
       const defaultConfig = WidgetRegistry.getDefaultConfig('unknown');
-      
+
       expect(defaultConfig).toBeNull();
     });
   });
@@ -146,9 +131,9 @@ describe('WidgetRegistry', () => {
         config: {},
         visible: true,
       };
-      
+
       const validation = WidgetRegistry.validateConfig(validConfig);
-      
+
       expect(validation.isValid).toBe(true);
       expect(validation.errors).toHaveLength(0);
     });
@@ -161,9 +146,9 @@ describe('WidgetRegistry', () => {
         config: {},
         visible: true,
       };
-      
+
       const validation = WidgetRegistry.validateConfig(invalidConfig);
-      
+
       expect(validation.isValid).toBe(false);
       expect(validation.errors).toContain('Unknown widget type: unknown');
     });
@@ -176,9 +161,9 @@ describe('WidgetRegistry', () => {
         config: {},
         visible: true,
       };
-      
+
       const validation = WidgetRegistry.validateConfig(invalidConfig);
-      
+
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(error => error.includes('Width must be at least'))).toBe(true);
     });
@@ -191,9 +176,9 @@ describe('WidgetRegistry', () => {
         config: {},
         visible: true,
       };
-      
+
       const validation = WidgetRegistry.validateConfig(invalidConfig);
-      
+
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(error => error.includes('Height must be at least'))).toBe(true);
     });
@@ -206,9 +191,9 @@ describe('WidgetRegistry', () => {
         config: {},
         visible: true,
       };
-      
+
       const validation = WidgetRegistry.validateConfig(invalidConfig);
-      
+
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(error => error.includes('Width must not exceed'))).toBe(true);
     });
@@ -221,9 +206,9 @@ describe('WidgetRegistry', () => {
         config: {},
         visible: true,
       };
-      
+
       const validation = WidgetRegistry.validateConfig(invalidConfig);
-      
+
       expect(validation.isValid).toBe(false);
       expect(validation.errors.some(error => error.includes('Height must not exceed'))).toBe(true);
     });
@@ -236,11 +221,13 @@ describe('WidgetRegistry', () => {
         config: {},
         visible: true,
       };
-      
+
       const validation = WidgetRegistry.validateConfig(invalidConfig);
-      
+
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(error => error.includes('X position cannot be negative'))).toBe(true);
+      expect(validation.errors.some(error => error.includes('X position cannot be negative'))).toBe(
+        true
+      );
     });
 
     it('should reject configuration with negative Y coordinate', () => {
@@ -251,11 +238,13 @@ describe('WidgetRegistry', () => {
         config: {},
         visible: true,
       };
-      
+
       const validation = WidgetRegistry.validateConfig(invalidConfig);
-      
+
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(error => error.includes('Y position cannot be negative'))).toBe(true);
+      expect(validation.errors.some(error => error.includes('Y position cannot be negative'))).toBe(
+        true
+      );
     });
   });
 
@@ -263,11 +252,9 @@ describe('WidgetRegistry', () => {
     it('should render summary widget correctly', () => {
       const config = WidgetRegistry.getDefaultConfig('summary');
       if (!config) return;
-      
-      const { lastFrame } = render(
-        WidgetRegistry.createWidget(config, false, vi.fn(), vi.fn())!
-      );
-      
+
+      const { lastFrame } = render(WidgetRegistry.createWidget(config, false, vi.fn(), vi.fn())!);
+
       expect(lastFrame()).toContain('Summary Widget');
       expect(lastFrame()).toContain('Overall metrics and key insights');
     });
@@ -275,11 +262,9 @@ describe('WidgetRegistry', () => {
     it('should render issues widget correctly', () => {
       const config = WidgetRegistry.getDefaultConfig('issues');
       if (!config) return;
-      
-      const { lastFrame } = render(
-        WidgetRegistry.createWidget(config, false, vi.fn(), vi.fn())!
-      );
-      
+
+      const { lastFrame } = render(WidgetRegistry.createWidget(config, false, vi.fn(), vi.fn())!);
+
       expect(lastFrame()).toContain('Issues Widget');
       expect(lastFrame()).toContain('Top issues and filtering options');
     });
@@ -287,11 +272,9 @@ describe('WidgetRegistry', () => {
     it('should render coverage widget correctly', () => {
       const config = WidgetRegistry.getDefaultConfig('coverage');
       if (!config) return;
-      
-      const { lastFrame } = render(
-        WidgetRegistry.createWidget(config, false, vi.fn(), vi.fn())!
-      );
-      
+
+      const { lastFrame } = render(WidgetRegistry.createWidget(config, false, vi.fn(), vi.fn())!);
+
       expect(lastFrame()).toContain('Coverage Widget');
       expect(lastFrame()).toContain('Code coverage visualization');
     });
@@ -299,11 +282,9 @@ describe('WidgetRegistry', () => {
     it('should render trends widget correctly', () => {
       const config = WidgetRegistry.getDefaultConfig('trends');
       if (!config) return;
-      
-      const { lastFrame } = render(
-        WidgetRegistry.createWidget(config, false, vi.fn(), vi.fn())!
-      );
-      
+
+      const { lastFrame } = render(WidgetRegistry.createWidget(config, false, vi.fn(), vi.fn())!);
+
       expect(lastFrame()).toContain('Trends Widget');
       expect(lastFrame()).toContain('Historical trend charts');
     });

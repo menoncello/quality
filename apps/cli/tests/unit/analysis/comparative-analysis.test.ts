@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'bun:test';
 
 // Mock data structures for comparative analysis
 interface AnalysisRun {
@@ -60,7 +60,7 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
         filePath: `src/components/component${i}.tsx`,
         lineNumber: i + 1,
         message: `Base issue ${i}`,
-        score: (i % 5) + 5
+        score: (i % 5) + 5,
       }));
 
       return {
@@ -74,37 +74,33 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
           coverage: baseScore + 5,
           maintainability: baseScore - 5,
           reliability: baseScore + 10,
-          security: baseScore
-        }
+          security: baseScore,
+        },
       };
     };
   });
 
   const calculateDiff = (run1: AnalysisRun, run2: AnalysisRun): ComparisonResult => {
     // Find added issues (present in run2 but not run1)
-    const addedIssues = run2.issues.filter(issue2 =>
-      !run1.issues.some(issue1 =>
-        issue1.id === issue2.id
-      )
+    const addedIssues = run2.issues.filter(
+      issue2 => !run1.issues.some(issue1 => issue1.id === issue2.id)
     );
 
     // Find removed issues (present in run1 but not run2)
-    const removedIssues = run1.issues.filter(issue1 =>
-      !run2.issues.some(issue2 =>
-        issue1.id === issue2.id
-      )
+    const removedIssues = run1.issues.filter(
+      issue1 => !run2.issues.some(issue2 => issue1.id === issue2.id)
     );
 
     // Find modified issues (same ID but different details)
     const modifiedIssues = run1.issues.flatMap(issue1 => {
-      const matchingIssue = run2.issues.find(issue2 =>
-        issue1.id === issue2.id
-      );
+      const matchingIssue = run2.issues.find(issue2 => issue1.id === issue2.id);
 
-      if (matchingIssue &&
-          (issue1.message !== matchingIssue.message ||
-           issue1.severity !== matchingIssue.severity ||
-           issue1.score !== matchingIssue.score)) {
+      if (
+        matchingIssue &&
+        (issue1.message !== matchingIssue.message ||
+          issue1.severity !== matchingIssue.severity ||
+          issue1.score !== matchingIssue.score)
+      ) {
         return [{ old: issue1, new: matchingIssue }];
       }
       return [];
@@ -117,22 +113,18 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
       maintainability: run2.metrics.maintainability - run1.metrics.maintainability,
       reliability: run2.metrics.reliability - run1.metrics.reliability,
       security: run2.metrics.security - run1.metrics.security,
-      issueCount: run2.issues.length - run1.issues.length
+      issueCount: run2.issues.length - run1.issues.length,
     };
 
     // Determine trend
     let trend: 'improved' | 'degraded' | 'stable' = 'stable';
-    const significantChanges = Object.values(metricChanges).filter(change =>
-      Math.abs(change) > 5
+    const significantChanges = Object.values(metricChanges).filter(
+      change => Math.abs(change) > 5
     ).length;
 
     if (significantChanges > 0) {
-      const positiveChanges = Object.values(metricChanges).filter(change =>
-        change > 5
-      ).length;
-      const negativeChanges = Object.values(metricChanges).filter(change =>
-        change < -5
-      ).length;
+      const positiveChanges = Object.values(metricChanges).filter(change => change > 5).length;
+      const negativeChanges = Object.values(metricChanges).filter(change => change < -5).length;
 
       if (positiveChanges > negativeChanges) {
         trend = 'improved';
@@ -147,10 +139,10 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
       differences: {
         addedIssues,
         removedIssues,
-        modifiedIssues
+        modifiedIssues,
       },
       metricChanges,
-      trend
+      trend,
     };
   };
 
@@ -167,7 +159,7 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
       filePath: 'src/components/NewComponent.tsx',
       lineNumber: 15,
       message: 'New issue introduced',
-      score: 8
+      score: 8,
     };
     run2.issues.push(newIssue);
 
@@ -226,7 +218,7 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
         filePath: 'src/added/file1.ts',
         lineNumber: 10,
         message: 'Added issue 1',
-        score: 7
+        score: 7,
       },
       {
         id: 'added-2',
@@ -236,7 +228,7 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
         filePath: 'src/added/file2.ts',
         lineNumber: 20,
         message: 'Added issue 2',
-        score: 5
+        score: 5,
       }
     );
 
@@ -249,7 +241,7 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
     run2.issues[modifiedIndex] = {
       ...run2.issues[modifiedIndex],
       severity: 8,
-      message: 'Modified severity and message'
+      message: 'Modified severity and message',
     };
 
     const result = calculateDiff(run1, run2);
@@ -281,7 +273,7 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
       overallScore: 100,
       issueCount: 0,
       issues: [],
-      metrics: { coverage: 100, maintainability: 100, reliability: 100, security: 100 }
+      metrics: { coverage: 100, maintainability: 100, reliability: 100, security: 100 },
     };
 
     const run2: AnalysisRun = {
@@ -299,10 +291,10 @@ describe('2.3-UNIT-009: Diff Calculation Algorithm', () => {
           filePath: 'src/file.ts',
           lineNumber: 10,
           message: 'New error',
-          score: 8
-        }
+          score: 8,
+        },
       ],
-      metrics: { coverage: 90, maintainability: 85, reliability: 80, security: 90 }
+      metrics: { coverage: 90, maintainability: 85, reliability: 80, security: 90 },
     };
 
     const result = calculateDiff(run1, run2);
@@ -322,25 +314,34 @@ describe('2.3-UNIT-010: Metric Comparison Logic', () => {
     const roundToTwo = (num: number): number => Math.round(num * 100) / 100;
 
     return {
-      changes: metrics.reduce((acc, metric) => {
-        acc[metric] = {
-          previous: run1.metrics[metric],
-          current: run2.metrics[metric],
-          change: run2.metrics[metric] - run1.metrics[metric],
-          percentageChange: run1.metrics[metric] !== 0
-            ? roundToTwo(((run2.metrics[metric] - run1.metrics[metric]) / run1.metrics[metric]) * 100)
-            : 0
-        };
-        return acc;
-      }, {} as Record<string, any>),
+      changes: metrics.reduce(
+        (acc, metric) => {
+          acc[metric] = {
+            previous: run1.metrics[metric],
+            current: run2.metrics[metric],
+            change: run2.metrics[metric] - run1.metrics[metric],
+            percentageChange:
+              run1.metrics[metric] !== 0
+                ? roundToTwo(
+                    ((run2.metrics[metric] - run1.metrics[metric]) / run1.metrics[metric]) * 100
+                  )
+                : 0,
+          };
+          return acc;
+        },
+        {} as Record<string, any>
+      ),
 
       overallScoreChange: run2.overallScore - run1.overallScore,
-      overallScorePercentageChange: roundToTwo(((run2.overallScore - run1.overallScore) / run1.overallScore) * 100),
+      overallScorePercentageChange: roundToTwo(
+        ((run2.overallScore - run1.overallScore) / run1.overallScore) * 100
+      ),
 
       issueCountChange: run2.issueCount - run1.issueCount,
-      issueCountPercentageChange: run1.issueCount !== 0
-        ? roundToTwo(((run2.issueCount - run1.issueCount) / run1.issueCount) * 100)
-        : 0
+      issueCountPercentageChange:
+        run1.issueCount !== 0
+          ? roundToTwo(((run2.issueCount - run1.issueCount) / run1.issueCount) * 100)
+          : 0,
     };
   };
 
@@ -348,10 +349,13 @@ describe('2.3-UNIT-010: Metric Comparison Logic', () => {
     coverage: 80,
     maintainability: 75,
     reliability: 85,
-    security: 90
+    security: 90,
   };
 
-  const generateMockRunWithMetrics = (overallScore: number, metrics: Partial<typeof defaultMetrics>): AnalysisRun => {
+  const generateMockRunWithMetrics = (
+    overallScore: number,
+    metrics: Partial<typeof defaultMetrics>
+  ): AnalysisRun => {
     return {
       id: 'test',
       timestamp: new Date(),
@@ -359,7 +363,7 @@ describe('2.3-UNIT-010: Metric Comparison Logic', () => {
       overallScore,
       issueCount: 10,
       issues: [],
-      metrics: { ...defaultMetrics, ...metrics }
+      metrics: { ...defaultMetrics, ...metrics },
     };
   };
 
@@ -407,13 +411,13 @@ describe('2.3-UNIT-010: Metric Comparison Logic', () => {
       coverage: 75,
       maintainability: 80,
       reliability: 65,
-      security: 60
+      security: 60,
     });
     const run2 = generateMockRunWithMetrics(80, {
       coverage: 85,
       maintainability: 75,
       reliability: 70,
-      security: 90
+      security: 90,
     });
 
     const comparison = calculateMetricComparison(run1, run2);
@@ -448,8 +452,8 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
         trends: {
           overallScore: 'stable',
           issueCount: 'stable',
-          metrics: {}
-        }
+          metrics: {},
+        },
       };
     }
 
@@ -479,7 +483,7 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
       coverage: calculateTrend(runs.map(run => run.metrics.coverage)),
       maintainability: calculateTrend(runs.map(run => run.metrics.maintainability)),
       reliability: calculateTrend(runs.map(run => run.metrics.reliability)),
-      security: calculateTrend(runs.map(run => run.metrics.security))
+      security: calculateTrend(runs.map(run => run.metrics.security)),
     };
 
     return {
@@ -487,22 +491,26 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
       trends: {
         overallScore: calculateTrend(overallScores),
         issueCount: calculateTrend(issueCounts.map(count => -count)), // Invert - fewer issues is better
-        metrics: metricTrends
-      }
+        metrics: metricTrends,
+      },
     };
   };
 
-  const generateMockRuns = (count: number, startScore: number, trend: 'improving' | 'declining' | 'stable'): AnalysisRun[] => {
+  const generateMockRuns = (
+    count: number,
+    startScore: number,
+    trend: 'improving' | 'declining' | 'stable'
+  ): AnalysisRun[] => {
     const runs: AnalysisRun[] = [];
 
     for (let i = 0; i < count; i++) {
       let score: number;
       if (trend === 'improving') {
-        score = startScore + (i * 2);
+        score = startScore + i * 2;
       } else if (trend === 'declining') {
-        score = startScore - (i * 2);
+        score = startScore - i * 2;
       } else {
-        score = startScore + (Math.sin(i * 0.5) * 0.2); // Very small deterministic variations
+        score = startScore + Math.sin(i * 0.5) * 0.2; // Very small deterministic variations
       }
 
       const baseIssueCount = 20;
@@ -523,11 +531,55 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
         issueCount,
         issues: [],
         metrics: {
-          coverage: Math.max(0, Math.min(100, 80 + (trend === 'improving' ? i * 1 : trend === 'declining' ? -i * 1 : Math.sin(i * 0.4) * 0.5))),
-          maintainability: Math.max(0, Math.min(100, 75 + (trend === 'improving' ? i * 1.5 : trend === 'declining' ? -i * 1.5 : Math.sin(i * 0.3) * 0.5))),
-          reliability: Math.max(0, Math.min(100, 85 + (trend === 'improving' ? i * 0.5 : trend === 'declining' ? -i * 0.5 : Math.sin(i * 0.6) * 0.3))),
-          security: Math.max(0, Math.min(100, 90 + (trend === 'improving' ? i * 0.3 : trend === 'declining' ? -i * 0.3 : Math.sin(i * 0.2) * 0.2)))
-        }
+          coverage: Math.max(
+            0,
+            Math.min(
+              100,
+              80 +
+                (trend === 'improving'
+                  ? i * 1
+                  : trend === 'declining'
+                    ? -i * 1
+                    : Math.sin(i * 0.4) * 0.5)
+            )
+          ),
+          maintainability: Math.max(
+            0,
+            Math.min(
+              100,
+              75 +
+                (trend === 'improving'
+                  ? i * 1.5
+                  : trend === 'declining'
+                    ? -i * 1.5
+                    : Math.sin(i * 0.3) * 0.5)
+            )
+          ),
+          reliability: Math.max(
+            0,
+            Math.min(
+              100,
+              85 +
+                (trend === 'improving'
+                  ? i * 0.5
+                  : trend === 'declining'
+                    ? -i * 0.5
+                    : Math.sin(i * 0.6) * 0.3)
+            )
+          ),
+          security: Math.max(
+            0,
+            Math.min(
+              100,
+              90 +
+                (trend === 'improving'
+                  ? i * 0.3
+                  : trend === 'declining'
+                    ? -i * 0.3
+                    : Math.sin(i * 0.2) * 0.2)
+            )
+          ),
+        },
       });
     }
 
@@ -581,7 +633,7 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
         overallScore: 70,
         issueCount: 20,
         issues: [],
-        metrics: { coverage: 80, maintainability: 60, reliability: 85, security: 90 }
+        metrics: { coverage: 80, maintainability: 60, reliability: 85, security: 90 },
       },
       {
         id: 'run-2',
@@ -590,7 +642,7 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
         overallScore: 75,
         issueCount: 18,
         issues: [],
-        metrics: { coverage: 82, maintainability: 65, reliability: 83, security: 88 }
+        metrics: { coverage: 82, maintainability: 65, reliability: 83, security: 88 },
       },
       {
         id: 'run-3',
@@ -599,8 +651,8 @@ describe('2.3-UNIT-011: Trend Analysis Calculations', () => {
         overallScore: 80,
         issueCount: 15,
         issues: [],
-        metrics: { coverage: 85, maintainability: 70, reliability: 80, security: 85 }
-      }
+        metrics: { coverage: 85, maintainability: 70, reliability: 80, security: 85 },
+      },
     ];
 
     const trendData = calculateTrendAnalysis(runs);

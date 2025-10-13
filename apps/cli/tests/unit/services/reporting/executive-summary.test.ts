@@ -5,57 +5,16 @@
  * including metrics extraction, trend analysis, NLP processing, and visual summaries.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ReportGenerator, type ExecutiveSummary, type HistoricalData } from '../../../../src/services/reporting/report-generator';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
+import {
+  ReportGenerator,
+  type ExecutiveSummary,
+  type HistoricalData,
+} from '../../../../src/services/reporting/report-generator';
 import type { AnalysisResult } from '../../../../src/types/analysis';
 import type { DashboardMetrics } from '../../../../src/types/dashboard';
 
-// Mock formatters to focus on executive summary functionality
-vi.mock('../../../../src/services/reporting/formatters/json-formatter', () => ({
-  JSONFormatter: vi.fn().mockImplementation(() => ({
-    format: vi.fn().mockResolvedValue('{"report": "json"}')
-  }))
-}));
-vi.mock('../../../../src/services/reporting/formatters/html-formatter', () => ({
-  HTMLFormatter: vi.fn().mockImplementation(() => ({
-    format: vi.fn().mockResolvedValue('<html><body>Report</body></html>')
-  }))
-}));
-vi.mock('../../../../src/services/reporting/formatters/markdown-formatter', () => ({
-  MarkdownFormatter: vi.fn().mockImplementation(() => ({
-    format: vi.fn().mockResolvedValue('# Report')
-  }))
-}));
-vi.mock('../../../../src/services/reporting/formatters/pdf-formatter', () => ({
-  PDFFormatter: vi.fn().mockImplementation(() => ({
-    format: vi.fn().mockResolvedValue('%PDF-1.4')
-  }))
-}));
-
-// Mock TemplateService
-vi.mock('../../../../src/services/reporting/template-service', () => ({
-  TemplateService: vi.fn().mockImplementation(() => ({
-    getTemplate: vi.fn().mockReturnValue({
-      id: 'executive-summary',
-      name: 'Executive Summary',
-      sections: [
-        { id: 'summary', type: 'summary', enabled: true, order: 1 },
-        { id: 'metrics', type: 'metrics', enabled: true, order: 2 },
-        { id: 'trends', type: 'trends', enabled: true, order: 3 }
-      ]
-    }),
-    hasTemplate: vi.fn().mockReturnValue(true),
-    getTemplates: vi.fn().mockReturnValue([]),
-    createTemplate: vi.fn(),
-    updateTemplate: vi.fn(),
-    deleteTemplate: vi.fn(),
-    cloneTemplate: vi.fn(),
-    getTemplatesByFormat: vi.fn().mockReturnValue([]),
-    getTemplatesByCategory: vi.fn().mockReturnValue([]),
-    getCategories: vi.fn().mockReturnValue([]),
-    getStatistics: vi.fn().mockReturnValue({})
-  }))
-}));
+// Note: Mocks are handled at the module level for testing purposes
 
 describe('Executive Summary Generation', () => {
   let reportGenerator: ReportGenerator;
@@ -90,7 +49,7 @@ describe('Executive Summary Generation', () => {
               ruleId: 'no-console',
               fixable: true,
               suggestion: 'Remove console statement',
-              score: 8
+              score: 8,
             },
             {
               id: 'warning-1',
@@ -102,18 +61,18 @@ describe('Executive Summary Generation', () => {
               ruleId: 'no-unused-vars',
               fixable: true,
               suggestion: 'Remove unused variable',
-              score: 3
-            }
+              score: 3,
+            },
           ],
           metrics: {
             issuesFound: 2,
             errorsCount: 1,
             warningsCount: 1,
             fixableCount: 2,
-            executionTime: 2000
+            executionTime: 2000,
           },
-          coverage: null
-        }
+          coverage: null,
+        },
       ],
       summary: {
         totalIssues: 15,
@@ -122,9 +81,9 @@ describe('Executive Summary Generation', () => {
         totalFixable: 10,
         overallScore: 75,
         toolCount: 3,
-        executionTime: 5000
+        executionTime: 5000,
       },
-      aiPrompts: []
+      aiPrompts: [],
     };
 
     // Mock issues
@@ -139,7 +98,7 @@ describe('Executive Summary Generation', () => {
         ruleId: 'no-console',
         fixable: true,
         suggestion: 'Remove console statement',
-        score: 8
+        score: 8,
       },
       {
         id: 'error-2',
@@ -151,7 +110,7 @@ describe('Executive Summary Generation', () => {
         ruleId: 'typescript-explicit-return-type',
         fixable: false,
         suggestion: 'Add type annotation',
-        score: 7
+        score: 7,
       },
       {
         id: 'warning-1',
@@ -163,8 +122,8 @@ describe('Executive Summary Generation', () => {
         ruleId: 'no-unused-vars',
         fixable: true,
         suggestion: 'Remove unused variable',
-        score: 3
-      }
+        score: 3,
+      },
     ];
 
     // Mock metrics
@@ -179,10 +138,10 @@ describe('Executive Summary Generation', () => {
         lines: { percentage: 82, covered: 410, total: 500 },
         functions: { percentage: 75, covered: 30, total: 40 },
         branches: { percentage: 68, covered: 34, total: 50 },
-        statements: { percentage: 85, covered: 425, total: 500 }
+        statements: { percentage: 85, covered: 425, total: 500 },
       },
       toolsAnalyzed: 3,
-      duration: 5000
+      duration: 5000,
     };
 
     // Mock historical data
@@ -197,8 +156,8 @@ describe('Executive Summary Generation', () => {
         fixableCount: 12,
         toolResults: [
           { toolName: 'eslint', score: 65, issuesCount: 12 },
-          { toolName: 'typescript', score: 72, issuesCount: 8 }
-        ]
+          { toolName: 'typescript', score: 72, issuesCount: 8 },
+        ],
       },
       {
         timestamp: new Date('2025-01-01'),
@@ -210,14 +169,14 @@ describe('Executive Summary Generation', () => {
         fixableCount: 15,
         toolResults: [
           { toolName: 'eslint', score: 60, issuesCount: 15 },
-          { toolName: 'typescript', score: 68, issuesCount: 10 }
-        ]
-      }
+          { toolName: 'typescript', score: 68, issuesCount: 10 },
+        ],
+      },
     ];
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    // Cleanup handled by test framework
   });
 
   describe('Executive Summary Generation', () => {
@@ -232,12 +191,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -257,12 +216,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -275,14 +234,14 @@ describe('Executive Summary Generation', () => {
     it('should extract and prioritize key metrics correctly', async () => {
       const highScoreAnalysis = {
         ...mockAnalysisResult,
-        overallScore: 92
+        overallScore: 92,
       };
 
       const highScoreMetrics = {
         ...mockMetrics,
         overallScore: 92,
         totalIssues: 5,
-        errorCount: 1
+        errorCount: 1,
       };
 
       const reportRequest = {
@@ -295,12 +254,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: highScoreAnalysis,
         issues: mockIssues.slice(0, 1), // Only one issue
         metrics: highScoreMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -321,7 +280,7 @@ describe('Executive Summary Generation', () => {
           ruleId: 'security/no-sql-injection',
           fixable: false,
           suggestion: 'Use parameterized queries',
-          score: 10
+          score: 10,
         },
         {
           id: 'error-2',
@@ -333,8 +292,8 @@ describe('Executive Summary Generation', () => {
           ruleId: 'no-console',
           fixable: true,
           suggestion: 'Remove console statement',
-          score: 8
-        }
+          score: 8,
+        },
       ];
 
       const reportRequest = {
@@ -347,7 +306,7 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: criticalIssues,
@@ -355,9 +314,9 @@ describe('Executive Summary Generation', () => {
           ...mockMetrics,
           totalIssues: 2,
           errorCount: 2,
-          warningCount: 0
+          warningCount: 0,
         },
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -372,8 +331,8 @@ describe('Executive Summary Generation', () => {
           lines: { percentage: 45, covered: 225, total: 500 },
           functions: { percentage: 40, covered: 16, total: 40 },
           branches: { percentage: 35, covered: 17, total: 50 },
-          statements: { percentage: 50, covered: 250, total: 500 }
-        }
+          statements: { percentage: 50, covered: 250, total: 500 },
+        },
       };
 
       const reportRequest = {
@@ -386,12 +345,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: lowCoverageMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -412,12 +371,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -437,12 +396,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: [] // No historical data
+        historicalData: [], // No historical data
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -460,7 +419,7 @@ describe('Executive Summary Generation', () => {
           warningCount: 15,
           infoCount: 5,
           fixableCount: 20,
-          toolResults: []
+          toolResults: [],
         },
         {
           timestamp: new Date('2025-01-01'),
@@ -470,8 +429,8 @@ describe('Executive Summary Generation', () => {
           warningCount: 20,
           infoCount: 5,
           fixableCount: 25,
-          toolResults: []
-        }
+          toolResults: [],
+        },
       ];
 
       const reportRequest = {
@@ -484,15 +443,15 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: {
           ...mockAnalysisResult,
-          overallScore: 75 // Improving trend
+          overallScore: 75, // Improving trend
         },
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: improvingHistoricalData
+        historicalData: improvingHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -503,39 +462,47 @@ describe('Executive Summary Generation', () => {
 
   describe('Template Integration', () => {
     it('should use custom summary templates when available', async () => {
+      // Create a custom template using the createTemplate method
+      const customTemplate = reportGenerator.createTemplate({
+        id: 'custom-executive-summary',
+        name: 'Custom Executive Summary',
+        description: 'Custom template for testing',
+        format: 'html' as const,
+        templateType: 'custom' as const,
+        sections: [
+          {
+            id: 'summary',
+            name: 'Summary',
+            type: 'summary' as const,
+            enabled: true,
+            order: 1,
+          },
+        ],
+        variables: [],
+      });
+
+      // Verify template was created
+      const addedTemplate = reportGenerator.getTemplate(customTemplate.id);
+      expect(addedTemplate).toBeDefined();
+      expect(addedTemplate?.name).toBe('Custom Executive Summary');
+
       const customTemplateRequest = {
         configuration: {
           id: 'config-1',
           name: 'Custom Summary Report',
-          templateId: 'custom-executive-summary',
+          templateId: customTemplate.id,
           format: 'html' as const,
           recipients: [],
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
-
-      // Mock custom template
-      const templateService = reportGenerator.getTemplateService();
-      vi.spyOn(templateService, 'getTemplate').mockReturnValue({
-        id: 'custom-executive-summary',
-        name: 'Custom Executive Summary',
-        sections: [
-          { id: 'custom-summary', type: 'summary', enabled: true, order: 1 },
-          { id: 'custom-metrics', type: 'metrics', enabled: true, order: 2 }
-        ],
-        format: 'html',
-        templateType: 'custom',
-        content: 'Custom summary content with {{reportTitle}}',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
 
       const result = await reportGenerator.generateReport(customTemplateRequest);
 
@@ -543,37 +510,41 @@ describe('Executive Summary Generation', () => {
     });
 
     it('should handle missing summary section gracefully', async () => {
-      const templateService = reportGenerator.getTemplateService();
-      vi.spyOn(templateService, 'getTemplate').mockReturnValue({
+      // Create a template without summary section
+      const noSummaryTemplate = reportGenerator.createTemplate({
         id: 'no-summary-template',
         name: 'No Summary Template',
+        description: 'Template without summary section',
+        format: 'html' as const,
+        templateType: 'custom' as const,
         sections: [
-          { id: 'metrics', type: 'metrics', enabled: true, order: 1 },
-          { id: 'charts', type: 'charts', enabled: true, order: 2 }
+          {
+            id: 'metrics',
+            name: 'Metrics',
+            type: 'metrics' as const,
+            enabled: true,
+            order: 1,
+          },
         ],
-        format: 'html',
-        templateType: 'builtin',
-        content: 'No summary section',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        variables: [],
       });
 
       const reportRequest = {
         configuration: {
           id: 'config-1',
           name: 'No Summary Report',
-          templateId: 'no-summary-template',
+          templateId: noSummaryTemplate.id,
           format: 'html' as const,
           recipients: [],
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -594,8 +565,8 @@ describe('Executive Summary Generation', () => {
           totalFixable: 0,
           overallScore: -1,
           toolCount: 0,
-          executionTime: 0
-        }
+          executionTime: 0,
+        },
       };
 
       const reportRequest = {
@@ -608,7 +579,7 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: malformedAnalysis,
         issues: [],
@@ -621,9 +592,9 @@ describe('Executive Summary Generation', () => {
           overallScore: 0,
           coverage: null,
           toolsAnalyzed: 0,
-          duration: 0
+          duration: 0,
         },
-        historicalData: []
+        historicalData: [],
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -642,7 +613,7 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: {
           ...mockAnalysisResult,
@@ -654,8 +625,8 @@ describe('Executive Summary Generation', () => {
             totalFixable: 0,
             overallScore: 100,
             toolCount: 3,
-            executionTime: 5000
-          }
+            executionTime: 5000,
+          },
         },
         issues: [], // No issues
         metrics: {
@@ -667,9 +638,9 @@ describe('Executive Summary Generation', () => {
           overallScore: 100,
           coverage: null,
           toolsAnalyzed: 3,
-          duration: 5000
+          duration: 5000,
         },
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -687,7 +658,7 @@ describe('Executive Summary Generation', () => {
         overallScore: 75,
         coverage: null, // Missing coverage data
         toolsAnalyzed: 0, // Missing tools data
-        duration: 0
+        duration: 0,
       };
 
       const reportRequest = {
@@ -700,12 +671,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: incompleteMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -728,12 +699,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -750,12 +721,12 @@ describe('Executive Summary Generation', () => {
         type: index % 10 === 0 ? 'error' : 'warning',
         toolName: 'eslint',
         filePath: `/src/file-${Math.floor(index / 100)}.ts`,
-        lineNumber: index % 100 + 1,
+        lineNumber: (index % 100) + 1,
         message: `Issue ${index}`,
         ruleId: `rule-${index % 50}`,
         fixable: index % 3 !== 0,
         suggestion: `Fix for issue ${index}`,
-        score: Math.floor(Math.random() * 10) + 1
+        score: Math.floor(Math.random() * 10) + 1,
       }));
 
       const largeMetrics = {
@@ -764,7 +735,7 @@ describe('Executive Summary Generation', () => {
         errorCount: 100,
         warningCount: 900,
         infoCount: 0,
-        fixableCount: 667
+        fixableCount: 667,
       };
 
       const startTime = Date.now();
@@ -779,12 +750,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: largeIssuesSet,
         metrics: largeMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(reportRequest);
@@ -807,19 +778,19 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: {
           ...mockAnalysisResult,
-          overallScore: 85
+          overallScore: 85,
         },
         issues: mockIssues.slice(0, 2), // Fewer issues for executive view
         metrics: {
           ...mockMetrics,
           overallScore: 85,
-          totalIssues: 2
+          totalIssues: 2,
         },
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(executiveTemplateRequest);
@@ -838,12 +809,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(technicalTemplateRequest);
@@ -864,12 +835,12 @@ describe('Executive Summary Generation', () => {
           filters: {},
           createdAt: new Date(),
           updatedAt: new Date(),
-          isActive: true
+          isActive: true,
         },
         analysisResult: mockAnalysisResult,
         issues: mockIssues,
         metrics: mockMetrics,
-        historicalData: mockHistoricalData
+        historicalData: mockHistoricalData,
       };
 
       const result = await reportGenerator.generateReport(visualReportRequest);

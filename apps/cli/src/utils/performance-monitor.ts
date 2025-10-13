@@ -35,15 +35,15 @@ export class PerformanceMonitor {
       updateTime: 0,
       memoryUsage: 0,
       operationCount: 0,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     };
     this.alerts = [];
     this.listeners = new Set();
     this.thresholds = {
-      maxRenderTime: 100,    // 100ms
-      maxUpdateTime: 50,    // 50ms
-      maxMemoryUsage: 512,  // 512MB
-      maxOperationRate: 10   // 10 ops/sec
+      maxRenderTime: 100, // 100ms
+      maxUpdateTime: 50, // 50ms
+      maxMemoryUsage: 512, // 512MB
+      maxOperationRate: 10, // 10 ops/sec
     };
   }
 
@@ -62,7 +62,8 @@ export class PerformanceMonitor {
       this.metrics.operationCount++;
 
       if (renderTime > this.thresholds.maxRenderTime) {
-        this.createAlert('render',
+        this.createAlert(
+          'render',
           `Render time exceeded threshold: ${renderTime.toFixed(2)}ms > ${this.thresholds.maxRenderTime}ms`,
           this.thresholds.maxRenderTime,
           renderTime
@@ -86,7 +87,8 @@ export class PerformanceMonitor {
       this.metrics.operationCount++;
 
       if (updateTime > this.thresholds.maxUpdateTime) {
-        this.createAlert('update',
+        this.createAlert(
+          'update',
           `Update time exceeded threshold: ${updateTime.toFixed(2)}ms > ${this.thresholds.maxUpdateTime}ms`,
           this.thresholds.maxUpdateTime,
           updateTime
@@ -99,14 +101,20 @@ export class PerformanceMonitor {
    * Check memory usage and alert if necessary
    */
   checkMemoryUsage(): void {
-    if (typeof globalThis.performance !== 'undefined' && (globalThis.performance as unknown as { memory?: { usedJSHeapSize: number } }).memory) {
-      const memoryInfo = (globalThis.performance as unknown as { memory: { usedJSHeapSize: number } }).memory;
+    if (
+      typeof globalThis.performance !== 'undefined' &&
+      (globalThis.performance as unknown as { memory?: { usedJSHeapSize: number } }).memory
+    ) {
+      const memoryInfo = (
+        globalThis.performance as unknown as { memory: { usedJSHeapSize: number } }
+      ).memory;
       const memoryUsageMB = memoryInfo.usedJSHeapSize / (1024 * 1024);
 
       this.metrics.memoryUsage = memoryUsageMB;
 
       if (memoryUsageMB > this.thresholds.maxMemoryUsage) {
-        this.createAlert('memory',
+        this.createAlert(
+          'memory',
           `Memory usage exceeded threshold: ${memoryUsageMB.toFixed(2)}MB > ${this.thresholds.maxMemoryUsage}MB`,
           this.thresholds.maxMemoryUsage,
           memoryUsageMB
@@ -124,7 +132,8 @@ export class PerformanceMonitor {
     const recentOperations = this.getOperationCountInTimeWindow(timeWindow);
 
     if (recentOperations > this.thresholds.maxOperationRate) {
-      this.createAlert('operation',
+      this.createAlert(
+        'operation',
         `Operation rate exceeded threshold: ${recentOperations} > ${this.thresholds.maxOperationRate}/sec`,
         this.thresholds.maxOperationRate,
         recentOperations
@@ -178,7 +187,7 @@ export class PerformanceMonitor {
       updateTime: 0,
       memoryUsage: 0,
       operationCount: 0,
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     };
     this.alerts = [];
   }
@@ -208,21 +217,29 @@ Thresholds:
 - Max Operation Rate: ${this.thresholds.maxOperationRate}/sec
 
 Recent Alerts (Last Minute): ${recentAlerts.length}
-${recentAlerts.map(alert =>
-  `- [${alert.type.toUpperCase()}] ${alert.message} (${alert.actual.toFixed(2)} vs ${alert.threshold})`
-).join('\n')}
+${recentAlerts
+  .map(
+    alert =>
+      `- [${alert.type.toUpperCase()}] ${alert.message} (${alert.actual.toFixed(2)} vs ${alert.threshold})`
+  )
+  .join('\n')}
 
 Status: ${recentAlerts.length === 0 ? 'HEALTHY' : 'WARNING'}
     `.trim();
   }
 
-  private createAlert(type: PerformanceAlert['type'], message: string, threshold: number, actual: number): void {
+  private createAlert(
+    type: PerformanceAlert['type'],
+    message: string,
+    threshold: number,
+    actual: number
+  ): void {
     const alert: PerformanceAlert = {
       type,
       message,
       threshold,
       actual,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.alerts.push(alert);
@@ -285,7 +302,7 @@ export function usePerformanceMonitor(componentName: string) {
     monitor,
     measureRender,
     measureUpdate,
-    componentName
+    componentName,
   };
 }
 
@@ -355,7 +372,7 @@ export class SearchDebouncer {
       lastSearchTime: this.lastSearchTime,
       searchCount: this.searchCount,
       debounceTime: this.debounceTime,
-      isPending: this.timeout !== null
+      isPending: this.timeout !== null,
     };
   }
 
@@ -384,7 +401,7 @@ export function createDebouncedSearch<T extends unknown[]>(
     search: debouncer.debounce(searchFunction, onDebounceStart, onDebounceEnd),
     cancel: () => debouncer.cancel(),
     getStats: () => debouncer.getStats(),
-    reset: () => debouncer.reset()
+    reset: () => debouncer.reset(),
   };
 }
 
@@ -409,7 +426,7 @@ export function setupGlobalPerformanceMonitoring() {
 
   // Log alerts to console in development
   if (process.env.NODE_ENV === 'development') {
-    globalPerformanceMonitor.onAlert((alert) => {
+    globalPerformanceMonitor.onAlert(alert => {
       // eslint-disable-next-line no-console
       console.warn(`[Performance Alert] ${alert.message}`);
     });

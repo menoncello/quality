@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import {
   sanitizeSearchQuery,
   sanitizeFilterValue,
@@ -6,7 +6,7 @@ import {
   escapeHtml,
   validateRegexPattern,
   RateLimiter,
-  validateCSP
+  validateCSP,
 } from '../../../src/utils/input-validation';
 
 describe('2.3-UNIT-004: Input Sanitization Security', () => {
@@ -46,7 +46,7 @@ describe('2.3-UNIT-004: Input Sanitization Security', () => {
       const sqlInjection = "'; DROP TABLE users; --";
       const sanitized = sanitizeSearchQuery(sqlInjection);
       // Should sanitize but not completely remove for legitimate search
-      expect(sanitized).not.toContain("DROP TABLE");
+      expect(sanitized).not.toContain('DROP TABLE');
     });
 
     it('should prevent command injection', () => {
@@ -82,20 +82,28 @@ describe('2.3-UNIT-004: Input Sanitization Security', () => {
     it('should sanitize file paths', () => {
       expect(sanitizeFilterValue('../../../etc/passwd', 'file')).toBe('//etc/passwd');
       expect(sanitizeFilterValue('/absolute/path', 'file')).toBe('absolute/path');
-      expect(sanitizeFilterValue('file<with>dangerous:chars', 'file')).toBe('filewithdangerouschars');
+      expect(sanitizeFilterValue('file<with>dangerous:chars', 'file')).toBe(
+        'filewithdangerouschars'
+      );
     });
 
     it('should validate module filter values', () => {
       expect(sanitizeFilterValue('src/components', 'module')).toBe('src/components');
-      expect(sanitizeFilterValue('module-with_underscore', 'module')).toBe('module-with_underscore');
+      expect(sanitizeFilterValue('module-with_underscore', 'module')).toBe(
+        'module-with_underscore'
+      );
       expect(sanitizeFilterValue('module@invalid', 'module')).toBe('');
     });
   });
 
   describe('escapeHtml', () => {
     it('should escape HTML entities', () => {
-      expect(escapeHtml('<script>alert("xss")</script>')).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;');
-      expect(escapeHtml('<img src="x" onerror="alert(1)">')).toBe('&lt;img src=&quot;x&quot; onerror=&quot;alert(1)&quot;&gt;');
+      expect(escapeHtml('<script>alert("xss")</script>')).toBe(
+        '&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;'
+      );
+      expect(escapeHtml('<img src="x" onerror="alert(1)">')).toBe(
+        '&lt;img src=&quot;x&quot; onerror=&quot;alert(1)&quot;&gt;'
+      );
       expect(escapeHtml('')).toBe('');
       expect(escapeHtml('&')).toBe('&amp;');
     });
@@ -136,7 +144,7 @@ describe('2.3-UNIT-004: Input Sanitization Security', () => {
       expect(waitTime).toBeLessThanOrEqual(100);
     });
 
-    it('should allow requests after interval', (done) => {
+    it('should allow requests after interval', done => {
       const rateLimiter = new RateLimiter(10); // 10ms interval
 
       expect(rateLimiter.canMakeRequest()).toBe(true);
@@ -154,13 +162,13 @@ describe('2.3-UNIT-004: Input Sanitization Security', () => {
       const xssVectors = [
         '<script>alert("XSS")</script>',
         '<IMG SRC="javascript:alert(\'XSS\');">',
-        '<IMG SRC=javascript:alert(\'XSS\')>',
-        '<IMG SRC=JaVaScRiPt:alert(\'XSS\')>',
+        "<IMG SRC=javascript:alert('XSS')>",
+        "<IMG SRC=JaVaScRiPt:alert('XSS')>",
         '<IMG SRC=`javascript:alert("RSnake says, \'XSS\'")`>',
         '<A HREF="javascript:document.location=\'http://www.example.com\'">XSS</A>',
         '<iframe src="javascript:alert(\'XSS\');"></iframe>',
-        '<BODY ONLOAD=alert(\'XSS\')>',
-        '<SCRIPT>alert(\'XSS\');</SCRIPT>',
+        "<BODY ONLOAD=alert('XSS')>",
+        "<SCRIPT>alert('XSS');</SCRIPT>",
       ];
 
       xssVectors.forEach(vector => {
@@ -194,7 +202,7 @@ describe('2.3-UNIT-004: Input Sanitization Security', () => {
     it('should prevent ReDoS through regex validation', () => {
       const redosPatterns = [
         '(a+)+b', // Catastrophic backtracking
-        '(a+)*',  // Nested quantifiers
+        '(a+)*', // Nested quantifiers
         '(?=(a+))', // Complex lookahead
         '(?<=(a+))', // Complex lookbehind
         '(.+)*(.+)*', // Multiple nested quantifiers

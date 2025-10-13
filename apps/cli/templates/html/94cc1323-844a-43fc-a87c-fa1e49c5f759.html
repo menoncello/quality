@@ -1,0 +1,22 @@
+
+        <html>
+          <head><title>Safe Template</title></head>
+          <body>
+            <h1>{{reportTitle}}</h1>
+            {{#each issues}}
+              <div class="issue {{this.type}}">
+                <h3>{{this.message}}</h3>
+                <p>File: {{this.filePath}}:{{this.lineNumber}}</p>
+                {{#if this.fixable}}
+                  <span class="fixable">This issue can be fixed automatically</span>
+                {{/if}}
+                {{#unless this.suggestion}}
+                  <span class="no-suggestion">No suggestion available</span>
+                {{/unless}}
+              </div>
+            {{/each}}
+            <p>Total issues: {{summary.totalIssues}}</p>
+            <p>Generated: {{formatDate timestamp}}</p>
+          </body>
+        </html>
+      

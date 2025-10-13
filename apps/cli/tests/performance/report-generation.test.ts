@@ -10,7 +10,7 @@
  * - Memory usage must stay under 1GB during report generation
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { ReportGenerator, type ReportRequest } from '../../src/services/reporting/report-generator';
 import type { AnalysisResult as CoreAnalysisResult, Issue } from '@dev-quality/core';
 import type { DashboardMetrics } from '../../src/types/dashboard';
@@ -57,7 +57,9 @@ describe('Report Generation Performance', () => {
       expect(duration).toBeLessThan(5000); // 5 seconds in milliseconds
       expect(memoryUsed).toBeLessThan(1024 * 1024 * 1024); // 1GB in bytes
 
-      console.log(`JSON export performance: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `JSON export performance: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`
+      );
     });
 
     it('HTML export completes within 15 seconds for 10K issues', async () => {
@@ -79,7 +81,9 @@ describe('Report Generation Performance', () => {
       expect(duration).toBeLessThan(15000); // 15 seconds in milliseconds
       expect(memoryUsed).toBeLessThan(1024 * 1024 * 1024); // 1GB in bytes
 
-      console.log(`HTML export performance: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `HTML export performance: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`
+      );
     });
 
     it('Markdown export completes within 10 seconds for 10K issues', async () => {
@@ -101,7 +105,9 @@ describe('Report Generation Performance', () => {
       expect(duration).toBeLessThan(10000); // 10 seconds in milliseconds
       expect(memoryUsed).toBeLessThan(1024 * 1024 * 1024); // 1GB in bytes
 
-      console.log(`Markdown export performance: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `Markdown export performance: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`
+      );
     });
 
     it('PDF export completes within 30 seconds for 10K issues', async () => {
@@ -123,7 +129,9 @@ describe('Report Generation Performance', () => {
       expect(duration).toBeLessThan(30000); // 30 seconds in milliseconds
       expect(memoryUsed).toBeLessThan(1024 * 1024 * 1024); // 1GB in bytes
 
-      console.log(`PDF export performance: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `PDF export performance: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`
+      );
     });
   });
 
@@ -135,7 +143,17 @@ describe('Report Generation Performance', () => {
         const startMemory = process.memoryUsage();
 
         await reportGenerator.generateReport(
-          createPerformanceTestReportRequest(largeDataset, format, format === 'json' ? 'executive-summary' : format === 'html' ? 'executive-summary' : format === 'markdown' ? 'technical-report' : 'detailed-analysis')
+          createPerformanceTestReportRequest(
+            largeDataset,
+            format,
+            format === 'json'
+              ? 'executive-summary'
+              : format === 'html'
+                ? 'executive-summary'
+                : format === 'markdown'
+                  ? 'technical-report'
+                  : 'detailed-analysis'
+          )
         );
 
         const endMemory = process.memoryUsage();
@@ -168,7 +186,8 @@ describe('Report Generation Performance', () => {
       }
 
       // Check that memory growth is reasonable (less than 500MB growth)
-      const memoryGrowth = memorySnapshots[memorySnapshots.length - 1].heapUsed - initialMemory.heapUsed;
+      const memoryGrowth =
+        memorySnapshots[memorySnapshots.length - 1].heapUsed - initialMemory.heapUsed;
       expect(memoryGrowth).toBeLessThan(500 * 1024 * 1024); // 500MB
 
       console.log(`Memory growth over 5 reports: ${(memoryGrowth / 1024 / 1024).toFixed(2)}MB`);
@@ -198,7 +217,9 @@ describe('Report Generation Performance', () => {
       expect(memoryUsed).toBeLessThan(1024 * 1024 * 1024); // 1GB in bytes
       expect(duration).toBeLessThan(15000); // Should complete faster than sequential
 
-      console.log(`Concurrent reports (${concurrentReports}): ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `Concurrent reports (${concurrentReports}): ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`
+      );
     });
 
     it('Handles concurrent report generation with different formats', async () => {
@@ -208,7 +229,17 @@ describe('Report Generation Performance', () => {
 
       const promises = formats.map((format, index) =>
         reportGenerator.generateReport(
-          createPerformanceTestReportRequest(largeDataset, format, format === 'json' ? 'executive-summary' : format === 'html' ? 'executive-summary' : format === 'markdown' ? 'technical-report' : 'detailed-analysis')
+          createPerformanceTestReportRequest(
+            largeDataset,
+            format,
+            format === 'json'
+              ? 'executive-summary'
+              : format === 'html'
+                ? 'executive-summary'
+                : format === 'markdown'
+                  ? 'technical-report'
+                  : 'detailed-analysis'
+          )
         )
       );
 
@@ -222,7 +253,9 @@ describe('Report Generation Performance', () => {
       expect(results.every(result => result.success)).toBe(true);
       expect(memoryUsed).toBeLessThan(1024 * 1024 * 1024); // 1GB in bytes
 
-      console.log(`Mixed format concurrent reports: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `Mixed format concurrent reports: ${duration.toFixed(2)}ms, Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`
+      );
     });
   });
 
@@ -231,7 +264,7 @@ describe('Report Generation Performance', () => {
       const templates = [
         { id: 'executive-summary', format: 'html' },
         { id: 'technical-report', format: 'markdown' },
-        { id: 'detailed-analysis', format: 'pdf' }
+        { id: 'detailed-analysis', format: 'pdf' },
       ];
 
       for (const template of templates) {
@@ -247,7 +280,9 @@ describe('Report Generation Performance', () => {
         expect(result.success).toBe(true);
         expect(duration).toBeLessThan(2000); // 2 seconds in milliseconds
 
-        console.log(`Template '${template.id}' (${template.format}) rendering: ${duration.toFixed(2)}ms`);
+        console.log(
+          `Template '${template.id}' (${template.format}) rendering: ${duration.toFixed(2)}ms`
+        );
       }
     });
 
@@ -287,7 +322,7 @@ describe('Report Generation Performance', () => {
         { format: 'json', expectedMax: 5000, description: 'JSON export' },
         { format: 'html', expectedMax: 15000, description: 'HTML export' },
         { format: 'markdown', expectedMax: 10000, description: 'Markdown export' },
-        { format: 'pdf', expectedMax: 30000, description: 'PDF export' }
+        { format: 'pdf', expectedMax: 30000, description: 'PDF export' },
       ];
 
       const results: Array<{
@@ -302,7 +337,17 @@ describe('Report Generation Performance', () => {
         const startMemory = process.memoryUsage();
 
         await reportGenerator.generateReport(
-          createPerformanceTestReportRequest(largeDataset, testCase.format, testCase.format === 'json' ? 'executive-summary' : testCase.format === 'html' ? 'executive-summary' : testCase.format === 'markdown' ? 'technical-report' : 'detailed-analysis')
+          createPerformanceTestReportRequest(
+            largeDataset,
+            testCase.format,
+            testCase.format === 'json'
+              ? 'executive-summary'
+              : testCase.format === 'html'
+                ? 'executive-summary'
+                : testCase.format === 'markdown'
+                  ? 'technical-report'
+                  : 'detailed-analysis'
+          )
         );
 
         const endTime = performance.now();
@@ -315,10 +360,12 @@ describe('Report Generation Performance', () => {
           format: testCase.format,
           duration,
           memoryUsed,
-          passed
+          passed,
         });
 
-        console.log(`${testCase.description}: ${duration.toFixed(2)}ms (${testCase.expectedMax}ms max), Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`);
+        console.log(
+          `${testCase.description}: ${duration.toFixed(2)}ms (${testCase.expectedMax}ms max), Memory: ${(memoryUsed / 1024 / 1024).toFixed(2)}MB`
+        );
       }
 
       // All tests should pass for baseline
@@ -349,7 +396,7 @@ function generateLargeDataset(issueCount: number): CoreAnalysisResult {
       ruleId: `rule-${i % 50}`,
       fixable: i % 3 !== 0,
       suggestion: `Fix suggestion for issue ${i}`,
-      score: Math.floor(Math.random() * 100) + 1
+      score: Math.floor(Math.random() * 100) + 1,
     });
   }
 
@@ -366,7 +413,7 @@ function generateLargeDataset(issueCount: number): CoreAnalysisResult {
         executionTime: issueCount * 2,
         issuesFound: issues.filter(i => i.toolName === 'eslint').length,
         issuesFixed: 0,
-        configuration: { rules: {} }
+        configuration: { rules: {} },
       },
       {
         toolName: 'typescript',
@@ -374,8 +421,8 @@ function generateLargeDataset(issueCount: number): CoreAnalysisResult {
         executionTime: issueCount * 3,
         issuesFound: issues.filter(i => i.toolName === 'typescript').length,
         issuesFixed: 0,
-        configuration: { compilerOptions: {} }
-      }
+        configuration: { compilerOptions: {} },
+      },
     ],
     summary: {
       totalIssues: issues.length,
@@ -384,14 +431,18 @@ function generateLargeDataset(issueCount: number): CoreAnalysisResult {
       infoIssues: issues.filter(i => i.type === 'info').length,
       fixableIssues: issues.filter(i => i.fixable).length,
       overallScore: Math.floor(Math.random() * 100) + 1,
-      topIssues: issues.slice(0, 10)
+      topIssues: issues.slice(0, 10),
     },
-    aiPrompts: []
+    aiPrompts: [],
   };
 }
 
 // Helper function to convert CoreAnalysisResult to ReportRequest for performance tests
-function createPerformanceTestReportRequest(coreData: CoreAnalysisResult, format: string, template?: string): ReportRequest {
+function createPerformanceTestReportRequest(
+  coreData: CoreAnalysisResult,
+  format: string,
+  template?: string
+): ReportRequest {
   // Convert core AnalysisResult to CLI AnalysisResult (timestamp: Date -> string)
   const cliAnalysisResult: AnalysisResult = {
     id: coreData.id,
@@ -410,12 +461,12 @@ function createPerformanceTestReportRequest(coreData: CoreAnalysisResult, format
         warningIssues: result.issuesFound,
         infoIssues: 0,
         fixableIssues: result.issuesFixed,
-        overallScore: 80
+        overallScore: 80,
       },
-      coverage: null
+      coverage: null,
     })),
     summary: coreData.summary,
-    aiPrompts: coreData.aiPrompts
+    aiPrompts: coreData.aiPrompts,
   };
 
   const metrics: DashboardMetrics = {
@@ -427,7 +478,7 @@ function createPerformanceTestReportRequest(coreData: CoreAnalysisResult, format
     overallScore: coreData.overallScore,
     coverage: null,
     toolsAnalyzed: coreData.toolResults.length,
-    duration: coreData.duration
+    duration: coreData.duration,
   };
 
   return {
@@ -443,14 +494,14 @@ function createPerformanceTestReportRequest(coreData: CoreAnalysisResult, format
         tools: [],
         scoreRange: { min: 0, max: 100 },
         fixableOnly: false,
-        dateRange: undefined
+        dateRange: undefined,
       },
       createdAt: new Date(),
       updatedAt: new Date(),
-      isActive: true
+      isActive: true,
     },
     analysisResult: cliAnalysisResult,
     issues: [], // Performance tests don't need detailed issues
-    metrics
+    metrics,
   };
 }

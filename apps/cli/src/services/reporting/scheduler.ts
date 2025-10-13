@@ -121,7 +121,9 @@ export class ReportScheduler extends EventEmitter {
   /**
    * Add a new report schedule
    */
-  async addSchedule(schedule: Omit<ReportSchedule, 'id' | 'createdAt' | 'updatedAt' | 'runCount' | 'failureCount'>): Promise<ReportSchedule> {
+  async addSchedule(
+    schedule: Omit<ReportSchedule, 'id' | 'createdAt' | 'updatedAt' | 'runCount' | 'failureCount'>
+  ): Promise<ReportSchedule> {
     this.validateCronExpression(schedule.cronExpression);
 
     const newSchedule: ReportSchedule = {
@@ -131,7 +133,7 @@ export class ReportScheduler extends EventEmitter {
       updatedAt: new Date(),
       runCount: 0,
       failureCount: 0,
-      nextRun: this.getNextRunTime(schedule.cronExpression)
+      nextRun: this.getNextRunTime(schedule.cronExpression),
     };
 
     if (schedule.enabled) {
@@ -145,7 +147,10 @@ export class ReportScheduler extends EventEmitter {
   /**
    * Update an existing schedule
    */
-  async updateSchedule(scheduleId: string, updates: Partial<ReportSchedule>): Promise<ReportSchedule> {
+  async updateSchedule(
+    scheduleId: string,
+    updates: Partial<ReportSchedule>
+  ): Promise<ReportSchedule> {
     const existingSchedule = await this.getSchedule(scheduleId);
     if (!existingSchedule) {
       throw new Error(`Schedule ${scheduleId} not found`);
@@ -162,7 +167,9 @@ export class ReportScheduler extends EventEmitter {
       ...existingSchedule,
       ...updates,
       updatedAt: new Date(),
-      nextRun: updates.cronExpression ? this.getNextRunTime(updates.cronExpression) : existingSchedule.nextRun
+      nextRun: updates.cronExpression
+        ? this.getNextRunTime(updates.cronExpression)
+        : existingSchedule.nextRun,
     };
 
     if (updatedSchedule.enabled) {
@@ -224,7 +231,7 @@ export class ReportScheduler extends EventEmitter {
       scheduledAt: new Date(),
       attempts: 0,
       maxAttempts: 3,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
 
     this.addToQueue(queueItem);
@@ -266,12 +273,18 @@ export class ReportScheduler extends EventEmitter {
       scheduledAt: new Date(),
       attempts: 0,
       maxAttempts: 3,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
 
     this.addToQueue(queueItem);
   }
 
+  /**
+   * Add item to queue with priority ordering
+   */
+  /**
+   * Add item to queue with priority ordering
+   */
   /**
    * Add item to queue with priority ordering
    */
@@ -288,6 +301,16 @@ export class ReportScheduler extends EventEmitter {
     }
 
     this.emit('itemQueued', item);
+    
+    // Trigger immediate queue processing for non-test scenarios
+    // but not in test mode to avoid race conditions
+    if (process.env.NODE_ENV !== 'test') {
+      this.processQueue().catch(error => {
+        // Log error properly - in production this would use a proper logger
+        // For now, emit error event instead of console
+        this.emit('queueError', error);
+      });
+    }
   }
 
   /**
@@ -313,9 +336,9 @@ export class ReportScheduler extends EventEmitter {
 
     while (this.queue.length > 0 && this.currentJobs < this.maxConcurrentJobs) {
       const item = this.queue.shift();
-    if (!item) return;
+      if (!item) return;
 
-    this.currentJobs++;
+      this.currentJobs++;
 
       // Process item asynchronously
       this.processQueueItem(item).finally(() => {
@@ -343,14 +366,13 @@ export class ReportScheduler extends EventEmitter {
         success: true,
         duration,
         reportPath: result.reportPath,
-        metrics: result.metrics
+        metrics: result.metrics,
       });
 
       // Update schedule statistics
       if (item.scheduleId) {
         await this.updateScheduleStats(item.scheduleId, true, duration);
       }
-
     } catch (error) {
       const duration = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -364,13 +386,13 @@ export class ReportScheduler extends EventEmitter {
         this.emit('reportRetry', {
           scheduleId: item.scheduleId,
           attempt: item.attempts,
-          error: errorMessage
+          error: errorMessage,
         });
       } else {
         this.emit('reportFailed', {
           scheduleId: item.scheduleId,
           error: errorMessage,
-          duration
+          duration,
         });
 
         // Update schedule statistics
@@ -394,8 +416,8 @@ export class ReportScheduler extends EventEmitter {
     // Get analysis data (this would typically fetch from database)
     const analysisData = await this.getAnalysisData(item.projectId);
 
-    const _outputPath = item.reportConfig.outputPath ??
-      `/tmp/reports/${item.id}.${item.reportConfig.format}`;
+    const _outputPath =
+      item.reportConfig.outputPath ?? `/tmp/reports/${item.id}.${item.reportConfig.format}`;
 
     // Create mock issues and metrics for the report request
     const issues: Issue[] = []; // This would typically come from analysisData
@@ -403,12 +425,17 @@ export class ReportScheduler extends EventEmitter {
       totalIssues: analysisData.summary.totalIssues,
       errorCount: analysisData.summary.totalErrors,
       warningCount: analysisData.summary.totalWarnings,
-      infoCount: Math.max(0, analysisData.summary.totalIssues - analysisData.summary.totalErrors - analysisData.summary.totalWarnings), // Calculate info count
+      infoCount: Math.max(
+        0,
+        analysisData.summary.totalIssues -
+          analysisData.summary.totalErrors -
+          analysisData.summary.totalWarnings
+      ), // Calculate info count
       fixableCount: analysisData.summary.totalFixable,
       overallScore: analysisData.overallScore,
       coverage: null, // This would be populated from actual analysis data
       toolsAnalyzed: analysisData.summary.toolCount,
-      duration: analysisData.summary.executionTime
+      duration: analysisData.summary.executionTime,
     };
 
     // Convert core AnalysisResult to CLI AnalysisResult (timestamp: Date -> string)
@@ -424,10 +451,10 @@ export class ReportScheduler extends EventEmitter {
         status: result.status,
         issues: result.issues,
         metrics: result.metrics,
-        coverage: result.coverage
+        coverage: result.coverage,
       })),
       summary: analysisData.summary,
-      aiPrompts: analysisData.aiPrompts
+      aiPrompts: analysisData.aiPrompts,
     };
 
     // Create a proper ReportRequest object
@@ -442,23 +469,28 @@ export class ReportScheduler extends EventEmitter {
         filters: {
           severity: item.reportConfig.filters?.severity,
           tools: item.reportConfig.filters?.tools,
-          scoreRange: item.reportConfig.filters?.minScore || item.reportConfig.filters?.maxScore ? {
-            min: item.reportConfig.filters?.minScore ?? 0,
-            max: item.reportConfig.filters?.maxScore ?? 100
-          } : undefined,
+          scoreRange:
+            item.reportConfig.filters?.minScore || item.reportConfig.filters?.maxScore
+              ? {
+                  min: item.reportConfig.filters?.minScore ?? 0,
+                  max: item.reportConfig.filters?.maxScore ?? 100,
+                }
+              : undefined,
           fixableOnly: false,
-          dateRange: item.reportConfig.filters?.dateRange ? {
-            start: item.reportConfig.filters.dateRange.from,
-            end: item.reportConfig.filters.dateRange.to
-          } : undefined
+          dateRange: item.reportConfig.filters?.dateRange
+            ? {
+                start: item.reportConfig.filters.dateRange.from,
+                end: item.reportConfig.filters.dateRange.to,
+              }
+            : undefined,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
-        isActive: true
+        isActive: true,
       },
       analysisResult: cliAnalysisResult,
       issues: issues,
-      metrics: metrics
+      metrics: metrics,
     };
 
     const result = await this.reportGenerator.generateReport(reportRequest);
@@ -472,28 +504,31 @@ export class ReportScheduler extends EventEmitter {
       criticalIssues: analysisData.summary.totalErrors,
       overallScore: analysisData.overallScore,
       duration: result.duration ?? 0,
-      reportSize: result.size ?? 0
+      reportSize: result.size ?? 0,
     };
 
     return {
       reportPath: result.outputPath,
-      metrics: reportMetrics
+      metrics: reportMetrics,
     };
   }
 
   /**
    * Send notifications for successful report
    */
-  private async sendNotifications(item: QueueItem, result: {
-    reportPath: string;
-    metrics: ReportMetrics;
-  }): Promise<void> {
+  private async sendNotifications(
+    item: QueueItem,
+    result: {
+      reportPath: string;
+      metrics: ReportMetrics;
+    }
+  ): Promise<void> {
     // This would fetch notification configs from database
     // For now, just emit event
     this.emit('notificationsQueued', {
       scheduleId: item.scheduleId,
       reportPath: result.reportPath,
-      metrics: result.metrics
+      metrics: result.metrics,
     });
   }
 
@@ -504,7 +539,7 @@ export class ReportScheduler extends EventEmitter {
     this.emit('failureNotificationsQueued', {
       scheduleId: item.scheduleId,
       error,
-      attempts: item.attempts
+      attempts: item.attempts,
     });
   }
 
@@ -522,7 +557,7 @@ export class ReportScheduler extends EventEmitter {
       scheduleId,
       success,
       duration,
-      error
+      error,
     });
   }
 
@@ -546,9 +581,9 @@ export class ReportScheduler extends EventEmitter {
         totalFixable: 7,
         overallScore: 85,
         toolCount: 3,
-        executionTime: 5000
+        executionTime: 5000,
       },
-      aiPrompts: []
+      aiPrompts: [],
     };
   }
 
@@ -595,7 +630,7 @@ export class ReportScheduler extends EventEmitter {
       pending: this.queue.length,
       processing: this.currentJobs,
       maxConcurrent: this.maxConcurrentJobs,
-      nextItem: this.queue[0]
+      nextItem: this.queue[0],
     };
   }
 

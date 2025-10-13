@@ -2,7 +2,7 @@
  * Unit Tests for PDF Formatter
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'bun:test';
 import { PDFFormatter } from '../../../../../src/services/reporting/formatters/pdf-formatter';
 
 // Mock data for testing
@@ -86,7 +86,8 @@ const mockMetrics = {
 };
 
 const mockExecutiveSummary = {
-  overview: 'The codebase has achieved an overall quality score of 75/100 with 2 total issues identified.',
+  overview:
+    'The codebase has achieved an overall quality score of 75/100 with 2 total issues identified.',
   keyMetrics: [
     {
       label: 'Overall Score',
@@ -184,7 +185,9 @@ describe('PDFFormatter', () => {
       const result = await formatter.format(mockReportData, mockTemplate);
 
       expect(result).toContain('<!-- PDF Generation Notice -->');
-      expect(result).toContain('<!-- This HTML would be converted to PDF using Puppeteer or similar -->');
+      expect(result).toContain(
+        '<!-- This HTML would be converted to PDF using Puppeteer or similar -->'
+      );
       expect(result).toContain('<!-- In production, implement actual PDF generation -->');
     });
 
@@ -375,7 +378,9 @@ describe('PDFFormatter', () => {
       const result = await formatter.format(dataWithNoIssues, mockTemplate);
 
       expect(result).toContain('Issues');
-      expect(result).toContain('<strong>No issues found!</strong> Great job maintaining code quality.');
+      expect(result).toContain(
+        '<strong>No issues found!</strong> Great job maintaining code quality.'
+      );
     });
 
     it('should limit issues for PDF readability', async () => {

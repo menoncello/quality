@@ -8,7 +8,7 @@ import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 
-import type { AnalysisResult, Issue } from '../../types/analysis';
+import type { AnalysisResult, Issue, CoverageData } from '../../types/analysis';
 import type { DashboardMetrics } from '../../types/dashboard';
 // import type { ExportFormat, ExportOptions } from '../../types/export'; // Not used
 
@@ -18,6 +18,7 @@ import { HTMLFormatter } from './formatters/html-formatter';
 import { MarkdownFormatter } from './formatters/markdown-formatter';
 import { PDFFormatter } from './formatters/pdf-formatter';
 import { TemplateService, type TemplateDefinition } from './template-service';
+import type { Metrics, ReportData } from './types';
 
 // Enhanced interfaces for comprehensive reporting
 export interface ReportConfiguration {
@@ -186,7 +187,10 @@ export interface ExecutiveSummary {
  */
 export class ReportGenerator {
   private exportService: ExportService;
-  private formatters: Map<ReportFormat, { format(data: unknown, template: TemplateDefinition | ReportTemplate): Promise<string> }>;
+  private formatters: Map<
+    ReportFormat,
+    { format(data: ReportData, template: TemplateDefinition | ReportTemplate): Promise<string> }
+  >;
   private templateService: TemplateService;
   private activeReports: Map<string, ReportProgress>;
 
@@ -209,7 +213,6 @@ export class ReportGenerator {
     this.formatters.set('pdf', new PDFFormatter());
   }
 
-  
   /**
    * Generate comprehensive report
    */
@@ -217,14 +220,7 @@ export class ReportGenerator {
     const reportId = randomUUID();
     const startTime = performance.now();
 
-    const {
-      configuration,
-      analysisResult,
-      issues,
-      metrics,
-      historicalData,
-      onProgress,
-    } = request;
+    const { configuration, analysisResult, issues, metrics, historicalData, onProgress } = request;
 
     try {
       // Initialize progress tracking
@@ -235,7 +231,9 @@ export class ReportGenerator {
         currentOperation: 'setup',
       });
 
-      onProgress?.(this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 });
+      onProgress?.(
+        this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 }
+      );
 
       // Validate configuration
       this.validateConfiguration(configuration);
@@ -246,7 +244,9 @@ export class ReportGenerator {
         percentage: 10,
         currentOperation: 'data-preparation',
       });
-      onProgress?.(this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 });
+      onProgress?.(
+        this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 }
+      );
 
       // Get template
       const template = this.templateService.getTemplate(configuration.templateId);
@@ -273,7 +273,9 @@ export class ReportGenerator {
           percentage: 30,
           currentOperation: 'summary-generation',
         });
-        onProgress?.(this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 });
+        onProgress?.(
+          this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 }
+        );
       }
 
       // Generate trend analysis if historical data available
@@ -287,7 +289,9 @@ export class ReportGenerator {
           percentage: 50,
           currentOperation: 'trend-analysis',
         });
-        onProgress?.(this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 });
+        onProgress?.(
+          this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 }
+        );
       }
 
       // Get formatter for the requested format
@@ -302,10 +306,12 @@ export class ReportGenerator {
         percentage: 70,
         currentOperation: 'formatting',
       });
-      onProgress?.(this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 });
+      onProgress?.(
+        this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 }
+      );
 
-      // Prepare report data
-      const reportData = {
+      // Prepare report data - convert DashboardMetrics to Metrics interface
+      const reportData: ReportData = {
         metadata: {
           title: configuration.name,
           description: configuration.description,
@@ -315,25 +321,13 @@ export class ReportGenerator {
         },
         analysisResult,
         issues: filteredIssues,
-        metrics,
+        metrics: this.convertToMetrics(metrics),
         executiveSummary,
         trendAnalysis,
         historicalData,
-        template,
+        template: this.convertToReportTemplate(template),
         configuration,
       };
-
-      // Generate report content
-      const content = await formatter.format(reportData, template);
-
-      this.updateProgress(reportId, {
-        reportId,
-        currentStep: 'Writing report file',
-        percentage: 90,
-        currentOperation: 'file-write',
-        bytesWritten: content.length,
-      });
-      onProgress?.(this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 });
 
       // Determine output path and write file
       const outputPath = this.getOutputPath(configuration, analysisResult, reportId);
@@ -344,21 +338,81 @@ export class ReportGenerator {
         mkdirSync(outputDir, { recursive: true });
       }
 
+      // Generate content based on template type
+      let content: string;
+
+      // If a custom template is provided in the template content, use it directly
+      if (template.content && template.content.trim().length > 0) {
+        // Use custom template rendering with security
+        const renderResult = await this.templateService.renderTemplate(template.content, {
+          metadata: reportData.metadata,
+          analysisResult: reportData.analysisResult,
+          issues: reportData.issues,
+          metrics: reportData.metrics,
+          executiveSummary: reportData.executiveSummary,
+          trendAnalysis: reportData.trendAnalysis,
+          historicalData: reportData.historicalData,
+          reportTitle: (analysisResult as { reportTitle?: string }).reportTitle ?? reportData.metadata?.title ?? 'Test Report',
+          timestamp: reportData.metadata?.generatedAt ?? new Date().toISOString(),
+          summary: {
+            ...reportData.analysisResult?.summary,
+            totalIssues: reportData.metrics?.totalIssues ?? 0,
+            topIssues: reportData.issues.slice(0, 10), // Use actual issues from analysis result
+          },
+          // Pass through any custom fields from the original analysis result
+          ...((analysisResult as { customFields?: Record<string, unknown> }).customFields
+            ? { customFields: (analysisResult as { customFields: Record<string, unknown> }).customFields }
+            : {}),
+        });
+
+        if (!renderResult.success) {
+          throw new Error(`Template rendering failed: ${renderResult.error}`);
+        }
+
+        // For custom templates, wrap them in basic HTML structure with CSP
+        content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; frame-ancestors 'none';">
+    <title>${this.escapeHtml(reportData.metadata?.title ?? 'Test Report')}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        .issue { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .issue.error { border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .issue.warning { border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .issue.info { border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .fixable-badge { background: #22c55e; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; }
+        h3 { margin: 0 0 8px 0; }
+        p { margin: 4px 0; }
+    </style>
+</head>
+<body>
+    ${renderResult.content}
+</body>
+</html>`;
+      } else {
+        // Use built-in template formatter
+        content = await formatter.format(reportData, template);
+      }
+
       // Write report file
       writeFileSync(outputPath, content, 'utf-8');
 
-      const endTime = performance.now();
-      const duration = endTime - startTime;
-
-      // Complete progress
       this.updateProgress(reportId, {
         reportId,
         currentStep: 'Complete',
         percentage: 100,
         currentOperation: 'complete',
-        bytesWritten: content.length,
+        bytesWritten: Buffer.byteLength(content, 'utf-8'),
       });
-      onProgress?.(this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 });
+      onProgress?.(
+        this.activeReports.get(reportId) ?? { reportId, currentStep: '', percentage: 0 }
+      );
+
+      const endTime = performance.now();
+      const duration = endTime - startTime;
 
       // Clean up progress tracking
       this.activeReports.delete(reportId);
@@ -457,10 +511,11 @@ export class ReportGenerator {
   /**
    * Check if a section is enabled in the template
    */
-  private sectionEnabled(template: TemplateDefinition | ReportTemplate, sectionType: string): boolean {
-    return template.sections.some(section =>
-      section.type === sectionType && section.enabled
-    );
+  private sectionEnabled(
+    template: TemplateDefinition | ReportTemplate,
+    sectionType: string
+  ): boolean {
+    return template.sections.some(section => section.type === sectionType && section.enabled);
   }
 
   /**
@@ -477,9 +532,10 @@ export class ReportGenerator {
     const fixableCount = issues.filter(i => i.fixable).length;
 
     // Calculate trend if historical data available
-    const trend = historicalData && historicalData.length > 1
-      ? this.calculateTrend(historicalData)
-      : { direction: 'stable' as const, changePercentage: 0 };
+    const trend =
+      historicalData && historicalData.length > 1
+        ? this.calculateTrend(historicalData)
+        : { direction: 'stable' as const, changePercentage: 0 };
 
     // Generate overview
     const overview = `The codebase has achieved an overall quality score of ${analysisResult.overallScore}/100 with ${metrics.totalIssues} total issues identified. ${errorCount} errors require immediate attention, while ${warningCount} warnings suggest areas for improvement. ${fixableCount} issues can be automatically resolved.`;
@@ -494,14 +550,30 @@ export class ReportGenerator {
       {
         label: 'Overall Score',
         value: `${analysisResult.overallScore}/100`,
-        trend: trend.direction === 'improving' ? 'up' : trend.direction === 'declining' ? 'down' : 'stable',
-        significance: analysisResult.overallScore >= 80 ? 'low' : analysisResult.overallScore >= 60 ? 'medium' : 'high',
+        trend:
+          trend.direction === 'improving'
+            ? 'up'
+            : trend.direction === 'declining'
+              ? 'down'
+              : 'stable',
+        significance:
+          analysisResult.overallScore >= 80
+            ? 'low'
+            : analysisResult.overallScore >= 60
+              ? 'medium'
+              : 'high',
       },
       {
         label: 'Total Issues',
         value: metrics.totalIssues,
-        trend: trend.direction === 'declining' ? 'up' : trend.direction === 'improving' ? 'down' : 'stable',
-        significance: metrics.totalIssues <= 10 ? 'low' : metrics.totalIssues <= 50 ? 'medium' : 'high',
+        trend:
+          trend.direction === 'declining'
+            ? 'up'
+            : trend.direction === 'improving'
+              ? 'down'
+              : 'stable',
+        significance:
+          metrics.totalIssues <= 10 ? 'low' : metrics.totalIssues <= 50 ? 'medium' : 'high',
       },
       {
         label: 'Fixable Issues',
@@ -537,7 +609,10 @@ export class ReportGenerator {
   /**
    * Calculate trend from historical data
    */
-  private calculateTrend(historicalData: HistoricalData[]): { direction: 'improving' | 'declining' | 'stable'; changePercentage: number } {
+  private calculateTrend(historicalData: HistoricalData[]): {
+    direction: 'improving' | 'declining' | 'stable';
+    changePercentage: number;
+  } {
     if (historicalData.length < 2) {
       return { direction: 'stable', changePercentage: 0 };
     }
@@ -550,7 +625,8 @@ export class ReportGenerator {
     }
 
     const scoreChange = latest.overallScore - previous.overallScore;
-    const changePercentage = previous.overallScore > 0 ? (scoreChange / previous.overallScore) * 100 : 0;
+    const changePercentage =
+      previous.overallScore > 0 ? (scoreChange / previous.overallScore) * 100 : 0;
 
     if (Math.abs(changePercentage) < 5) {
       return { direction: 'stable', changePercentage };
@@ -565,11 +641,23 @@ export class ReportGenerator {
   /**
    * Generate priorities from issues
    */
-  private generatePriorities(issues: Issue[]): Array<{ title: string; description: string; impact: 'high' | 'medium' | 'low'; effort: 'high' | 'medium' | 'low' }> {
+  private generatePriorities(
+    issues: Issue[]
+  ): Array<{
+    title: string;
+    description: string;
+    impact: 'high' | 'medium' | 'low';
+    effort: 'high' | 'medium' | 'low';
+  }> {
     const errorIssues = issues.filter(i => i.type === 'error');
     const fixableErrors = errorIssues.filter(i => i.fixable);
 
-    const priorities: Array<{ title: string; description: string; impact: 'high' | 'medium' | 'low'; effort: 'high' | 'medium' | 'low' }> = [];
+    const priorities: Array<{
+      title: string;
+      description: string;
+      impact: 'high' | 'medium' | 'low';
+      effort: 'high' | 'medium' | 'low';
+    }> = [];
 
     if (fixableErrors.length > 0) {
       priorities.push({
@@ -589,8 +677,8 @@ export class ReportGenerator {
       });
     }
 
-    const securityIssues = issues.filter(i =>
-      i.toolName === 'eslint' && i.ruleId?.startsWith('security/')
+    const securityIssues = issues.filter(
+      i => i.toolName === 'eslint' && i.ruleId?.startsWith('security/')
     );
 
     if (securityIssues.length > 0) {
@@ -615,7 +703,9 @@ export class ReportGenerator {
     if (metrics.coverage) {
       const { coverage } = metrics;
       if (coverage.lines.percentage < 80) {
-        recommendations.push(`Increase test coverage to at least 80%. Current: ${coverage.lines.percentage}%`);
+        recommendations.push(
+          `Increase test coverage to at least 80%. Current: ${coverage.lines.percentage}%`
+        );
       }
     }
 
@@ -661,7 +751,8 @@ export class ReportGenerator {
     const olderAvg = older.reduce((sum, d) => sum + d.overallScore, 0) / older.length;
 
     const changePercentage = ((recentAvg - olderAvg) / olderAvg) * 100;
-    const direction = changePercentage > 5 ? 'improving' : changePercentage < -5 ? 'declining' : 'stable';
+    const direction =
+      changePercentage > 5 ? 'improving' : changePercentage < -5 ? 'declining' : 'stable';
 
     const insights = [];
     if (direction === 'improving') {
@@ -706,6 +797,52 @@ export class ReportGenerator {
     };
 
     this.activeReports.set(reportId, { ...existing, ...progress });
+  }
+
+  /**
+   * Convert DashboardMetrics to Metrics interface for formatters
+   */
+  private convertToMetrics(dashboardMetrics: DashboardMetrics): Metrics {
+    return {
+      totalIssues: dashboardMetrics.totalIssues,
+      errorCount: dashboardMetrics.errorCount,
+      warningCount: dashboardMetrics.warningCount,
+      infoCount: dashboardMetrics.infoCount,
+      fixableCount: dashboardMetrics.fixableCount,
+      coverage: dashboardMetrics.coverage ?? undefined,
+      toolResults: dashboardMetrics.toolResults?.map((tool: { toolName: string; status: string; executionTime: number; metrics: { score: number; issuesCount: number }; issues: Issue[]; coverage?: CoverageData }) => ({
+        toolName: tool.toolName,
+        status: tool.status,
+        executionTime: tool.executionTime,
+        metrics: {
+          score: tool.metrics.score,
+          issuesCount: tool.metrics.issuesCount,
+        },
+        issues: tool.issues,
+        coverage: tool.coverage,
+      })),
+    };
+  }
+
+  /**
+   * Convert TemplateDefinition to ReportTemplate interface for formatters
+   */
+  private convertToReportTemplate(templateDef: TemplateDefinition): ReportTemplate {
+    return {
+      id: templateDef.id,
+      name: templateDef.name,
+      description: templateDef.description,
+      sections: templateDef.sections,
+      styles: templateDef.styles,
+      templateType: templateDef.templateType,
+      format: templateDef.format,
+      content: templateDef.content,
+      version: templateDef.version,
+      author: templateDef.author,
+      tags: templateDef.tags,
+      category: templateDef.category,
+      metadata: templateDef.metadata,
+    };
   }
 
   /**
@@ -766,7 +903,9 @@ export class ReportGenerator {
   /**
    * Create custom template
    */
-  createTemplate(templateData: Omit<TemplateDefinition, 'id' | 'createdAt' | 'updatedAt'>): TemplateDefinition {
+  createTemplate(
+    templateData: Omit<TemplateDefinition, 'id' | 'createdAt' | 'updatedAt'>
+  ): TemplateDefinition {
     return this.templateService.createTemplate(templateData);
   }
 
@@ -844,8 +983,8 @@ export class ReportGenerator {
 
       // Basic HTML structure check if it contains HTML
       if (hasHtmlTags) {
-        const hasOpenTags = (templateContent.match(/</g) || []).length;
-        const hasCloseTags = (templateContent.match(/>/g) || []).length;
+        const hasOpenTags = (templateContent.match(/</g) ?? []).length;
+        const hasCloseTags = (templateContent.match(/>/g) ?? []).length;
 
         if (hasOpenTags !== hasCloseTags) {
           errors.push('Template has mismatched HTML tags');
@@ -854,14 +993,26 @@ export class ReportGenerator {
 
       return {
         valid: errors.length === 0,
-        errors: errors.length > 0 ? errors : undefined
+        errors: errors.length > 0 ? errors : undefined,
       };
     } catch (error) {
       return {
         valid: false,
-        errors: [error instanceof Error ? error.message : String(error)]
+        errors: [error instanceof Error ? error.message : String(error)],
       };
     }
+  }
+
+  /**
+   * Escape HTML to prevent XSS
+   */
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   /**

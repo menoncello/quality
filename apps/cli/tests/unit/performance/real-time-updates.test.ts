@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 
 // Mock performance utilities
 interface UpdateThrottler {
@@ -9,7 +9,10 @@ interface UpdateThrottler {
 }
 
 interface DifferentialUpdate {
-  calculateDiff<T>(oldData: T[], newData: T[]): {
+  calculateDiff<T>(
+    oldData: T[],
+    newData: T[]
+  ): {
     added: T[];
     removed: T[];
     modified: T[];
@@ -30,8 +33,12 @@ const createUpdateThrottler = (maxUpdatesPerSecond: number): UpdateThrottler => 
   const updateInterval = 1000 / maxUpdatesPerSecond;
 
   return {
-    get updateCount() { return updateCount; },
-    get lastUpdateTime() { return lastUpdateTime; },
+    get updateCount() {
+      return updateCount;
+    },
+    get lastUpdateTime() {
+      return lastUpdateTime;
+    },
 
     canUpdate(): boolean {
       const now = performance.now();
@@ -49,12 +56,15 @@ const createUpdateThrottler = (maxUpdatesPerSecond: number): UpdateThrottler => 
       } else {
         setTimeout(() => this.scheduleUpdate(callback), updateInterval);
       }
-    }
+    },
   };
 };
 
 const createDifferentialUpdate = (): DifferentialUpdate => {
-  const calculateDiff = <T>(oldData: T[], newData: T[]): {
+  const calculateDiff = <T>(
+    oldData: T[],
+    newData: T[]
+  ): {
     added: T[];
     removed: T[];
     modified: T[];
@@ -104,7 +114,7 @@ const createUpdateQueue = (): UpdateQueue => {
 
     clear(): void {
       queue.length = 0;
-    }
+    },
   };
 };
 
@@ -134,7 +144,7 @@ describe('2.3-UNIT-012: Update Throttling Mechanism', () => {
     expect(duration).toBeLessThan(50); // Should complete quickly
   });
 
-  it('should allow updates after time interval passes', (done) => {
+  it('should allow updates after time interval passes', done => {
     let updateCount = 0;
 
     expect(throttler.canUpdate()).toBe(true);
@@ -154,7 +164,7 @@ describe('2.3-UNIT-012: Update Throttling Mechanism', () => {
 
   it('should handle different throttling rates', () => {
     const fastThrottler = createUpdateThrottler(100); // 100 updates/sec (10ms interval)
-    const slowThrottler = createUpdateThrottler(1);   // 1 update/sec (1000ms interval)
+    const slowThrottler = createUpdateThrottler(1); // 1 update/sec (1000ms interval)
 
     let fastCount = 0;
     let slowCount = 0;
@@ -163,7 +173,7 @@ describe('2.3-UNIT-012: Update Throttling Mechanism', () => {
     const startTime = performance.now();
     for (let i = 0; i < 10; i++) {
       // Mock time progression for fast throttler (advance by 15ms each iteration)
-      const mockTime = startTime + (i * 15);
+      const mockTime = startTime + i * 15;
 
       // Override performance.now for this test
       const originalNow = performance.now;
@@ -203,7 +213,10 @@ describe('2.3-UNIT-013: Differential Update Calculation', () => {
 
   it('should detect added items', () => {
     const oldData = [{ id: 1, value: 'a' }];
-    const newData = [{ id: 1, value: 'a' }, { id: 2, value: 'b' }];
+    const newData = [
+      { id: 1, value: 'a' },
+      { id: 2, value: 'b' },
+    ];
 
     const diff = diffCalculator.calculateDiff(oldData, newData);
 
@@ -214,7 +227,10 @@ describe('2.3-UNIT-013: Differential Update Calculation', () => {
   });
 
   it('should detect removed items', () => {
-    const oldData = [{ id: 1, value: 'a' }, { id: 2, value: 'b' }];
+    const oldData = [
+      { id: 1, value: 'a' },
+      { id: 2, value: 'b' },
+    ];
     const newData = [{ id: 1, value: 'a' }];
 
     const diff = diffCalculator.calculateDiff(oldData, newData);
@@ -226,8 +242,14 @@ describe('2.3-UNIT-013: Differential Update Calculation', () => {
   });
 
   it('should detect modified items', () => {
-    const oldData = [{ id: 1, value: 'a' }, { id: 2, value: 'b' }];
-    const newData = [{ id: 1, value: 'a' }, { id: 2, value: 'c' }];
+    const oldData = [
+      { id: 1, value: 'a' },
+      { id: 2, value: 'b' },
+    ];
+    const newData = [
+      { id: 1, value: 'a' },
+      { id: 2, value: 'c' },
+    ];
 
     const diff = diffCalculator.calculateDiff(oldData, newData);
 
@@ -239,7 +261,10 @@ describe('2.3-UNIT-013: Differential Update Calculation', () => {
 
   it('should handle complex changes efficiently', () => {
     const oldData = Array.from({ length: 1000 }, (_, i) => ({ id: i, value: `item${i}` }));
-    const newData = [...oldData.slice(0, 500), ...oldData.slice(600).map(item => ({ ...item, value: item.value + '_modified' }))];
+    const newData = [
+      ...oldData.slice(0, 500),
+      ...oldData.slice(600).map(item => ({ ...item, value: item.value + '_modified' })),
+    ];
 
     const startTime = performance.now();
     const diff = diffCalculator.calculateDiff(oldData, newData);
@@ -257,13 +282,13 @@ describe('2.3-UNIT-013: Differential Update Calculation', () => {
     expect(diffCalculator.calculateDiff(emptyData, fullData)).toEqual({
       added: fullData,
       removed: [],
-      modified: []
+      modified: [],
     });
 
     expect(diffCalculator.calculateDiff(fullData, emptyData)).toEqual({
       added: [],
       removed: fullData,
-      modified: []
+      modified: [],
     });
   });
 });
@@ -392,7 +417,7 @@ describe('Performance Integration Tests', () => {
     }
 
     // Wait for updates to complete using promises instead of setTimeout
-    await new Promise<void>((resolve) => {
+    await new Promise<void>(resolve => {
       const checkCompletion = () => {
         // Check if we've had enough time for throttled updates (at least 4 seconds)
         if (performance.now() - startTime >= 4000) {
@@ -408,7 +433,7 @@ describe('Performance Integration Tests', () => {
     const totalDuration = endTime - startTime;
 
     expect(totalDuration).toBeGreaterThan(3000); // Should take at least 3 seconds due to throttling
-    expect(totalDuration).toBeLessThan(8000);   // But not more than 8 seconds (increased tolerance)
+    expect(totalDuration).toBeLessThan(8000); // But not more than 8 seconds (increased tolerance)
     expect(executedUpdates).toBeGreaterThan(0); // Some updates should have executed
 
     if (updateTimes.length > 0) {
@@ -428,8 +453,8 @@ describe('Performance Integration Tests', () => {
       metadata: {
         created: new Date(),
         tags: Array.from({ length: 10 }, (_, j) => `tag_${i}_${j}`),
-        score: Math.random()
-      }
+        score: Math.random(),
+      },
     }));
 
     const diffCalculator = createDifferentialUpdate();
@@ -437,7 +462,7 @@ describe('Performance Integration Tests', () => {
     // Create modified version
     const modifiedData = largeData.map(item => ({
       ...item,
-      metadata: { ...item.metadata, score: Math.random() }
+      metadata: { ...item.metadata, score: Math.random() },
     }));
 
     // Calculate diff

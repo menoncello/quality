@@ -3,78 +3,16 @@
  * Generates interactive HTML reports with CSS styling and JavaScript components
  */
 
+import type { AnalysisResult, Issue } from '../../../types/analysis';
 import type {
+  ReportData,
   ReportTemplate,
-  ReportConfiguration,
   ExecutiveSummary,
   TrendAnalysis,
-  HistoricalData
-} from '../report-generator';
-
-interface ReportMetadata {
-  title?: string;
-  description?: string;
-  generatedAt?: string;
-  reportId?: string;
-}
-
-interface AnalysisResult {
-  projectId?: string;
-  overallScore?: number;
-  duration?: number;
-  toolResults?: Array<{
-    toolName: string;
-    status: string;
-    issues: unknown[];
-    metrics: { score: number };
-    executionTime: number;
-  }>;
-}
-
-interface Metrics {
-  totalIssues?: number;
-  errorCount?: number;
-  warningCount?: number;
-  fixableCount?: number;
-  infoCount?: number;
-  coverage?: {
-    lines: { percentage: number };
-    functions: { percentage: number };
-    branches: { percentage: number };
-    statements: { percentage: number };
-  };
-  toolResults?: Array<{
-    toolName: string;
-    issues: unknown[];
-  }>;
-}
-
-interface Issue {
-  type: string;
-  toolName: string;
-  filePath: string;
-  lineNumber: number;
-  message: string;
-  score: number;
-  fixable: boolean;
-}
-
-interface ReportSection {
-  type: string;
-  name?: string;
-}
-
-interface ReportData {
-  metadata: ReportMetadata;
-  analysisResult: AnalysisResult;
-  issues: Issue[];
-  metrics: Metrics;
-  executiveSummary?: ExecutiveSummary;
-  trendAnalysis?: TrendAnalysis;
-  historicalData?: HistoricalData[];
-  template: ReportTemplate;
-  configuration: ReportConfiguration;
-}
+  HistoricalData,
+  Metrics,
+  ReportSection,
+} from '../types';
 
 export class HTMLFormatter {
   /**
@@ -85,7 +23,9 @@ export class HTMLFormatter {
       const html = this.buildHTMLReport(data, template);
       return html;
     } catch (error) {
-      throw new Error(`Failed to generate HTML report: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to generate HTML report: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -115,6 +55,7 @@ export class HTMLFormatter {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; frame-ancestors 'none';">
     <title>${this.escapeHtml(title)}</title>
     ${this.getStyles(template)}
     ${this.getScripts()}
@@ -459,10 +400,14 @@ export class HTMLFormatter {
   /**
    * Render report header
    */
-  private getHeader(metadata: ReportMetadata, analysisResult: AnalysisResult): string {
+  private getHeader(metadata: ReportData['metadata'], analysisResult: AnalysisResult): string {
     const title = metadata?.title ?? 'Untitled Report';
-    const description = metadata?.description ? `<p class="subtitle">${this.escapeHtml(metadata.description)}</p>` : '';
-    const generatedAt = metadata?.generatedAt ? new Date(metadata.generatedAt).toLocaleDateString() : new Date().toLocaleDateString();
+    const description = metadata?.description
+      ? `<p class="subtitle">${this.escapeHtml(metadata.description)}</p>`
+      : '';
+    const generatedAt = metadata?.generatedAt
+      ? new Date(metadata.generatedAt).toLocaleDateString()
+      : new Date().toLocaleDateString();
     const reportId = metadata?.reportId?.substring(0, 8) ?? 'unknown';
 
     return `
@@ -494,7 +439,8 @@ export class HTMLFormatter {
    * Render section based on type
    */
   private renderSection(section: ReportSection, data: ReportData): string {
-    const { analysisResult, issues, metrics, executiveSummary, trendAnalysis, historicalData } = data;
+    const { analysisResult, issues, metrics, executiveSummary, trendAnalysis, historicalData } =
+      data;
 
     switch (section.type) {
       case 'summary':
@@ -517,7 +463,11 @@ export class HTMLFormatter {
   /**
    * Render executive summary section
    */
-  private renderSummarySection(analysisResult: AnalysisResult, metrics: Metrics, executiveSummary?: ExecutiveSummary): string {
+  private renderSummarySection(
+    analysisResult: AnalysisResult,
+    metrics: Metrics,
+    executiveSummary?: ExecutiveSummary
+  ): string {
     if (!executiveSummary) return '';
 
     return `
@@ -527,7 +477,9 @@ export class HTMLFormatter {
 
         <h3 style="margin: 20px 0 12px 0; font-size: 16px; font-weight: 600;">Key Metrics</h3>
         <div class="metrics-grid">
-            ${executiveSummary.keyMetrics.map(metric => `
+            ${executiveSummary.keyMetrics
+              .map(
+                metric => `
             <div class="metric-card">
                 <div class="metric-value">${metric.value}</div>
                 <div class="metric-label">${this.escapeHtml(metric.label)}</div>
@@ -535,12 +487,16 @@ export class HTMLFormatter {
                     ${metric.trend === 'up' ? '↑' : metric.trend === 'down' ? '↓' : '→'}
                     ${metric.significance}
                 </div>
-            </div>`).join('')}
+            </div>`
+              )
+              .join('')}
         </div>
 
         <h3 style="margin: 20px 0 12px 0; font-size: 16px; font-weight: 600;">Priorities</h3>
         <ul class="priority-list">
-            ${executiveSummary.priorities.map(priority => `
+            ${executiveSummary.priorities
+              .map(
+                priority => `
             <li class="priority-item">
                 <div class="priority-title">${this.escapeHtml(priority.title)}</div>
                 <div class="priority-meta">
@@ -548,13 +504,19 @@ export class HTMLFormatter {
                     <span class="effort-badge effort-${priority.effort}">Effort: ${priority.effort}</span>
                 </div>
                 <div>${this.escapeHtml(priority.description)}</div>
-            </li>`).join('')}
+            </li>`
+              )
+              .join('')}
         </ul>
 
         <h3 style="margin: 20px 0 12px 0; font-size: 16px; font-weight: 600;">Recommendations</h3>
         <ul style="padding-left: 20px;">
-            ${executiveSummary.recommendations.map(rec => `
-            <li style="margin-bottom: 8px;">${this.escapeHtml(rec)}</li>`).join('')}
+            ${executiveSummary.recommendations
+              .map(
+                rec => `
+            <li style="margin-bottom: 8px;">${this.escapeHtml(rec)}</li>`
+              )
+              .join('')}
         </ul>
     </section>`;
   }
@@ -594,7 +556,9 @@ export class HTMLFormatter {
             </div>
         </div>
 
-        ${metrics.coverage ? `
+        ${
+          metrics.coverage
+            ? `
         <h3 style="margin: 20px 0 12px 0; font-size: 16px; font-weight: 600;">Code Coverage</h3>
         <div class="metrics-grid">
             <div class="metric-card">
@@ -613,7 +577,9 @@ export class HTMLFormatter {
                 <div class="metric-value">${metrics.coverage.statements.percentage}%</div>
                 <div class="metric-label">Statements</div>
             </div>
-        </div>` : ''}
+        </div>`
+            : ''
+        }
 
         <h3 style="margin: 20px 0 12px 0; font-size: 16px; font-weight: 600;">Tool Results</h3>
         <table class="issues-table">
@@ -627,14 +593,18 @@ export class HTMLFormatter {
                 </tr>
             </thead>
             <tbody>
-                ${analysisResult.toolResults?.map((tool) => `
+                ${analysisResult.toolResults
+                  ?.map(
+                    (tool: { toolName: string; status: string; issues: unknown[]; metrics: { score: number }; executionTime: number }) => `
                 <tr>
                     <td>${this.escapeHtml(tool.toolName)}</td>
                     <td><span class="severity-badge severity-${tool.status === 'success' ? 'info' : tool.status}">${tool.status}</span></td>
                     <td>${tool.issues.length}</td>
                     <td>${tool.metrics.score}</td>
                     <td>${tool.executionTime}ms</td>
-                </tr>`).join('')}
+                </tr>`
+                  )
+                  .join('')}
             </tbody>
         </table>
     </section>`;
@@ -661,7 +631,9 @@ export class HTMLFormatter {
                 </tr>
             </thead>
             <tbody>
-                ${issues.map((issue) => `
+                ${issues
+                  .map(
+                    issue => `
                 <tr>
                     <td><span class="severity-badge severity-${issue.type}">${issue.type}</span></td>
                     <td>${this.escapeHtml(issue.toolName)}</td>
@@ -670,7 +642,9 @@ export class HTMLFormatter {
                     <td>${this.escapeHtml(issue.message)}</td>
                     <td>${issue.score}</td>
                     <td>${issue.fixable ? '<span class="fixable-badge">Yes</span>' : 'No'}</td>
-                </tr>`).join('')}
+                </tr>`
+                  )
+                  .join('')}
             </tbody>
         </table>
     </section>`;
@@ -679,7 +653,10 @@ export class HTMLFormatter {
   /**
    * Render trends section
    */
-  private renderTrendsSection(trendAnalysis?: TrendAnalysis, historicalData?: HistoricalData[]): string {
+  private renderTrendsSection(
+    trendAnalysis?: TrendAnalysis,
+    historicalData?: HistoricalData[]
+  ): string {
     if (!trendAnalysis || !historicalData) return '';
 
     return `
@@ -702,8 +679,12 @@ export class HTMLFormatter {
 
         <h3 style="margin: 20px 0 12px 0; font-size: 16px; font-weight: 600;">Insights</h3>
         <ul style="padding-left: 20px;">
-            ${trendAnalysis.insights.map(insight => `
-            <li style="margin-bottom: 8px;">${this.escapeHtml(insight)}</li>`).join('')}
+            ${trendAnalysis.insights
+              .map(
+                insight => `
+            <li style="margin-bottom: 8px;">${this.escapeHtml(insight)}</li>`
+              )
+              .join('')}
         </ul>
 
         <h3 style="margin: 20px 0 12px 0; font-size: 16px; font-weight: 600;">Historical Data</h3>
@@ -754,8 +735,10 @@ export class HTMLFormatter {
   /**
    * Get report footer
    */
-  private getFooter(metadata: ReportMetadata): string {
-    const generatedAt = metadata?.generatedAt ? new Date(metadata.generatedAt).toLocaleString() : new Date().toLocaleString();
+  private getFooter(metadata: ReportData['metadata']): string {
+    const generatedAt = metadata?.generatedAt
+      ? new Date(metadata.generatedAt).toLocaleString()
+      : new Date().toLocaleString();
     const reportId = metadata?.reportId ?? 'unknown';
 
     return `
@@ -804,10 +787,10 @@ export class HTMLFormatter {
             new Chart(toolCtx, {
                 type: 'bar',
                 data: {
-                    labels: ${JSON.stringify(metrics.toolResults?.map((t) => t.toolName) ?? [])},
+                    labels: ${JSON.stringify(metrics.toolResults?.map(t => t.toolName) ?? [])},
                     datasets: [{
                         label: 'Issues Found',
-                        data: ${JSON.stringify(metrics.toolResults?.map((t) => t.issues.length) ?? [])},
+                        data: ${JSON.stringify(metrics.toolResults?.map(t => t.issues.length) ?? [])},
                         backgroundColor: '#2563eb'
                     }]
                 },

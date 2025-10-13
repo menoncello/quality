@@ -3,103 +3,12 @@
  * Generates comprehensive JSON reports with full analysis data
  */
 
+import type { Issue } from '../../../types/analysis';
 import type {
+  ReportData,
   ReportTemplate,
-  ReportConfiguration,
-  ExecutiveSummary,
-  TrendAnalysis
-} from '../report-generator';
-
-interface ToolResult {
-  toolName: string;
-  status: string;
-  executionTime: number;
-  metrics: { score: number };
-  issues: Issue[];
-  coverage?: unknown;
-}
-
-interface Issue {
-  id: string;
-  type: string;
-  severity: string;
-  toolName: string;
-  filePath: string;
-  lineNumber: number;
-  columnNumber?: number;
-  message: string;
-  ruleId?: string;
-  ruleUrl?: string;
-  score: number;
-  fixable: boolean;
-  suggestion?: string;
-  context?: unknown;
-  source?: unknown;
-}
-
-interface AnalysisResult {
-  projectId: string;
-  timestamp: string;
-  duration: number;
-  overallScore: number;
-  toolResults?: ToolResult[];
-  aiPrompts?: Array<{
-    id: string;
-    type: string;
-    title: string;
-    description: string;
-    priority: string;
-    issues: Issue[];
-  }>;
-}
-
-interface Metrics {
-  coverage?: {
-    lines: { percentage: number };
-    functions: { percentage: number };
-    branches: { percentage: number };
-    statements: { percentage: number };
-  };
-  performance?: unknown;
-  complexity?: unknown;
-  maintainability?: unknown;
-  reliability?: unknown;
-  security?: unknown;
-  totalIssues?: number;
-  errorCount?: number;
-  warningCount?: number;
-  infoCount?: number;
-  fixableCount?: number;
-}
-
-interface HistoricalDataPoint {
-  timestamp: Date;
-  overallScore: number;
-  totalIssues: number;
-  errorCount: number;
-  warningCount: number;
-  infoCount: number;
-  fixableCount: number;
-  toolResults?: unknown;
-}
-
-interface ReportData {
-  metadata: {
-    title: string;
-    description?: string;
-    version: string;
-    generatedAt: string;
-    reportId: string;
-  };
-  analysisResult: AnalysisResult;
-  issues: Issue[];
-  metrics: Metrics;
-  executiveSummary?: ExecutiveSummary;
-  trendAnalysis?: TrendAnalysis;
-  historicalData?: HistoricalDataPoint[];
-  template: ReportTemplate;
-  configuration: ReportConfiguration;
-}
+  Metrics,
+} from '../types';
 
 export class JSONFormatter {
   /**
@@ -111,7 +20,9 @@ export class JSONFormatter {
     try {
       return JSON.stringify(reportData, null, 2);
     } catch (error) {
-      throw new Error(`Failed to generate JSON report: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to generate JSON report: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -230,7 +141,9 @@ export class JSONFormatter {
     }
 
     // Include custom sections from template
-    const customSections = template.sections.filter(section => section.type === 'custom' && section.enabled);
+    const customSections = template.sections.filter(
+      section => section.type === 'custom' && section.enabled
+    );
     if (customSections.length > 0) {
       report.customSections = customSections.map(section => ({
         id: section.id,
@@ -273,7 +186,10 @@ export class JSONFormatter {
   /**
    * Include only enabled metric sections
    */
-  private includeEnabledSections(metrics: Metrics, template: ReportTemplate): Record<string, unknown> {
+  private includeEnabledSections(
+    metrics: Metrics,
+    template: ReportTemplate
+  ): Record<string, unknown> {
     const result: Record<string, unknown> = {};
 
     if (this.sectionEnabled(template, 'metrics')) {
@@ -292,8 +208,6 @@ export class JSONFormatter {
    * Check if a section is enabled in the template
    */
   private sectionEnabled(template: ReportTemplate, sectionType: string): boolean {
-    return template.sections.some(section =>
-      section.type === sectionType && section.enabled
-    );
+    return template.sections.some(section => section.type === sectionType && section.enabled);
   }
 }

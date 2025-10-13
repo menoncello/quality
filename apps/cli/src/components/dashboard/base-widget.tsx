@@ -67,12 +67,12 @@ export function BaseWidget({
       { width: 80, height: 20 },
       { width: 100, height: 25 },
     ];
-    
+
     const currentIndex = sizes.findIndex(
       size => size.width === position.width && size.height === position.height
     );
     const nextIndex = (currentIndex + 1) % sizes.length;
-    
+
     onUpdate(id, {
       position: {
         ...position,

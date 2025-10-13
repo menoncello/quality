@@ -40,7 +40,7 @@ export interface GitHubStatusUpdate {
 
 export interface GitHubResult {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   retryCount?: number;
 }
@@ -55,7 +55,7 @@ export class GitHubService {
   private apiUrl: string;
 
   constructor(private config: GitHubConfig) {
-    this.apiUrl = config.apiUrl || 'https://api.github.com';
+    this.apiUrl = config.apiUrl ?? 'https://api.github.com';
     this.validateConfig();
   }
 
@@ -81,9 +81,13 @@ export class GitHubService {
         const result = await this.createIssue(githubIssue);
         results.push(result);
       } catch (error) {
+        // Sanitize error message to remove sensitive information
+        let errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        errorMessage = this.sanitizeErrorMessage(errorMessage);
+
         results.push({
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: errorMessage,
         });
       }
     }
@@ -103,30 +107,30 @@ export class GitHubService {
         const response = await fetch(url, {
           method: 'POST',
           headers: {
-            'Authorization': `token ${this.config.token}`,
-            'Accept': 'application/vnd.github.v3+json',
+            Authorization: `token ${this.config.token}`,
+            Accept: 'application/vnd.github.v3+json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(issue)
+          body: JSON.stringify(issue),
         });
 
-        if (response.ok) {
+        if (response?.ok) {
           const data = await response.json();
           return {
             success: true,
             data: {
               issueNumber: data.number,
               issueUrl: data.html_url,
-              issueId: data.id
-            }
+              issueId: data.id,
+            },
           };
         }
 
         // Handle rate limiting (403 with rate limit message)
-        if (response.status === 403) {
-          const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        if (response && response.status === 403) {
+          const rateLimitRemaining = response.headers?.get('X-RateLimit-Remaining');
           if (rateLimitRemaining === '0') {
-            const resetTime = response.headers.get('X-RateLimit-Reset');
+            const resetTime = response.headers?.get('X-RateLimit-Reset');
             if (resetTime) {
               const waitTime = parseInt(resetTime) * 1000 - Date.now();
               if (waitTime > 0) {
@@ -139,17 +143,47 @@ export class GitHubService {
         }
 
         // Handle other errors
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-
+        if (response) {
+          let errorText = 'Unknown error';
+          try {
+            errorText = await response.text();
+          } catch {
+            errorText = `HTTP ${response.status} error`;
+          }
+          // Don't retry for client errors (4xx), except for rate limiting (403 with rate limit exceeded)
+          if (response.status >= 400 && response.status < 500) {
+            if (response.status === 403) {
+              const rateLimitRemaining = response.headers?.get('X-RateLimit-Remaining');
+              if (rateLimitRemaining !== '0') {
+                // This is a regular 403, not rate limiting, don't retry
+                throw new Error(`HTTP ${response.status}`);
+              }
+            } else {
+              // Other 4xx errors, don't retry
+              throw new Error(`HTTP ${response.status}`);
+            }
+          }
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        } else {
+          throw new Error('No response received from server');
+        }
       } catch (error) {
+        // Don't retry if the error is a non-retryable HTTP error (4xx)
+        if (error instanceof Error && error.message.startsWith('HTTP 4')) {
+          return {
+            success: false,
+            error: error.message,
+            retryCount,
+          };
+        }
+
         retryCount++;
 
         if (retryCount > this.maxRetries) {
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            retryCount
+            error: 'Max retries exceeded',
+            retryCount,
           };
         }
 
@@ -160,7 +194,7 @@ export class GitHubService {
     return {
       success: false,
       error: 'Max retries exceeded',
-      retryCount
+      retryCount,
     };
   }
 
@@ -179,29 +213,29 @@ export class GitHubService {
         const response = await fetch(url, {
           method: 'POST',
           headers: {
-            'Authorization': `token ${this.config.token}`,
-            'Accept': 'application/vnd.github.v3+json',
+            Authorization: `token ${this.config.token}`,
+            Accept: 'application/vnd.github.v3+json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(comment)
+          body: JSON.stringify(comment),
         });
 
-        if (response.ok) {
+        if (response?.ok) {
           const data = await response.json();
           return {
             success: true,
             data: {
               commentId: data.id,
-              commentUrl: data.html_url
-            }
+              commentUrl: data.html_url,
+            },
           };
         }
 
         // Handle rate limiting
-        if (response.status === 403) {
-          const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        if (response && response.status === 403) {
+          const rateLimitRemaining = response.headers?.get('X-RateLimit-Remaining');
           if (rateLimitRemaining === '0') {
-            const resetTime = response.headers.get('X-RateLimit-Reset');
+            const resetTime = response.headers?.get('X-RateLimit-Reset');
             if (resetTime) {
               const waitTime = parseInt(resetTime) * 1000 - Date.now();
               if (waitTime > 0) {
@@ -213,17 +247,47 @@ export class GitHubService {
           }
         }
 
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-
+        if (response) {
+          let errorText = 'Unknown error';
+          try {
+            errorText = await response.text();
+          } catch {
+            errorText = `HTTP ${response.status} error`;
+          }
+          // Don't retry for client errors (4xx), except for rate limiting (403 with rate limit exceeded)
+          if (response.status >= 400 && response.status < 500) {
+            if (response.status === 403) {
+              const rateLimitRemaining = response.headers?.get('X-RateLimit-Remaining');
+              if (rateLimitRemaining !== '0') {
+                // This is a regular 403, not rate limiting, don't retry
+                throw new Error(`HTTP ${response.status}`);
+              }
+            } else {
+              // Other 4xx errors, don't retry
+              throw new Error(`HTTP ${response.status}`);
+            }
+          }
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        } else {
+          throw new Error('No response received from server');
+        }
       } catch (error) {
+        // Don't retry if the error is a non-retryable HTTP error (4xx)
+        if (error instanceof Error && error.message.startsWith('HTTP 4')) {
+          return {
+            success: false,
+            error: error.message,
+            retryCount,
+          };
+        }
+
         retryCount++;
 
         if (retryCount > this.maxRetries) {
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            retryCount
+            error: 'Max retries exceeded',
+            retryCount,
           };
         }
 
@@ -234,17 +298,14 @@ export class GitHubService {
     return {
       success: false,
       error: 'Max retries exceeded',
-      retryCount
+      retryCount,
     };
   }
 
   /**
    * Update commit status
    */
-  async updateCommitStatus(
-    commitSha: string,
-    status: GitHubStatusUpdate
-  ): Promise<GitHubResult> {
+  async updateCommitStatus(commitSha: string, status: GitHubStatusUpdate): Promise<GitHubResult> {
     const url = `${this.apiUrl}/repos/${this.config.owner}/${this.config.repo}/statuses/${commitSha}`;
     let retryCount = 0;
 
@@ -253,29 +314,29 @@ export class GitHubService {
         const response = await fetch(url, {
           method: 'POST',
           headers: {
-            'Authorization': `token ${this.config.token}`,
-            'Accept': 'application/vnd.github.v3+json',
+            Authorization: `token ${this.config.token}`,
+            Accept: 'application/vnd.github.v3+json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(status)
+          body: JSON.stringify(status),
         });
 
-        if (response.ok) {
+        if (response?.ok) {
           const data = await response.json();
           return {
             success: true,
             data: {
               statusId: data.id,
-              statusUrl: data.url
-            }
+              statusUrl: data.url,
+            },
           };
         }
 
         // Handle rate limiting
-        if (response.status === 403) {
-          const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        if (response && response.status === 403) {
+          const rateLimitRemaining = response.headers?.get('X-RateLimit-Remaining');
           if (rateLimitRemaining === '0') {
-            const resetTime = response.headers.get('X-RateLimit-Reset');
+            const resetTime = response.headers?.get('X-RateLimit-Reset');
             if (resetTime) {
               const waitTime = parseInt(resetTime) * 1000 - Date.now();
               if (waitTime > 0) {
@@ -287,17 +348,47 @@ export class GitHubService {
           }
         }
 
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-
+        if (response) {
+          let errorText = 'Unknown error';
+          try {
+            errorText = await response.text();
+          } catch {
+            errorText = `HTTP ${response.status} error`;
+          }
+          // Don't retry for client errors (4xx), except for rate limiting (403 with rate limit exceeded)
+          if (response.status >= 400 && response.status < 500) {
+            if (response.status === 403) {
+              const rateLimitRemaining = response.headers?.get('X-RateLimit-Remaining');
+              if (rateLimitRemaining !== '0') {
+                // This is a regular 403, not rate limiting, don't retry
+                throw new Error(`HTTP ${response.status}`);
+              }
+            } else {
+              // Other 4xx errors, don't retry
+              throw new Error(`HTTP ${response.status}`);
+            }
+          }
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        } else {
+          throw new Error('No response received from server');
+        }
       } catch (error) {
+        // Don't retry if the error is a non-retryable HTTP error (4xx)
+        if (error instanceof Error && error.message.startsWith('HTTP 4')) {
+          return {
+            success: false,
+            error: error.message,
+            retryCount,
+          };
+        }
+
         retryCount++;
 
         if (retryCount > this.maxRetries) {
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            retryCount
+            error: 'Max retries exceeded',
+            retryCount,
           };
         }
 
@@ -308,7 +399,7 @@ export class GitHubService {
     return {
       success: false,
       error: 'Max retries exceeded',
-      retryCount
+      retryCount,
     };
   }
 
@@ -322,7 +413,13 @@ export class GitHubService {
       title: string;
       summary: string;
       text?: string;
-      conclusion?: 'success' | 'failure' | 'neutral' | 'cancelled' | 'timed_out' | 'action_required';
+      conclusion?:
+        | 'success'
+        | 'failure'
+        | 'neutral'
+        | 'cancelled'
+        | 'timed_out'
+        | 'action_required';
       detailsUrl?: string;
     }
   ): Promise<GitHubResult> {
@@ -334,40 +431,40 @@ export class GitHubService {
         const response = await fetch(url, {
           method: 'POST',
           headers: {
-            'Authorization': `token ${this.config.token}`,
-            'Accept': 'application/vnd.github.v3+json',
+            Authorization: `token ${this.config.token}`,
+            Accept: 'application/vnd.github.v3+json',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             name: checkData.name,
             head_sha: commitSha,
             status: 'completed',
-            conclusion: checkData.conclusion || 'success',
+            conclusion: checkData.conclusion ?? 'success',
             output: {
               title: checkData.title,
               summary: checkData.summary,
-              text: checkData.text
+              text: checkData.text,
             },
-            details_url: checkData.detailsUrl
-          })
+            details_url: checkData.detailsUrl,
+          }),
         });
 
-        if (response.ok) {
+        if (response?.ok) {
           const data = await response.json();
           return {
             success: true,
             data: {
               checkRunId: data.id,
-              checkRunUrl: data.html_url
-            }
+              checkRunUrl: data.html_url,
+            },
           };
         }
 
         // Handle rate limiting
-        if (response.status === 403) {
-          const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        if (response && response.status === 403) {
+          const rateLimitRemaining = response.headers?.get('X-RateLimit-Remaining');
           if (rateLimitRemaining === '0') {
-            const resetTime = response.headers.get('X-RateLimit-Reset');
+            const resetTime = response.headers?.get('X-RateLimit-Reset');
             if (resetTime) {
               const waitTime = parseInt(resetTime) * 1000 - Date.now();
               if (waitTime > 0) {
@@ -379,17 +476,47 @@ export class GitHubService {
           }
         }
 
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-
+        if (response) {
+          let errorText = 'Unknown error';
+          try {
+            errorText = await response.text();
+          } catch {
+            errorText = `HTTP ${response.status} error`;
+          }
+          // Don't retry for client errors (4xx), except for rate limiting (403 with rate limit exceeded)
+          if (response.status >= 400 && response.status < 500) {
+            if (response.status === 403) {
+              const rateLimitRemaining = response.headers?.get('X-RateLimit-Remaining');
+              if (rateLimitRemaining !== '0') {
+                // This is a regular 403, not rate limiting, don't retry
+                throw new Error(`HTTP ${response.status}`);
+              }
+            } else {
+              // Other 4xx errors, don't retry
+              throw new Error(`HTTP ${response.status}`);
+            }
+          }
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        } else {
+          throw new Error('No response received from server');
+        }
       } catch (error) {
+        // Don't retry if the error is a non-retryable HTTP error (4xx)
+        if (error instanceof Error && error.message.startsWith('HTTP 4')) {
+          return {
+            success: false,
+            error: error.message,
+            retryCount,
+          };
+        }
+
         retryCount++;
 
         if (retryCount > this.maxRetries) {
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            retryCount
+            error: 'Max retries exceeded',
+            retryCount,
           };
         }
 
@@ -400,7 +527,7 @@ export class GitHubService {
     return {
       success: false,
       error: 'Max retries exceeded',
-      retryCount
+      retryCount,
     };
   }
 
@@ -420,9 +547,7 @@ export class GitHubService {
 
     // Add file location if available
     if (issue.filePath) {
-      const location = issue.lineNumber
-        ? `${issue.filePath}:${issue.lineNumber}`
-        : issue.filePath;
+      const location = issue.lineNumber ? `${issue.filePath}:${issue.lineNumber}` : issue.filePath;
       body += `\n\n**Location:** \`${location}\``;
     }
 
@@ -441,7 +566,7 @@ export class GitHubService {
 
     const labels = [
       ...this.getDefaultLabelsForSeverity(issue.severity),
-      ...(this.config.defaultLabels || [])
+      ...(this.config.defaultLabels ?? []),
     ];
 
     const assignees = this.config.defaultAssignee ? [this.config.defaultAssignee] : [];
@@ -450,7 +575,7 @@ export class GitHubService {
       title: issue.title,
       body,
       labels: [...new Set(labels)], // Remove duplicates
-      assignees
+      assignees,
     };
   }
 
@@ -490,7 +615,10 @@ export class GitHubService {
 
     // Validate token format (GitHub tokens start with certain patterns)
     if (!this.config.token.startsWith('ghp_') && !this.config.token.startsWith('github_pat_')) {
-      console.warn('Warning: GitHub token format may be invalid. Expected token to start with "ghp_" or "github_pat_"');
+      // eslint-disable-next-line no-console
+      console.warn(
+        'Warning: GitHub token format may be invalid. Expected token to start with "ghp_" or "github_pat_"'
+      );
     }
   }
 
@@ -509,38 +637,60 @@ export class GitHubService {
   }
 
   /**
+   * Sanitize error message to remove sensitive information
+   */
+  private sanitizeErrorMessage(message: string): string {
+    // Remove GitHub tokens from error messages
+    return message.replace(/(ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9_]{82})/g, '[REDACTED_TOKEN]');
+  }
+
+  /**
    * Test GitHub API connection
    */
-  async testConnection(): Promise<{ success: boolean; error?: string; userInfo?: any }> {
+  async testConnection(): Promise<{ success: boolean; error?: string; userInfo?: unknown }> {
     try {
       const response = await fetch(`${this.apiUrl}/user`, {
         headers: {
-          'Authorization': `token ${this.config.token}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
+          Authorization: `token ${this.config.token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
       });
 
-      if (response.ok) {
+      if (response?.ok) {
         const userInfo = await response.json();
         return {
           success: true,
           userInfo: {
             login: userInfo.login,
             name: userInfo.name,
-            email: userInfo.email
-          }
+            email: userInfo.email,
+          },
         };
-      } else {
-        const errorText = await response.text();
+      } else if (response) {
+        let errorText = 'Unknown error';
+        try {
+          errorText = await response.text();
+        } catch {
+          errorText = `HTTP ${response.status} error`;
+        }
         return {
           success: false,
-          error: `GitHub API error: ${response.status} - ${errorText}`
+          error: `GitHub API error: ${response.status} - ${errorText}`,
+        };
+      } else {
+        return {
+          success: false,
+          error: 'No response received from server',
         };
       }
     } catch (error) {
+      // Sanitize error message to remove sensitive information
+      let errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      errorMessage = this.sanitizeErrorMessage(errorMessage);
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage,
       };
     }
   }
@@ -550,14 +700,17 @@ export class GitHubService {
    */
   async getRepositoryInfo(): Promise<GitHubResult> {
     try {
-      const response = await fetch(`${this.apiUrl}/repos/${this.config.owner}/${this.config.repo}`, {
-        headers: {
-          'Authorization': `token ${this.config.token}`,
-          'Accept': 'application/vnd.github.v3+json'
+      const response = await fetch(
+        `${this.apiUrl}/repos/${this.config.owner}/${this.config.repo}`,
+        {
+          headers: {
+            Authorization: `token ${this.config.token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
         }
-      });
+      );
 
-      if (response.ok) {
+      if (response?.ok) {
         const data = await response.json();
         return {
           success: true,
@@ -567,20 +720,34 @@ export class GitHubService {
             description: data.description,
             private: data.private,
             defaultBranch: data.default_branch,
-            language: data.language
-          }
+            language: data.language,
+          },
         };
-      } else {
-        const errorText = await response.text();
+      } else if (response) {
+        let errorText = 'Unknown error';
+        try {
+          errorText = await response.text();
+        } catch {
+          errorText = `HTTP ${response.status} error`;
+        }
         return {
           success: false,
-          error: `GitHub API error: ${response.status} - ${errorText}`
+          error: `GitHub API error: ${response.status} - ${errorText}`,
+        };
+      } else {
+        return {
+          success: false,
+          error: 'No response received from server',
         };
       }
     } catch (error) {
+      // Sanitize error message to remove sensitive information
+      let errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      errorMessage = this.sanitizeErrorMessage(errorMessage);
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage,
       };
     }
   }
@@ -597,7 +764,7 @@ export class GitHubService {
    * Get current configuration (without sensitive data)
    */
   getConfig(): Omit<GitHubConfig, 'token'> {
-    const { token, ...safeConfig } = this.config;
+    const { token: _token, ...safeConfig } = this.config;
     return safeConfig;
   }
 }

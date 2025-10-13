@@ -36,6 +36,10 @@ export interface AIPrompt {
 // Extended Issue interface with strict type constraints for CLI usage
 export interface Issue extends Omit<CoreIssue, 'type'> {
   type: 'error' | 'warning' | 'info';
+  columnNumber?: number;
+  ruleUrl?: string;
+  context?: string;
+  source?: string;
 }
 
 // Extended ToolMetrics to match core's index signature

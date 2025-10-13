@@ -17,14 +17,14 @@ export class LayoutPersistenceService {
     if (!existsSync(appDir)) {
       mkdirSync(appDir, { recursive: true });
     }
-    
+
     this.layoutsDir = join(appDir, 'layouts');
     this.filterPresetsDir = join(appDir, 'filter-presets');
-    
+
     if (!existsSync(this.layoutsDir)) {
       mkdirSync(this.layoutsDir, { recursive: true });
     }
-    
+
     if (!existsSync(this.filterPresetsDir)) {
       mkdirSync(this.filterPresetsDir, { recursive: true });
     }
@@ -71,7 +71,9 @@ export class LayoutPersistenceService {
       writeFileSync(layoutPath, JSON.stringify(layoutData, null, 2));
       return true;
     } catch (error) {
-      throw new Error(`Failed to save layout: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to save layout: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -95,7 +97,9 @@ export class LayoutPersistenceService {
         updatedAt: new Date(layoutData.updatedAt),
       };
     } catch (error) {
-      throw new Error(`Failed to load layout: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to load layout: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -119,7 +123,9 @@ export class LayoutPersistenceService {
 
       return layouts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
-      throw new Error(`Failed to get all layouts: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to get all layouts: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -134,7 +140,9 @@ export class LayoutPersistenceService {
       unlinkSync(layoutPath);
       return true;
     } catch (error) {
-      throw new Error(`Failed to delete layout: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to delete layout: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -154,7 +162,7 @@ export class LayoutPersistenceService {
   importLayout(layoutJson: string): DashboardLayout | null {
     try {
       const layoutData = JSON.parse(layoutJson);
-      
+
       // Validate layout structure
       if (!layoutData.id || !layoutData.name || !Array.isArray(layoutData.widgets)) {
         throw new Error('Invalid layout structure');
@@ -174,14 +182,21 @@ export class LayoutPersistenceService {
       this.saveLayout(layout);
       return layout;
     } catch (error) {
-      throw new Error(`Failed to import layout: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to import layout: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
   /**
    * Save filter preset
    */
-  saveFilterPreset(name: string, description: string | null, filterConfig: FilterState, isGlobal: boolean = false): boolean {
+  saveFilterPreset(
+    name: string,
+    description: string | null,
+    filterConfig: FilterState,
+    isGlobal: boolean = false
+  ): boolean {
     try {
       const presetPath = this.getFilterPresetPath(name);
       const presetData = {
@@ -195,7 +210,9 @@ export class LayoutPersistenceService {
       writeFileSync(presetPath, JSON.stringify(presetData, null, 2));
       return true;
     } catch (error) {
-      throw new Error(`Failed to save filter preset: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to save filter preset: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -210,17 +227,29 @@ export class LayoutPersistenceService {
       const presetData = JSON.parse(readFileSync(presetPath, 'utf-8'));
       return presetData.config;
     } catch (error) {
-      throw new Error(`Failed to load filter preset: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to load filter preset: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
   /**
    * Get all filter presets
    */
-  getAllFilterPresets(): Array<{ name: string; description: string | null; config: FilterState; isGlobal: boolean }> {
+  getAllFilterPresets(): Array<{
+    name: string;
+    description: string | null;
+    config: FilterState;
+    isGlobal: boolean;
+  }> {
     try {
       const files = readdirSync(this.filterPresetsDir);
-      const presets: Array<{ name: string; description: string | null; config: FilterState; isGlobal: boolean }> = [];
+      const presets: Array<{
+        name: string;
+        description: string | null;
+        config: FilterState;
+        isGlobal: boolean;
+      }> = [];
 
       for (const file of files) {
         if (file.endsWith('.json')) {
@@ -237,7 +266,9 @@ export class LayoutPersistenceService {
 
       return presets.sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
-      throw new Error(`Failed to get all filter presets: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to get all filter presets: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -252,7 +283,9 @@ export class LayoutPersistenceService {
       unlinkSync(presetPath);
       return true;
     } catch (error) {
-      throw new Error(`Failed to delete filter preset: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to delete filter preset: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -269,7 +302,9 @@ export class LayoutPersistenceService {
         filterPresets: presetFiles.length,
       };
     } catch (error) {
-      throw new Error(`Failed to get storage stats: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to get storage stats: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 }

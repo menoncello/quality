@@ -3,84 +3,16 @@
  * Generates professional PDF reports using HTML to PDF conversion
  */
 
+import type { AnalysisResult, Issue } from '../../../types/analysis';
 import type {
+  ReportData,
   ReportTemplate,
-  ReportConfiguration,
   ExecutiveSummary,
   TrendAnalysis,
-  HistoricalData
-} from '../report-generator';
-
-interface ToolResult {
-  toolName: string;
-  status: string;
-  executionTime: number;
-  metrics: { score: number };
-  issues: Issue[];
-  coverage?: unknown;
-}
-
-interface Issue {
-  type: string;
-  toolName: string;
-  filePath: string;
-  lineNumber: number;
-  columnNumber?: number;
-  message: string;
-  ruleId?: string;
-  score: number;
-  fixable: boolean;
-  suggestion?: string;
-}
-
-interface AnalysisResult {
-  projectId: string;
-  timestamp: string;
-  duration: number;
-  overallScore: number;
-  toolResults?: ToolResult[];
-}
-
-interface Metrics {
-  totalIssues: number;
-  errorCount: number;
-  warningCount: number;
-  fixableCount: number;
-  coverage?: {
-    lines: { percentage: number };
-    functions: { percentage: number };
-    branches: { percentage: number };
-    statements: { percentage: number };
-  };
-  toolResults?: Array<{
-    toolName: string;
-    issues: Issue[];
-  }>;
-}
-
-interface ReportSection {
-  type: string;
-  name?: string;
-  config?: unknown;
-}
-
-interface ReportData {
-  metadata: {
-    title?: string;
-    description?: string;
-    version: string;
-    generatedAt?: string;
-    reportId?: string;
-  };
-  analysisResult: AnalysisResult;
-  issues: Issue[];
-  metrics: Metrics;
-  executiveSummary?: ExecutiveSummary;
-  trendAnalysis?: TrendAnalysis;
-  historicalData?: HistoricalData[];
-  template: ReportTemplate;
-  configuration: ReportConfiguration;
-}
+  HistoricalData,
+  Metrics,
+  ReportSection,
+} from '../types';
 
 export class PDFFormatter {
   /**
@@ -125,12 +57,14 @@ export class PDFFormatter {
         '<!-- PDF Generation Notice -->',
         '<!-- This HTML would be converted to PDF using Puppeteer or similar -->',
         '<!-- In production, implement actual PDF generation -->',
-        ''
+        '',
       ].join('\n');
 
       return notice + htmlContent;
     } catch (error) {
-      throw new Error(`Failed to generate PDF report: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to generate PDF report: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
@@ -448,7 +382,8 @@ export class PDFFormatter {
    * Render section optimized for PDF
    */
   private renderPDFSection(section: ReportSection, data: ReportData): string {
-    const { analysisResult, issues, metrics, executiveSummary, trendAnalysis, historicalData } = data;
+    const { analysisResult, issues, metrics, executiveSummary, trendAnalysis, historicalData } =
+      data;
 
     switch (section.type) {
       case 'summary':
@@ -471,7 +406,11 @@ export class PDFFormatter {
   /**
    * Render executive summary section for PDF
    */
-  private renderPDFSummarySection(analysisResult: AnalysisResult, metrics: Metrics, executiveSummary?: ExecutiveSummary): string {
+  private renderPDFSummarySection(
+    analysisResult: AnalysisResult,
+    metrics: Metrics,
+    executiveSummary?: ExecutiveSummary
+  ): string {
     if (!executiveSummary) return '';
 
     return `
@@ -484,29 +423,45 @@ export class PDFFormatter {
 
         <h3 class="subsection-title">Key Metrics</h3>
         <div class="metrics-grid">
-            ${executiveSummary.keyMetrics.map(metric => `
+            ${executiveSummary.keyMetrics
+              .map(
+                metric => `
             <div class="metric-box">
                 <div class="metric-value">${metric.value}</div>
                 <div class="metric-label">${this.escapeHtml(metric.label)}</div>
-            </div>`).join('')}
+            </div>`
+              )
+              .join('')}
         </div>
 
-        ${executiveSummary.priorities.length > 0 ? `
+        ${
+          executiveSummary.priorities.length > 0
+            ? `
         <h3 class="subsection-title">Priorities</h3>
-        ${executiveSummary.priorities.map(priority => `
+        ${executiveSummary.priorities
+          .map(
+            priority => `
         <div class="priority-item">
             <div class="priority-title">${this.escapeHtml(priority.title)}</div>
             <div class="priority-meta">Impact: ${priority.impact} | Effort: ${priority.effort}</div>
             <div>${this.escapeHtml(priority.description)}</div>
-        </div>`).join('')}
-        ` : ''}
+        </div>`
+          )
+          .join('')}
+        `
+            : ''
+        }
 
-        ${executiveSummary.recommendations.length > 0 ? `
+        ${
+          executiveSummary.recommendations.length > 0
+            ? `
         <h3 class="subsection-title">Recommendations</h3>
         <ul class="recommendation-list">
             ${executiveSummary.recommendations.map(rec => `<li>${this.escapeHtml(rec)}</li>`).join('')}
         </ul>
-        ` : ''}
+        `
+            : ''
+        }
     </div>`;
   }
 
@@ -557,18 +512,24 @@ export class PDFFormatter {
                 </tr>
             </thead>
             <tbody>
-                ${analysisResult.toolResults?.map(tool => `
+                ${analysisResult.toolResults
+                  ?.map(
+                    (tool: { toolName: string; status: string; issues: unknown[]; metrics: { score: number }; executionTime: number }) => `
                 <tr>
                     <td>${this.escapeHtml(tool.toolName)}</td>
                     <td class="status-${tool.status}">${tool.status}</td>
                     <td>${tool.issues.length}</td>
                     <td>${tool.metrics.score}</td>
                     <td>${tool.executionTime}</td>
-                </tr>`).join('')}
+                </tr>`
+                  )
+                  .join('')}
             </tbody>
         </table>
 
-        ${metrics.coverage ? `
+        ${
+          metrics.coverage
+            ? `
         <h3 class="subsection-title">Code Coverage</h3>
         <div class="metrics-grid">
             <div class="metric-box">
@@ -588,7 +549,9 @@ export class PDFFormatter {
                 <div class="metric-label">Statements</div>
             </div>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
     </div>`;
   }
 
@@ -624,7 +587,9 @@ export class PDFFormatter {
                 </tr>
             </thead>
             <tbody>
-                ${limitedIssues.map(issue => `
+                ${limitedIssues
+                  .map(
+                    issue => `
                 <tr>
                     <td class="severity-${issue.type}">${issue.type.toUpperCase()}</td>
                     <td>${this.escapeHtml(issue.toolName)}</td>
@@ -633,20 +598,29 @@ export class PDFFormatter {
                     <td>${this.escapeHtml(issue.message)}</td>
                     <td>${issue.score}</td>
                     <td>${issue.fixable ? 'Yes' : 'No'}</td>
-                </tr>`).join('')}
+                </tr>`
+                  )
+                  .join('')}
             </tbody>
         </table>
 
-        ${issues.length > 100 ? `
+        ${
+          issues.length > 100
+            ? `
         <p><em>Note: Showing first 100 issues. Total issues: ${issues.length}</em></p>
-        ` : ''}
+        `
+            : ''
+        }
     </div>`;
   }
 
   /**
    * Render trends section for PDF
    */
-  private renderPDFTrendsSection(trendAnalysis?: TrendAnalysis, historicalData?: HistoricalData[]): string {
+  private renderPDFTrendsSection(
+    trendAnalysis?: TrendAnalysis,
+    historicalData?: HistoricalData[]
+  ): string {
     if (!trendAnalysis || !historicalData) return '';
 
     return `
@@ -690,7 +664,9 @@ export class PDFFormatter {
                 </tr>
             </thead>
             <tbody>
-                ${historicalData.map(data => `
+                ${historicalData
+                  .map(
+                    data => `
                 <tr>
                     <td>${new Date(data.timestamp).toLocaleDateString()}</td>
                     <td>${data.overallScore}</td>
@@ -698,7 +674,9 @@ export class PDFFormatter {
                     <td>${data.errorCount}</td>
                     <td>${data.warningCount}</td>
                     <td>${data.fixableCount}</td>
-                </tr>`).join('')}
+                </tr>`
+                  )
+                  .join('')}
             </tbody>
         </table>
     </div>`;
@@ -722,12 +700,16 @@ export class PDFFormatter {
             Bar chart showing tool performance would be rendered here
         </div>
 
-        ${metrics.coverage ? `
+        ${
+          metrics.coverage
+            ? `
         <h3 class="subsection-title">Coverage Overview</h3>
         <div class="chart-placeholder">
             Coverage chart would be rendered here
         </div>
-        ` : ''}
+        `
+            : ''
+        }
     </div>`;
   }
 

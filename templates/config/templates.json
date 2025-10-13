@@ -1,574 +1,945 @@
 [
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "id": "1dd0d25c-7c3f-44c4-8d0c-a7310abc0f54",
+    "name": "Custom Executive Summary",
+    "description": "Custom template for testing",
     "format": "html",
     "templateType": "custom",
-    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
-        "type": "custom",
+        "id": "summary",
+        "name": "Summary",
+        "type": "summary",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
     "variables": [],
-    "metadata": {},
-    "id": "2f5783c5-c49b-4cd1-9982-9a3b21b48c54",
-    "createdAt": "2025-10-10T17:48:22.321Z",
-    "updatedAt": "2025-10-10T17:48:22.322Z"
+    "createdAt": "2025-10-13T14:55:59.875Z",
+    "updatedAt": "2025-10-13T14:55:59.875Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "id": "fcb510f1-f413-48ee-9f54-4df60aabddb4",
+    "name": "No Summary Template",
+    "description": "Template without summary section",
     "format": "html",
     "templateType": "custom",
-    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
-        "type": "custom",
+        "id": "metrics",
+        "name": "Metrics",
+        "type": "metrics",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
     "variables": [],
-    "metadata": {},
-    "id": "dcb5bdfe-5dcc-4bbe-b376-92940ab12351",
-    "createdAt": "2025-10-10T17:48:22.323Z",
-    "updatedAt": "2025-10-10T17:48:22.323Z"
+    "createdAt": "2025-10-13T14:55:59.876Z",
+    "updatedAt": "2025-10-13T14:55:59.876Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "ce2608a1-15fb-40d3-9e92-7ca7c7c5076b",
-    "createdAt": "2025-10-10T17:48:22.324Z",
-    "updatedAt": "2025-10-10T17:48:22.324Z"
+    "id": "a1b13278-0dd1-4566-b327-787dad9fad4a",
+    "createdAt": "2025-10-13T14:55:59.886Z",
+    "updatedAt": "2025-10-13T14:55:59.886Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "6ede9722-8337-42b1-b51a-2ea9093a9d1f",
-    "createdAt": "2025-10-10T17:48:22.324Z",
-    "updatedAt": "2025-10-10T17:48:22.324Z"
+    "id": "98eec473-11a1-42e6-a070-62482a29b87d",
+    "createdAt": "2025-10-13T14:55:59.888Z",
+    "updatedAt": "2025-10-13T14:55:59.888Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "cf254811-0cc4-46dc-900a-e0874499cb86",
-    "createdAt": "2025-10-10T17:48:22.324Z",
-    "updatedAt": "2025-10-10T17:48:22.325Z"
+    "id": "f84609d9-da60-4ce4-8b0b-f57017b45e02",
+    "createdAt": "2025-10-13T14:55:59.888Z",
+    "updatedAt": "2025-10-13T14:55:59.888Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "7a1d95e8-12dd-4d2e-907b-256d6b616818",
-    "createdAt": "2025-10-10T17:48:22.325Z",
-    "updatedAt": "2025-10-10T17:48:22.325Z"
+    "id": "3ec2b65c-e055-422d-a245-b64d2152d033",
+    "createdAt": "2025-10-13T14:55:59.889Z",
+    "updatedAt": "2025-10-13T14:55:59.889Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "45193b3f-b950-48c3-9d06-e0074ad0b736",
-    "createdAt": "2025-10-10T17:48:22.325Z",
-    "updatedAt": "2025-10-10T17:48:22.326Z"
+    "id": "8ddf463f-5052-4524-a8e4-6209c03c90c7",
+    "createdAt": "2025-10-13T14:55:59.889Z",
+    "updatedAt": "2025-10-13T14:55:59.889Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "725a217f-4d4a-40bd-ad22-36916500bdf9",
-    "createdAt": "2025-10-10T17:48:22.326Z",
-    "updatedAt": "2025-10-10T17:48:22.326Z"
+    "id": "ca7a9c55-329b-46db-ab63-ef557b233875",
+    "createdAt": "2025-10-13T14:55:59.890Z",
+    "updatedAt": "2025-10-13T14:55:59.890Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "743e31ed-4f34-4b27-ab76-6afc29aeeb70",
-    "createdAt": "2025-10-10T17:48:22.327Z",
-    "updatedAt": "2025-10-10T17:48:22.327Z"
+    "id": "8890c76e-90b0-4f69-ac63-ef9845f4fd45",
+    "createdAt": "2025-10-13T14:55:59.891Z",
+    "updatedAt": "2025-10-13T14:55:59.891Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "d845eaac-c6a6-4ec2-9df3-0923e819c659",
-    "createdAt": "2025-10-10T17:48:22.327Z",
-    "updatedAt": "2025-10-10T17:48:22.327Z"
+    "id": "94dc8502-9ece-44f5-ab46-d81d52226c54",
+    "createdAt": "2025-10-13T14:55:59.891Z",
+    "updatedAt": "2025-10-13T14:55:59.891Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "fed5a9da-4d41-4b8f-bde1-2fdec95ffadb",
-    "createdAt": "2025-10-10T17:48:22.328Z",
-    "updatedAt": "2025-10-10T17:48:22.328Z"
+    "id": "2bc62ee4-5aa9-4c3f-885c-712a0fd618b9",
+    "createdAt": "2025-10-13T14:55:59.892Z",
+    "updatedAt": "2025-10-13T14:55:59.892Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "40a22398-94ca-42f8-a599-f10a564cc867",
-    "createdAt": "2025-10-10T17:49:00.849Z",
-    "updatedAt": "2025-10-10T17:49:00.850Z"
+    "id": "962ac747-cae5-4417-bbbb-0759db78e5d8",
+    "createdAt": "2025-10-13T14:55:59.892Z",
+    "updatedAt": "2025-10-13T14:55:59.892Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "3fd4c477-2af4-4512-a530-708972b9ff87",
-    "createdAt": "2025-10-10T17:49:00.856Z",
-    "updatedAt": "2025-10-10T17:49:00.856Z"
+    "id": "6417ea59-8e02-48f9-bb83-aa230df7fc0b",
+    "createdAt": "2025-10-13T14:55:59.893Z",
+    "updatedAt": "2025-10-13T14:55:59.893Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "f278acc2-9126-4869-a27d-410542b338fd",
-    "createdAt": "2025-10-10T17:49:00.856Z",
-    "updatedAt": "2025-10-10T17:49:00.857Z"
+    "id": "284d6f04-dc22-446f-8736-0e189173a5d2",
+    "createdAt": "2025-10-13T14:55:59.893Z",
+    "updatedAt": "2025-10-13T14:55:59.893Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "e234a61f-72ef-4597-af93-edb74202689b",
-    "createdAt": "2025-10-10T17:49:00.857Z",
-    "updatedAt": "2025-10-10T17:49:00.857Z"
+    "id": "40814b59-ff58-435f-98fd-18413df1b907",
+    "createdAt": "2025-10-13T14:55:59.894Z",
+    "updatedAt": "2025-10-13T14:55:59.894Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "45a62026-714e-455f-96f9-ce6792d85965",
-    "createdAt": "2025-10-10T17:49:00.858Z",
-    "updatedAt": "2025-10-10T17:49:00.858Z"
+    "id": "5b47c662-7345-4ba0-a73f-26a71faee563",
+    "createdAt": "2025-10-13T14:55:59.894Z",
+    "updatedAt": "2025-10-13T14:55:59.894Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "ccb0b259-48c4-4793-a593-f70c1fdb310e",
-    "createdAt": "2025-10-10T17:49:00.859Z",
-    "updatedAt": "2025-10-10T17:49:00.859Z"
+    "id": "a075feed-2cb7-4a0e-8cf0-108cbf3aea68",
+    "createdAt": "2025-10-13T14:55:59.895Z",
+    "updatedAt": "2025-10-13T14:55:59.895Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "c9025d9a-c979-4727-9129-e8cdddaa43c1",
-    "createdAt": "2025-10-10T17:49:00.859Z",
-    "updatedAt": "2025-10-10T17:49:00.859Z"
+    "id": "36c29168-2d99-4957-a9f5-dcee1c3203d6",
+    "createdAt": "2025-10-13T14:55:59.895Z",
+    "updatedAt": "2025-10-13T14:55:59.895Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "3f36143e-7291-44b8-96fa-6c001c9a3f50",
-    "createdAt": "2025-10-10T17:49:00.860Z",
-    "updatedAt": "2025-10-10T17:49:00.860Z"
+    "id": "5dd9f40e-2bdf-4059-926f-e5467532c86d",
+    "createdAt": "2025-10-13T14:55:59.895Z",
+    "updatedAt": "2025-10-13T14:55:59.895Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "0a5c65b1-71fa-4edd-95fd-d51d23bf9da1",
-    "createdAt": "2025-10-10T17:49:00.861Z",
-    "updatedAt": "2025-10-10T17:49:00.861Z"
+    "id": "c801feba-e3af-4a83-b7de-75402059ba89",
+    "createdAt": "2025-10-13T14:55:59.896Z",
+    "updatedAt": "2025-10-13T14:55:59.896Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
       }
     ],
-    "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
-    "category": "custom",
+    "styles": {
+      "theme": "light"
+    },
     "variables": [],
-    "metadata": {},
-    "id": "a1cb11a5-bebd-46c6-90e1-913ccbc40363",
-    "createdAt": "2025-10-10T17:49:00.861Z",
-    "updatedAt": "2025-10-10T17:49:00.861Z"
+    "id": "74e14a4f-70c3-49b7-8a2a-f2b55b7c5923",
+    "createdAt": "2025-10-13T14:55:59.897Z",
+    "updatedAt": "2025-10-13T14:55:59.897Z"
   },
   {
-    "name": "Test Custom Template",
-    "description": "Test template for security validation",
+    "name": "Test Security Template",
+    "description": "Template for security testing",
     "format": "html",
     "templateType": "custom",
     "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
     "sections": [
       {
-        "id": "main",
-        "name": "Main Content",
+        "id": "custom-content",
+        "name": "Custom Content",
         "type": "custom",
         "enabled": true,
-        "order": 1,
-        "config": {}
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "163885e6-95c5-4237-b864-6057a302fe1a",
+    "createdAt": "2025-10-13T14:55:59.897Z",
+    "updatedAt": "2025-10-13T14:55:59.897Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "7ee16093-12d1-4356-a7d2-f58eb94b33bd",
+    "createdAt": "2025-10-13T14:55:59.898Z",
+    "updatedAt": "2025-10-13T14:55:59.898Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "ca6452ca-4649-4752-832a-d9fdc53d947a",
+    "createdAt": "2025-10-13T14:55:59.898Z",
+    "updatedAt": "2025-10-13T14:55:59.898Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "5f03da0c-9dff-4dc9-afe7-003211dc16f7",
+    "createdAt": "2025-10-13T14:55:59.899Z",
+    "updatedAt": "2025-10-13T14:55:59.899Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "d456e718-9e08-482d-9c46-9a5d21e6e300",
+    "createdAt": "2025-10-13T14:55:59.899Z",
+    "updatedAt": "2025-10-13T14:55:59.899Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "e752704d-0d54-4e60-917a-5d7fa67e4af5",
+    "createdAt": "2025-10-13T14:55:59.902Z",
+    "updatedAt": "2025-10-13T14:55:59.902Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "ea33ec9c-8c6f-4231-b40a-2f4978cad0e3",
+    "createdAt": "2025-10-13T14:55:59.902Z",
+    "updatedAt": "2025-10-13T14:55:59.902Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "fa76421d-8e43-4979-b7ac-f6fcfc7200ef",
+    "createdAt": "2025-10-13T14:55:59.903Z",
+    "updatedAt": "2025-10-13T14:55:59.903Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head><title>{{reportTitle}}</title></head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div>User input: {{userInput}}</div>\n              <div>Message: {{message}}</div>\n              <div>File path: {{filePath}}</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "84647099-2725-4e23-86cc-d247ab662f49",
+    "createdAt": "2025-10-13T14:55:59.904Z",
+    "updatedAt": "2025-10-13T14:55:59.904Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head>\n              <title>{{reportTitle}}</title>\n              <style>{{customCSS}}</style>\n            </head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div style=\"{{customStyle}}\">Content</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "327b0d2c-abca-48c1-b373-7812a1bd832e",
+    "createdAt": "2025-10-13T14:55:59.905Z",
+    "updatedAt": "2025-10-13T14:55:59.905Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head>\n              <title>{{reportTitle}}</title>\n              <style>{{customCSS}}</style>\n            </head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div style=\"{{customStyle}}\">Content</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "9bf19cba-8618-4ba2-bb22-67770f02ee16",
+    "createdAt": "2025-10-13T14:55:59.905Z",
+    "updatedAt": "2025-10-13T14:55:59.905Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head>\n              <title>{{reportTitle}}</title>\n              <style>{{customCSS}}</style>\n            </head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div style=\"{{customStyle}}\">Content</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "790fca70-78f6-46cb-8945-e5c476469800",
+    "createdAt": "2025-10-13T14:55:59.906Z",
+    "updatedAt": "2025-10-13T14:55:59.906Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head>\n              <title>{{reportTitle}}</title>\n              <style>{{customCSS}}</style>\n            </head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div style=\"{{customStyle}}\">Content</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "6556cea4-5b26-4eb1-8c6a-0af9ae9b15d1",
+    "createdAt": "2025-10-13T14:55:59.906Z",
+    "updatedAt": "2025-10-13T14:55:59.906Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head>\n              <title>{{reportTitle}}</title>\n              <style>{{customCSS}}</style>\n            </head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div style=\"{{customStyle}}\">Content</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "1f6d0e3a-69ae-4f09-90f9-df4f88673953",
+    "createdAt": "2025-10-13T14:55:59.909Z",
+    "updatedAt": "2025-10-13T14:55:59.909Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n          <html>\n            <head>\n              <title>{{reportTitle}}</title>\n              <style>{{customCSS}}</style>\n            </head>\n            <body>\n              <h1>{{reportTitle}}</h1>\n              <div style=\"{{customStyle}}\">Content</div>\n            </body>\n          </html>\n        ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "5080fab7-8986-4c34-93c3-3af14e13ead2",
+    "createdAt": "2025-10-13T14:55:59.910Z",
+    "updatedAt": "2025-10-13T14:55:59.910Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n        <html>\n          <head><title>Dangerous Template</title></head>\n          <body>\n            {{#each issues}}\n            <div>{{this.message}}</div>\n            {{#if (lookup this \"constructor\")}}\n              <script>alert(\"Constructor access\")</script>\n            {{/if}}\n            {{#if (this.constructor.prototype)}}\n              <script>alert(\"Prototype access\")</script>\n            {{/if}}\n            {{/each}}\n          </body>\n        </html>\n      ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "18d57daf-4c84-44a7-812b-12ddb7aae538",
+    "createdAt": "2025-10-13T14:55:59.911Z",
+    "updatedAt": "2025-10-13T14:55:59.911Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n        <html>\n          <head><title>Safe Template</title></head>\n          <body>\n            <h1>{{reportTitle}}</h1>\n            {{#each issues}}\n              <div class=\"issue {{this.type}}\">\n                <h3>{{this.message}}</h3>\n                <p>File: {{this.filePath}}:{{this.lineNumber}}</p>\n                {{#if this.fixable}}\n                  <span class=\"fixable\">This issue can be fixed automatically</span>\n                {{/if}}\n                {{#unless this.suggestion}}\n                  <span class=\"no-suggestion\">No suggestion available</span>\n                {{/unless}}\n              </div>\n            {{/each}}\n            <p>Total issues: {{summary.totalIssues}}</p>\n            <p>Generated: {{formatDate timestamp}}</p>\n          </body>\n        </html>\n      ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "c8f728c8-a70c-444e-9a74-9095c7207944",
+    "createdAt": "2025-10-13T14:55:59.912Z",
+    "updatedAt": "2025-10-13T14:55:59.912Z"
+  },
+  {
+    "name": "Test Security Template",
+    "description": "Template for security testing",
+    "format": "html",
+    "templateType": "custom",
+    "content": "\n        <html>\n          <head><title>{{reportTitle}}</title></head>\n          <body>\n            <h1>{{reportTitle}}</h1>\n            <div>Author: {{customFields.authorName}}</div>\n            <div>Department: {{customFields.department}}</div>\n            <div>Notes: {{customFields.notes}}</div>\n            {{#each summary.topIssues}}\n              <div class=\"issue\">\n                <h3>{{this.message}}</h3>\n                <p>File: {{this.filePath}}:{{this.lineNumber}}</p>\n                {{#if this.suggestion}}\n                  <p>Suggestion: {{this.suggestion}}</p>\n                {{/if}}\n              </div>\n            {{/each}}\n          </body>\n        </html>\n      ",
+    "sections": [
+      {
+        "id": "custom-content",
+        "name": "Custom Content",
+        "type": "custom",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "styles": {
+      "theme": "light"
+    },
+    "variables": [],
+    "id": "68fd0942-02bd-491a-a3bf-743d337ff476",
+    "createdAt": "2025-10-13T14:55:59.913Z",
+    "updatedAt": "2025-10-13T14:55:59.913Z"
+  },
+  {
+    "name": "Custom Template",
+    "description": "A custom template",
+    "format": "html",
+    "templateType": "custom",
+    "content": "<h1>{{title}}</h1>",
+    "sections": [
+      {
+        "id": "summary",
+        "name": "Summary",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
       }
     ],
     "version": "1.0.0",
-    "author": "Test",
-    "tags": [],
+    "author": "Test Author",
+    "tags": [
+      "test"
+    ],
     "category": "custom",
     "variables": [],
     "metadata": {},
-    "id": "0e2211f9-89f4-4c91-94d1-df19ce037e24",
-    "createdAt": "2025-10-10T17:49:00.862Z",
-    "updatedAt": "2025-10-10T17:49:00.862Z"
+    "id": "bfccb87f-dfad-45f7-a396-4ec8319d9c9f",
+    "createdAt": "2025-10-13T14:55:59.922Z",
+    "updatedAt": "2025-10-13T14:55:59.922Z"
+  },
+  {
+    "name": "Custom Executive Summary",
+    "description": "A custom executive summary template",
+    "sections": [
+      {
+        "id": "custom-section",
+        "name": "Custom Section",
+        "type": "summary",
+        "enabled": true,
+        "order": 1
+      }
+    ],
+    "format": "html",
+    "templateType": "custom",
+    "content": "<h1>Custom</h1>",
+    "author": "Test Author",
+    "version": "1.0.0",
+    "tags": [
+      "test"
+    ],
+    "category": "custom",
+    "variables": [],
+    "metadata": {},
+    "id": "38651710-dcfb-4dff-9acf-7a577bd199a2",
+    "createdAt": "2025-10-13T14:55:59.923Z",
+    "updatedAt": "2025-10-13T14:55:59.923Z"
   }
 ]

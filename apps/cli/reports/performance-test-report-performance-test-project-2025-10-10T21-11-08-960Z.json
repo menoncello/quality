@@ -16,11 +16,7 @@
       "id": "perf-test-1760130668958",
       "name": "Performance Test Report",
       "filters": {
-        "severity": [
-          "error",
-          "warning",
-          "info"
-        ],
+        "severity": ["error", "warning", "info"],
         "tools": [],
         "scoreRange": {
           "min": 0,

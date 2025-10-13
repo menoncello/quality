@@ -5,7 +5,8 @@
  * Includes security validation, error handling, and delivery confirmation.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
+import { Response } from 'node-fetch';
 import { SlackService } from '../../../dist/services/reporting/integrations/slack-service.js';
 import { EmailService } from '../../../dist/services/reporting/integrations/email-service.js';
 
@@ -13,7 +14,8 @@ describe('Team Collaboration Integrations', () => {
   describe('Slack Integration', () => {
     let slackService: SlackService;
     let originalFetch: typeof global.fetch;
-    const mockWebhookUrl = 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
+    const mockWebhookUrl =
+      'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
 
     beforeEach(() => {
       slackService = new SlackService();
@@ -32,7 +34,7 @@ describe('Team Collaboration Integrations', () => {
           'https://evil.com/webhook', // Non-Slack domain
           'not-a-url', // Invalid format
           'https://hooks.slack.com/', // Incomplete path
-          '' // Empty string
+          '', // Empty string
         ];
 
         for (const url of invalidUrls) {
@@ -45,7 +47,7 @@ describe('Team Collaboration Integrations', () => {
       it.skip('accepts valid Slack webhook URLs', async () => {
         const validUrls = [
           'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
-          'https://myworkspace.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
+          'https://myworkspace.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
         ];
 
         for (const url of validUrls) {
@@ -72,9 +74,9 @@ describe('Team Collaboration Integrations', () => {
           summary: '<img src=x onerror=alert("XSS")>',
           metrics: {
             maliciousField: '<iframe src="javascript:alert(\'XSS\')"></iframe>',
-            normalField: 100
+            normalField: 100,
           },
-          priority: 'high' as const
+          priority: 'high' as const,
         };
 
         // Mock fetch to inspect the sent payload
@@ -84,7 +86,7 @@ describe('Team Collaboration Integrations', () => {
           capturedPayload = JSON.parse(options?.body as string);
           return {
             ok: true,
-            json: async () => ({ ts: '1234567890.123456' })
+            json: async () => ({ ts: '1234567890.123456' }),
           } as Response;
         };
 
@@ -110,9 +112,9 @@ describe('Team Collaboration Integrations', () => {
           title: 'Report with & < > " quotes',
           summary: 'This report contains special characters: &amp; &lt; &gt; &quot;',
           metrics: {
-            testScore: 85.5
+            testScore: 85.5,
           },
-          priority: 'medium' as const
+          priority: 'medium' as const,
         };
 
         let capturedPayload: any;
@@ -121,7 +123,7 @@ describe('Team Collaboration Integrations', () => {
           capturedPayload = JSON.parse(options?.body as string);
           return {
             ok: true,
-            json: async () => ({ ts: '1234567890.123456' })
+            json: async () => ({ ts: '1234567890.123456' }),
           } as Response;
         };
 
@@ -145,9 +147,9 @@ describe('Team Collaboration Integrations', () => {
             successRate: 0.85,
             responseTime: 1250,
             memoryUsage: 524288000,
-            errorPercentage: 15.5
+            errorPercentage: 15.5,
           },
-          priority: 'medium' as const
+          priority: 'medium' as const,
         };
 
         let capturedPayload: any;
@@ -156,7 +158,7 @@ describe('Team Collaboration Integrations', () => {
           capturedPayload = JSON.parse(options?.body as string);
           return {
             ok: true,
-            json: async () => ({ ts: '1234567890.123456' })
+            json: async () => ({ ts: '1234567890.123456' }),
           } as Response;
         };
 
@@ -183,13 +185,18 @@ describe('Team Collaboration Integrations', () => {
       });
 
       it('includes proper priority indicators', async () => {
-        const priorities: Array<'low' | 'medium' | 'high' | 'critical'> = ['low', 'medium', 'high', 'critical'];
+        const priorities: Array<'low' | 'medium' | 'high' | 'critical'> = [
+          'low',
+          'medium',
+          'high',
+          'critical',
+        ];
 
         // Use a single fetch mock for all iterations
         const priorityFetchMock = async (url, options) => {
           return {
             ok: true,
-            json: async () => ({ ts: '1234567890.123456' })
+            json: async () => ({ ts: '1234567890.123456' }),
           } as Response;
         };
 
@@ -203,7 +210,7 @@ describe('Team Collaboration Integrations', () => {
             capturedPayload = JSON.parse(options?.body as string);
             return {
               ok: true,
-              json: async () => ({ ts: '1234567890.123456' })
+              json: async () => ({ ts: '1234567890.123456' }),
             } as Response;
           };
 
@@ -247,11 +254,14 @@ describe('Team Collaboration Integrations', () => {
           }
           return {
             ok: true,
-            json: async () => ({ ts: '1234567890.123456' })
+            json: async () => ({ ts: '1234567890.123456' }),
           } as Response;
         };
 
-        const result = await slackService.sendReport({ webhookUrl: mockWebhookUrl }, getMockReportData());
+        const result = await slackService.sendReport(
+          { webhookUrl: mockWebhookUrl },
+          getMockReportData()
+        );
 
         expect(result.success).toBe(true);
         expect(result.retryCount).toBe(2);
@@ -268,7 +278,10 @@ describe('Team Collaboration Integrations', () => {
         // Replace global fetch with our clean mock
         global.fetch = mockFetch;
 
-        const result = await slackService.sendReport({ webhookUrl: mockWebhookUrl }, getMockReportData());
+        const result = await slackService.sendReport(
+          { webhookUrl: mockWebhookUrl },
+          getMockReportData()
+        );
 
         expect(result.success).toBe(false);
         expect(result.retryCount).toBe(3);
@@ -291,7 +304,7 @@ describe('Team Collaboration Integrations', () => {
             return {
               ok: false,
               status: 429,
-              statusText: 'Too Many Requests'
+              statusText: 'Too Many Requests',
             } as Response;
           }
 
@@ -302,7 +315,7 @@ describe('Team Collaboration Integrations', () => {
 
           return {
             ok: true,
-            json: async () => ({ ts: '1234567890.123456' })
+            json: async () => ({ ts: '1234567890.123456' }),
           } as Response;
         };
 
@@ -338,13 +351,13 @@ describe('Team Collaboration Integrations', () => {
         secure: false,
         auth: {
           user: 'test@example.com',
-          pass: 'app-password'
-        }
+          pass: 'app-password',
+        },
       },
       from: {
         name: 'Quality Tracking',
-        email: 'noreply@qualitytracking.com'
-      }
+        email: 'noreply@qualitytracking.com',
+      },
     };
 
     beforeEach(() => {
@@ -358,13 +371,11 @@ describe('Team Collaboration Integrations', () => {
           { ...mockConfig, smtp: { ...mockConfig.smtp, port: 0 } }, // Invalid port
           { ...mockConfig, smtp: { ...mockConfig.smtp, auth: { user: '', pass: '' } } }, // Empty auth
           { ...mockConfig, from: { ...mockConfig.from, email: 'invalid-email' } }, // Invalid email
-          { ...mockConfig, replyTo: { name: 'Test', email: 'invalid-email' } } // Invalid reply-to
+          { ...mockConfig, replyTo: { name: 'Test', email: 'invalid-email' } }, // Invalid reply-to
         ];
 
         for (const config of invalidConfigs) {
-          await expect(
-            emailService.sendReport(config, getMockEmailData())
-          ).rejects.toThrow();
+          await expect(emailService.sendReport(config, getMockEmailData())).rejects.toThrow();
         }
       });
 
@@ -374,7 +385,7 @@ describe('Team Collaboration Integrations', () => {
           '@example.com',
           'user@',
           'user..name@example.com',
-          ''
+          '',
         ];
 
         for (const email of invalidEmails) {
@@ -391,7 +402,7 @@ describe('Team Collaboration Integrations', () => {
           ...getMockEmailData(),
           subject: '<script>alert("XSS")</script>',
           htmlContent: '<img src=x onerror=alert("XSS")>',
-          summary: '<iframe src="javascript:alert(\'XSS\')"></iframe>'
+          summary: '<iframe src="javascript:alert(\'XSS\')"></iframe>',
         };
 
         // Mock email sending to capture content
@@ -408,12 +419,12 @@ describe('Team Collaboration Integrations', () => {
 
         const largeData = {
           ...getMockEmailData(),
-          htmlContent: largeContent
+          htmlContent: largeContent,
         };
 
-        await expect(
-          emailService.sendReport(mockConfig, largeData)
-        ).rejects.toThrow(/exceeds maximum allowed size/);
+        await expect(emailService.sendReport(mockConfig, largeData)).rejects.toThrow(
+          /exceeds maximum allowed size/
+        );
       });
     });
 
@@ -421,7 +432,7 @@ describe('Team Collaboration Integrations', () => {
       it('wraps HTML content in proper email template', async () => {
         const htmlData = {
           ...getMockEmailData(),
-          htmlContent: '<h1>Test Report</h1><p>This is a test</p>'
+          htmlContent: '<h1>Test Report</h1><p>This is a test</p>',
         };
 
         const result = await emailService.sendReport(mockConfig, htmlData);
@@ -434,7 +445,7 @@ describe('Team Collaboration Integrations', () => {
         const htmlData = {
           ...getMockEmailData(),
           htmlContent: '<h1>Test Report</h1><p>Summary content</p>',
-          summary: 'This is the summary'
+          summary: 'This is the summary',
         };
 
         const result = await emailService.sendReport(mockConfig, htmlData);
@@ -449,14 +460,14 @@ describe('Team Collaboration Integrations', () => {
             {
               filename: 'report.pdf',
               content: Buffer.from('mock pdf content'),
-              contentType: 'application/pdf'
+              contentType: 'application/pdf',
             },
             {
               filename: 'data.csv',
               content: 'column1,column2\nvalue1,value2',
-              contentType: 'text/csv'
-            }
-          ]
+              contentType: 'text/csv',
+            },
+          ],
         };
 
         const result = await emailService.sendReport(mockConfig, attachmentData);
@@ -481,21 +492,26 @@ describe('Team Collaboration Integrations', () => {
       });
 
       it('tracks delivery failures', async () => {
-        // Mock SMTP failure
+        // Mock SMTP failure with immediate error
         const failingConfig = {
           ...mockConfig,
           smtp: {
             ...mockConfig.smtp,
-            host: 'nonexistent.smtp.server'
-          }
+            host: 'nonexistent.smtp.server',
+          },
         };
 
+        const startTime = Date.now();
         const result = await emailService.sendReport(failingConfig, getMockEmailData());
+        const endTime = Date.now();
 
         expect(result.success).toBe(false);
         expect(result.error).toBeDefined();
         expect(result.error).toContain('SMTP connection failed');
-      }, 10000); // Increase timeout to 10 seconds
+
+        // Ensure the test completes quickly (should be under 3 seconds even with retries)
+        expect(endTime - startTime).toBeLessThan(3000);
+      }, 5000); // Reduce timeout to 5 seconds
     });
 
     describe('Email Validation', () => {
@@ -503,16 +519,16 @@ describe('Team Collaboration Integrations', () => {
         const testCases = [
           {
             input: ['test@example.com', 'user@domain.org', 'admin@company.co.uk'],
-            expected: { valid: 3, invalid: 0 }
+            expected: { valid: 3, invalid: 0 },
           },
           {
             input: ['valid@example.com', 'invalid-email', 'user@domain.com', 'another-invalid'],
-            expected: { valid: 2, invalid: 2 }
+            expected: { valid: 2, invalid: 2 },
           },
           {
             input: ['  spaced@example.com  ', 'user@domain.com  '],
-            expected: { valid: 2, invalid: 0 }
-          }
+            expected: { valid: 2, invalid: 0 },
+          },
         ];
 
         for (const testCase of testCases) {
@@ -526,7 +542,8 @@ describe('Team Collaboration Integrations', () => {
 
   describe('Integration Testing', () => {
     // Define shared variables for integration tests
-    const mockWebhookUrl = 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
+    const mockWebhookUrl =
+      'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
     const mockConfig = {
       smtp: {
         host: 'smtp.gmail.com',
@@ -534,13 +551,13 @@ describe('Team Collaboration Integrations', () => {
         secure: false,
         auth: {
           user: 'test@example.com',
-          pass: 'app-password'
-        }
+          pass: 'app-password',
+        },
       },
       from: {
         name: 'Quality Tracking',
-        email: 'noreply@qualitytracking.com'
-      }
+        email: 'noreply@qualitytracking.com',
+      },
     };
 
     it('handles concurrent integrations correctly', async () => {
@@ -551,15 +568,16 @@ describe('Team Collaboration Integrations', () => {
       const emailData = getMockEmailData();
 
       // Mock both services
-      global.fetch = async () => ({
-        ok: true,
-        json: async () => ({ ts: '1234567890.123456' })
-      } as Response);
+      global.fetch = async () =>
+        ({
+          ok: true,
+          json: async () => ({ ts: '1234567890.123456' }),
+        }) as Response;
 
       // Send to both services concurrently
       const [slackResult, emailResult] = await Promise.all([
         slackService.sendReport({ webhookUrl: mockWebhookUrl }, reportData),
-        emailService.sendReport(mockConfig, emailData)
+        emailService.sendReport(mockConfig, emailData),
       ]);
 
       expect(slackResult.success).toBe(true);
@@ -580,7 +598,7 @@ describe('Team Collaboration Integrations', () => {
 
       const [slackResult, emailResult] = await Promise.allSettled([
         slackService.sendReport({ webhookUrl: mockWebhookUrl }, reportData),
-        emailService.sendReport(mockConfig, emailData)
+        emailService.sendReport(mockConfig, emailData),
       ]);
 
       // Both services should be fulfilled (promises resolve) but Slack should fail
@@ -610,9 +628,9 @@ function getMockReportData() {
       criticalIssues: 5,
       successRate: 0.85,
       responseTime: 1250,
-      memoryUsage: 524288000
+      memoryUsage: 524288000,
     },
-    priority: 'medium' as const
+    priority: 'medium' as const,
   };
 }
 
@@ -622,6 +640,6 @@ function getMockEmailData() {
     subject: 'Test Quality Report',
     summary: 'This is a test report for integration testing',
     htmlContent: '<h1>Test Report</h1><p>This is a test report for integration testing</p>',
-    priority: 'normal' as const
+    priority: 'normal' as const,
   };
 }
