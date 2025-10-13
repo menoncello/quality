@@ -1,0 +1,5 @@
+[test]
+# Global test configuration
+preload = ["./test-setup.ts"]
+# Reduce concurrency to avoid race conditions in integration tests
+parallel = 1

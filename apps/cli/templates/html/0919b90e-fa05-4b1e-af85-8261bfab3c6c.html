@@ -1,0 +1,20 @@
+
+        <html>
+          <head><title>{{reportTitle}}</title></head>
+          <body>
+            <h1>{{reportTitle}}</h1>
+            <div>Author: {{customFields.authorName}}</div>
+            <div>Department: {{customFields.department}}</div>
+            <div>Notes: {{customFields.notes}}</div>
+            {{#each summary.topIssues}}
+              <div class="issue">
+                <h3>{{this.message}}</h3>
+                <p>File: {{this.filePath}}:{{this.lineNumber}}</p>
+                {{#if this.suggestion}}
+                  <p>Suggestion: {{this.suggestion}}</p>
+                {{/if}}
+              </div>
+            {{/each}}
+          </body>
+        </html>
+      

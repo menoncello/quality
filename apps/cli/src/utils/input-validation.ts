@@ -55,59 +55,58 @@ export function validateRegexPattern(pattern: string): { isValid: boolean; error
   // Prevent ReDoS attacks by checking for dangerous patterns
 
   // Catastrophic backtracking patterns - nested quantifiers
-  if (pattern.includes('(.+)*') || // (.+)*
-      pattern.includes('(.+)+') || // (.+)+
-      pattern.includes('(.*)*') || // (.*)*
-      pattern.includes('(.*)+') || // (.*)+
-      pattern.includes('(.+)*(.+)*') || // Multiple nested quantifiers
-      /\*.*\*/.test(pattern) ||     // Multiple *
-      /\+.*\+/.test(pattern) ||     // Multiple +
-      /\{.*\}.*\{.*\}/.test(pattern)) { // Multiple {}
+  if (
+    pattern.includes('(.+)*') || // (.+)*
+    pattern.includes('(.+)+') || // (.+)+
+    pattern.includes('(.*)*') || // (.*)*
+    pattern.includes('(.*)+') || // (.*)+
+    pattern.includes('(.+)*(.+)*') || // Multiple nested quantifiers
+    /\*.*\*/.test(pattern) || // Multiple *
+    /\+.*\+/.test(pattern) || // Multiple +
+    /\{.*\}.*\{.*\}/.test(pattern)
+  ) {
+    // Multiple {}
     return { isValid: false, error: 'Nested quantifiers not allowed' };
   }
 
   // Additional checks for known ReDoS patterns from the test
-  const knownRedosPatterns = [
-    '(a+)+b',
-    '(a+)*',
-    '(.+)*(.+)*'
-  ];
+  const knownRedosPatterns = ['(a+)+b', '(a+)*', '(.+)*(.+)*'];
 
   if (knownRedosPatterns.some(redosPattern => pattern === redosPattern)) {
     return { isValid: false, error: 'Known ReDoS pattern detected' };
   }
 
   // Multiple nested quantifiers
-  if (/\(.*\+.*\+/.test(pattern) ||
-      /\(.*\*.*\*/.test(pattern) ||
-      /\(.*\{.*\}.*\{/.test(pattern)) {
+  if (/\(.*\+.*\+/.test(pattern) || /\(.*\*.*\*/.test(pattern) || /\(.*\{.*\}.*\{/.test(pattern)) {
     return { isValid: false, error: 'Multiple nested quantifiers not allowed' };
   }
 
   // Complex lookahead/lookbehind patterns
-  if (/\(\?=.*/.test(pattern) ||
-      /\(\?!.*/.test(pattern) ||
-      /\(\?<=.*/.test(pattern) ||
-      /\(\?<!.*/.test(pattern)) {
+  if (
+    /\(\?=.*/.test(pattern) ||
+    /\(\?!.*/.test(pattern) ||
+    /\(\?<=.*/.test(pattern) ||
+    /\(\?<!.*/.test(pattern)
+  ) {
     return { isValid: false, error: 'Complex lookaround patterns not allowed' };
   }
 
   // Prevent overlapping quantifiers that can cause exponential backtracking
-  if (/\.\+\*\.\+\*/.test(pattern) ||
-      /\.\*\.\+\*/.test(pattern) ||
-      /\.\+\*\.\*/.test(pattern)) {
+  if (/\.\+\*\.\+\*/.test(pattern) || /\.\*\.\+\*/.test(pattern) || /\.\+\*\.\*/.test(pattern)) {
     return { isValid: false, error: 'Overlapping quantifiers not allowed' };
   }
 
   // Prevent nested quantifiers in general
-  if (/\*[\+\*\{\}]/.test(pattern) ||
-      /\+[\+\*\{\}]/.test(pattern) ||
-      /\{[\+\*\{\}]/.test(pattern)) {
+  if (
+    /\*[\+\*\{\}]/.test(pattern) ||
+    /\+[\+\*\{\}]/.test(pattern) ||
+    /\{[\+\*\{\}]/.test(pattern)
+  ) {
     return { isValid: false, error: 'Nested quantifiers detected' };
   }
 
   // Prevent excessive alternations
-  const alternationCount = (pattern.split(/\|/).length - 1);
+  const alternationCount = pattern.split(/\|/).length - 1;
   if (alternationCount > 5) {
     return { isValid: false, error: 'Too many alternations - potential ReDoS' };
   }

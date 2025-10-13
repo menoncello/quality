@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 
 // Mock SQLite database for historical data retrieval
 interface MockDatabase {
@@ -18,7 +18,7 @@ const createMockDatabase = (): MockDatabase => {
       if (sql.includes('SELECT') && sql.includes('metrics')) {
         const runId = params[0];
         const run = runs.get(runId);
-        return run ? [run.metrics] as T[] : [] as T[];
+        return run ? ([run.metrics] as T[]) : ([] as T[]);
       }
 
       if (sql.includes('SELECT') && sql.includes('analysis_runs')) {
@@ -27,7 +27,9 @@ const createMockDatabase = (): MockDatabase => {
 
         const allRuns = Array.from(runs.values())
           .filter((run: any) => run.projectId === projectId)
-          .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .sort(
+            (a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          )
           .slice(0, limit);
 
         return allRuns as T[];
@@ -46,10 +48,10 @@ const createMockDatabase = (): MockDatabase => {
           timestamp: params[2],
           overallScore: params[3],
           issueCount: params[4],
-          metrics: JSON.parse(params[5])
+          metrics: JSON.parse(params[5]),
         });
       }
-    }
+    },
   };
 };
 
@@ -69,12 +71,42 @@ const createMockExporter = (): ExportFormat => {
 
       const headers = ['Metric', 'Previous', 'Current', 'Change'];
       const rows = [
-        ['Overall Score', data.comparisonResult.run1.overallScore, data.comparisonResult.run2.overallScore, data.comparisonResult.metricChanges.overallScore],
-        ['Issue Count', data.comparisonResult.run1.issueCount, data.comparisonResult.run2.issueCount, data.comparisonResult.metricChanges.issueCount],
-        ['Coverage', data.comparisonResult.run1.metrics.coverage, data.comparisonResult.run2.metrics.coverage, data.comparisonResult.metricChanges.coverage],
-        ['Maintainability', data.comparisonResult.run1.metrics.maintainability, data.comparisonResult.run2.metrics.maintainability, data.comparisonResult.metricChanges.maintainability],
-        ['Reliability', data.comparisonResult.run1.metrics.reliability, data.comparisonResult.run2.metrics.reliability, data.comparisonResult.metricChanges.reliability],
-        ['Security', data.comparisonResult.run1.metrics.security, data.comparisonResult.run2.metrics.security, data.comparisonResult.metricChanges.security]
+        [
+          'Overall Score',
+          data.comparisonResult.run1.overallScore,
+          data.comparisonResult.run2.overallScore,
+          data.comparisonResult.metricChanges.overallScore,
+        ],
+        [
+          'Issue Count',
+          data.comparisonResult.run1.issueCount,
+          data.comparisonResult.run2.issueCount,
+          data.comparisonResult.metricChanges.issueCount,
+        ],
+        [
+          'Coverage',
+          data.comparisonResult.run1.metrics.coverage,
+          data.comparisonResult.run2.metrics.coverage,
+          data.comparisonResult.metricChanges.coverage,
+        ],
+        [
+          'Maintainability',
+          data.comparisonResult.run1.metrics.maintainability,
+          data.comparisonResult.run2.metrics.maintainability,
+          data.comparisonResult.metricChanges.maintainability,
+        ],
+        [
+          'Reliability',
+          data.comparisonResult.run1.metrics.reliability,
+          data.comparisonResult.run2.metrics.reliability,
+          data.comparisonResult.metricChanges.reliability,
+        ],
+        [
+          'Security',
+          data.comparisonResult.run1.metrics.security,
+          data.comparisonResult.run2.metrics.security,
+          data.comparisonResult.metricChanges.security,
+        ],
       ];
 
       return [headers, ...rows].map(row => row.join(',')).join('\n');
@@ -110,7 +142,7 @@ const createMockExporter = (): ExportFormat => {
 - **Removed:** ${result.differences.removedIssues.length}
 - **Modified:** ${result.differences.modifiedIssues.length}
       `.trim();
-    }
+    },
   };
 };
 
@@ -128,7 +160,7 @@ describe('2.3-INT-008: Historical Data Retrieval from SQLite', () => {
         timestamp: '2025-01-01T10:00:00Z',
         overallScore: 75,
         issueCount: 25,
-        metrics: { coverage: 80, maintainability: 70, reliability: 85, security: 90 }
+        metrics: { coverage: 80, maintainability: 70, reliability: 85, security: 90 },
       },
       {
         id: 'run-002',
@@ -136,7 +168,7 @@ describe('2.3-INT-008: Historical Data Retrieval from SQLite', () => {
         timestamp: '2025-01-02T10:00:00Z',
         overallScore: 80,
         issueCount: 20,
-        metrics: { coverage: 85, maintainability: 75, reliability: 83, security: 88 }
+        metrics: { coverage: 85, maintainability: 75, reliability: 83, security: 88 },
       },
       {
         id: 'run-003',
@@ -144,14 +176,21 @@ describe('2.3-INT-008: Historical Data Retrieval from SQLite', () => {
         timestamp: '2025-01-03T10:00:00Z',
         overallScore: 85,
         issueCount: 18,
-        metrics: { coverage: 87, maintainability: 80, reliability: 85, security: 92 }
-      }
+        metrics: { coverage: 87, maintainability: 80, reliability: 85, security: 92 },
+      },
     ];
 
     for (const run of testRuns) {
       await db.run(
         'INSERT INTO analysis_runs (id, project_id, timestamp, overall_score, issue_count, metrics) VALUES (?, ?, ?, ?, ?, ?)',
-        [run.id, run.projectId, run.timestamp, run.overallScore, run.issueCount, JSON.stringify(run.metrics)]
+        [
+          run.id,
+          run.projectId,
+          run.timestamp,
+          run.overallScore,
+          run.issueCount,
+          JSON.stringify(run.metrics),
+        ]
       );
     }
   });
@@ -171,17 +210,16 @@ describe('2.3-INT-008: Historical Data Retrieval from SQLite', () => {
   });
 
   it('should retrieve specific run metrics', async () => {
-    const metrics = await db.query<any[]>(
-      'SELECT metrics FROM analysis_runs WHERE id = ?',
-      ['run-002']
-    );
+    const metrics = await db.query<any[]>('SELECT metrics FROM analysis_runs WHERE id = ?', [
+      'run-002',
+    ]);
 
     expect(metrics).toHaveLength(1);
     expect(metrics[0]).toEqual({
       coverage: 85,
       maintainability: 75,
       reliability: 83,
-      security: 88
+      security: 88,
     });
   });
 
@@ -207,10 +245,7 @@ describe('2.3-INT-008: Historical Data Retrieval from SQLite', () => {
 
   it('should handle database errors gracefully', async () => {
     // Test with malformed query - should return empty array rather than throw
-    const results = await db.query<any[]>(
-      'INVALID SQL QUERY',
-      []
-    );
+    const results = await db.query<any[]>('INVALID SQL QUERY', []);
 
     expect(results).toEqual([]);
   });
@@ -229,23 +264,19 @@ describe('2.3-INT-009: Side-by-side View Rendering', () => {
       timestamp: '2025-01-01T10:00:00Z',
       overallScore: 75,
       issueCount: 25,
-      metrics: { coverage: 80, maintainability: 70, reliability: 85, security: 90 }
+      metrics: { coverage: 80, maintainability: 70, reliability: 85, security: 90 },
     },
     run2: {
       id: 'run-002',
       timestamp: '2025-01-02T10:00:00Z',
       overallScore: 80,
       issueCount: 20,
-      metrics: { coverage: 85, maintainability: 75, reliability: 83, security: 88 }
+      metrics: { coverage: 85, maintainability: 75, reliability: 83, security: 88 },
     },
     differences: {
-      addedIssues: [
-        { id: 'new-1', type: 'error', severity: 8, message: 'New error in run 2' }
-      ],
-      removedIssues: [
-        { id: 'old-1', type: 'warning', severity: 5, message: 'Resolved warning' }
-      ],
-      modifiedIssues: []
+      addedIssues: [{ id: 'new-1', type: 'error', severity: 8, message: 'New error in run 2' }],
+      removedIssues: [{ id: 'old-1', type: 'warning', severity: 5, message: 'Resolved warning' }],
+      modifiedIssues: [],
     },
     metricChanges: {
       overallScore: 5,
@@ -253,9 +284,9 @@ describe('2.3-INT-009: Side-by-side View Rendering', () => {
       maintainability: 5,
       reliability: -2,
       security: -2,
-      issueCount: -5
+      issueCount: -5,
     },
-    trend: 'improved' as const
+    trend: 'improved' as const,
   });
 
   it('should render side-by-side comparison in JSON format', () => {
@@ -303,19 +334,19 @@ describe('2.3-INT-009: Side-by-side View Rendering', () => {
           timestamp: '2025-01-01T10:00:00Z',
           overallScore: 0,
           issueCount: 0,
-          metrics: { coverage: 0, maintainability: 0, reliability: 0, security: 0 }
+          metrics: { coverage: 0, maintainability: 0, reliability: 0, security: 0 },
         },
         run2: {
           id: 'run-002',
           timestamp: '2025-01-02T10:00:00Z',
           overallScore: 0,
           issueCount: 0,
-          metrics: { coverage: 0, maintainability: 0, reliability: 0, security: 0 }
+          metrics: { coverage: 0, maintainability: 0, reliability: 0, security: 0 },
         },
         differences: {
           addedIssues: [],
           removedIssues: [],
-          modifiedIssues: []
+          modifiedIssues: [],
         },
         metricChanges: {
           overallScore: 0,
@@ -323,10 +354,10 @@ describe('2.3-INT-009: Side-by-side View Rendering', () => {
           maintainability: 0,
           reliability: 0,
           security: 0,
-          issueCount: 0
+          issueCount: 0,
         },
-        trend: 'stable' as const
-      }
+        trend: 'stable' as const,
+      },
     };
 
     const jsonExport = exporter.json(emptyResult);
@@ -348,20 +379,20 @@ describe('2.3-INT-009: Side-by-side View Rendering', () => {
             id: `added-${i}`,
             type: 'error',
             severity: Math.floor(Math.random() * 10) + 1,
-            message: `Added issue ${i}`
+            message: `Added issue ${i}`,
           })),
           removedIssues: Array.from({ length: 500 }, (_, i) => ({
             id: `removed-${i}`,
             type: 'warning',
             severity: Math.floor(Math.random() * 10) + 1,
-            message: `Removed issue ${i}`
+            message: `Removed issue ${i}`,
           })),
           modifiedIssues: Array.from({ length: 200 }, (_, i) => ({
             old: { id: `old-${i}`, message: `Old message ${i}` },
-            new: { id: `new-${i}`, message: `New message ${i}` }
-          }))
-        }
-      }
+            new: { id: `new-${i}`, message: `New message ${i}` },
+          })),
+        },
+      },
     };
 
     const startTime = performance.now();
@@ -395,29 +426,29 @@ describe('2.3-INT-010: Comparison Export Generation', () => {
           timestamp: '2025-01-01T10:00:00Z',
           overallScore: 72,
           issueCount: 30,
-          metrics: { coverage: 78, maintainability: 68, reliability: 82, security: 88 }
+          metrics: { coverage: 78, maintainability: 68, reliability: 82, security: 88 },
         },
         run2: {
           id: 'run-002',
           timestamp: '2025-01-02T10:00:00Z',
           overallScore: 83,
           issueCount: 15,
-          metrics: { coverage: 88, maintainability: 80, reliability: 85, security: 91 }
+          metrics: { coverage: 88, maintainability: 80, reliability: 85, security: 91 },
         },
         differences: {
           addedIssues: [
-            { id: 'new-1', type: 'info', severity: 3, message: 'New informational issue' }
+            { id: 'new-1', type: 'info', severity: 3, message: 'New informational issue' },
           ],
           removedIssues: [
             { id: 'old-1', type: 'error', severity: 9, message: 'Critical error resolved' },
-            { id: 'old-2', type: 'warning', severity: 6, message: 'Warning fixed' }
+            { id: 'old-2', type: 'warning', severity: 6, message: 'Warning fixed' },
           ],
           modifiedIssues: [
             {
               old: { id: 'mod-1', severity: 7, message: 'Original message' },
-              new: { id: 'mod-1', severity: 4, message: 'Updated message' }
-            }
-          ]
+              new: { id: 'mod-1', severity: 4, message: 'Updated message' },
+            },
+          ],
         },
         metricChanges: {
           overallScore: 11,
@@ -425,10 +456,10 @@ describe('2.3-INT-010: Comparison Export Generation', () => {
           maintainability: 12,
           reliability: 3,
           security: 3,
-          issueCount: -15
+          issueCount: -15,
         },
-        trend: 'improved' as const
-      }
+        trend: 'improved' as const,
+      },
     };
 
     // Test all export formats
@@ -477,8 +508,8 @@ describe('2.3-INT-010: Comparison Export Generation', () => {
         run1: { overallScore: 75, issueCount: 20 },
         run2: { overallScore: 85, issueCount: 15 },
         metricChanges: { overallScore: 10, issueCount: -5 },
-        trend: 'improved' as const
-      }
+        trend: 'improved' as const,
+      },
     };
 
     const jsonExport = exporter.json(originalData);
@@ -498,32 +529,32 @@ describe('2.3-INT-010: Comparison Export Generation', () => {
           timestamp: '2025-01-01T10:00:00Z',
           overallScore: 60,
           issueCount: 1000,
-          metrics: { coverage: 70, maintainability: 65, reliability: 75, security: 80 }
+          metrics: { coverage: 70, maintainability: 65, reliability: 75, security: 80 },
         },
         run2: {
           id: 'run-002',
           timestamp: '2025-01-02T10:00:00Z',
           overallScore: 90,
           issueCount: 100,
-          metrics: { coverage: 95, maintainability: 88, reliability: 92, security: 95 }
+          metrics: { coverage: 95, maintainability: 88, reliability: 92, security: 95 },
         },
         differences: {
           addedIssues: Array.from({ length: 100 }, (_, i) => ({
             id: `added-${i}`,
             type: 'info',
             severity: 3,
-            message: `Added info issue ${i}`
+            message: `Added info issue ${i}`,
           })),
           removedIssues: Array.from({ length: 500 }, (_, i) => ({
             id: `removed-${i}`,
             type: 'error',
             severity: 8,
-            message: `Resolved error issue ${i}`
+            message: `Resolved error issue ${i}`,
           })),
           modifiedIssues: Array.from({ length: 200 }, (_, i) => ({
             old: { id: `mod-${i}`, severity: 7, message: `Old message ${i}` },
-            new: { id: `mod-${i}`, severity: 4, message: `New message ${i}` }
-          }))
+            new: { id: `mod-${i}`, severity: 4, message: `New message ${i}` },
+          })),
         },
         metricChanges: {
           overallScore: 30,
@@ -531,10 +562,10 @@ describe('2.3-INT-010: Comparison Export Generation', () => {
           maintainability: 23,
           reliability: 17,
           security: 15,
-          issueCount: -900
+          issueCount: -900,
         },
-        trend: 'improved' as const
-      }
+        trend: 'improved' as const,
+      },
     };
 
     const startTime = performance.now();

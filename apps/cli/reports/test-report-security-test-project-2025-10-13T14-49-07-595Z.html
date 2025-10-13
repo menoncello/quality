@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; frame-ancestors 'none';">
+    <title>Test Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        .issue { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .issue.error { border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .issue.warning { border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .issue.info { border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .fixable-badge { background: #22c55e; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; }
+        h3 { margin: 0 0 8px 0; }
+        p { margin: 4px 0; }
+    </style>
+</head>
+<body>
+    
+          <html>
+            <head><title>&lt;img src=&quot;x&quot; [REMOVED]&quot;alert(&#39;XSS&#39;)&quot;&gt;</title></head>
+            <body>
+              <h1>&lt;img src=&quot;x&quot; [REMOVED]&quot;alert(&#39;XSS&#39;)&quot;&gt;</h1>
+              <div>User input: </div>
+              <div>Message: </div>
+              <div>File path: </div>
+            </body>
+          </html>
+        
+</body>
+</html>

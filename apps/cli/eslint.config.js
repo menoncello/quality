@@ -34,6 +34,7 @@ export default [
         __dirname: 'readonly',
         __filename: 'readonly',
         React: 'readonly',
+        fetch: 'readonly',
       },
     },
     plugins: {

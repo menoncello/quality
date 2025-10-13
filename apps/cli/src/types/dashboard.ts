@@ -108,6 +108,14 @@ export interface DashboardMetrics {
   coverage: import('./analysis').CoverageData | null;
   toolsAnalyzed: number;
   duration: number;
+  toolResults?: Array<{
+    toolName: string;
+    status: string;
+    executionTime: number;
+    metrics: { score: number; issuesCount: number };
+    issues: import('./analysis').Issue[];
+    coverage?: import('./analysis').CoverageData;
+  }>;
 }
 
 export interface DashboardSummary {

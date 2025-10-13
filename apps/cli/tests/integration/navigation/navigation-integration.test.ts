@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 
 // Mock navigation state management
 interface NavigationState {
@@ -19,7 +19,10 @@ interface DashboardStore {
 }
 
 // Helper function to update path and breadcrumbs based on view
-const updatePathAndBreadcrumbsForView = (view: NavigationState['currentView'], navigation: NavigationState) => {
+const updatePathAndBreadcrumbsForView = (
+  view: NavigationState['currentView'],
+  navigation: NavigationState
+) => {
   switch (view) {
     case 'dashboard':
       navigation.currentPath = [];
@@ -50,11 +53,13 @@ const createMockStore = (): DashboardStore => {
     viewHistory: ['dashboard'],
     currentPath: [],
     selectedItems: [],
-    breadcrumbs: [{ label: 'Dashboard', path: [] }]
+    breadcrumbs: [{ label: 'Dashboard', path: [] }],
   };
 
   return {
-    get navigation() { return navigation; },
+    get navigation() {
+      return navigation;
+    },
 
     setCurrentView(view: NavigationState['currentView']): void {
       navigation.currentView = view;
@@ -97,8 +102,8 @@ const createMockStore = (): DashboardStore => {
         { label: 'Dashboard', path: [] },
         ...path.map((segment, index) => ({
           label: segment,
-          path: path.slice(0, index + 1)
-        }))
+          path: path.slice(0, index + 1),
+        })),
       ];
     },
 
@@ -119,7 +124,7 @@ const createMockStore = (): DashboardStore => {
 
     clearSelection(): void {
       navigation.selectedItems = [];
-    }
+    },
   };
 };
 
@@ -141,10 +146,10 @@ const createMockFilterState = (): FilterState => {
       severity: [],
       tools: [],
       scoreRange: [1, 10],
-      searchQuery: ''
+      searchQuery: '',
     },
     activeFilters: [],
-    isFiltering: false
+    isFiltering: false,
   };
 };
 
@@ -187,7 +192,11 @@ describe('2.3-INT-001: Navigation Integration Tests', () => {
 
     // Verify complete navigation history
     expect(store.navigation.viewHistory).toEqual([
-      'dashboard', 'project', 'module', 'file', 'issue'
+      'dashboard',
+      'project',
+      'module',
+      'file',
+      'issue',
     ]);
   });
 
@@ -229,7 +238,7 @@ describe('2.3-INT-001: Navigation Integration Tests', () => {
       { label: 'Dashboard', path: [] },
       { label: 'src', path: ['src'] },
       { label: 'components', path: ['src', 'components'] },
-      { label: 'Button.tsx', path: ['src', 'components', 'Button.tsx'] }
+      { label: 'Button.tsx', path: ['src', 'components', 'Button.tsx'] },
     ]);
 
     // Navigate using breadcrumb (direct jump to project level)
@@ -237,15 +246,13 @@ describe('2.3-INT-001: Navigation Integration Tests', () => {
     expect(store.navigation.currentView).toBe('project');
     expect(store.navigation.breadcrumbs).toEqual([
       { label: 'Dashboard', path: [] },
-      { label: 'src', path: ['src'] }
+      { label: 'src', path: ['src'] },
     ]);
 
     // Navigate using breadcrumb (jump back to dashboard)
     store.navigateToPath([]);
     expect(store.navigation.currentView).toBe('dashboard');
-    expect(store.navigation.breadcrumbs).toEqual([
-      { label: 'Dashboard', path: [] }
-    ]);
+    expect(store.navigation.breadcrumbs).toEqual([{ label: 'Dashboard', path: [] }]);
   });
 
   it('should handle navigation state persistence', () => {
@@ -281,7 +288,11 @@ describe('2.3-INT-001: Navigation Integration Tests', () => {
 
     // Test navigation with special characters
     store.navigateToPath(['src-with-dash', 'components with spaces', 'file.tsx']);
-    expect(store.navigation.currentPath).toEqual(['src-with-dash', 'components with spaces', 'file.tsx']);
+    expect(store.navigation.currentPath).toEqual([
+      'src-with-dash',
+      'components with spaces',
+      'file.tsx',
+    ]);
     expect(store.navigation.currentView).toBe('file'); // 3-element path goes to file view
 
     // Test going back from dashboard (should go to previous view)
@@ -343,7 +354,7 @@ describe('2.3-INT-004: Filter State Management Integration', () => {
       'severity:error,warning',
       'tools:eslint',
       'score:7-10',
-      'search:test'
+      'search:test',
     ];
     filterState.isFiltering = true;
 
@@ -381,13 +392,13 @@ describe('2.3-INT-004: Filter State Management Integration', () => {
       severity: ['error'],
       tools: ['eslint', 'typescript'],
       scoreRange: [8, 10],
-      searchQuery: 'react hooks'
+      searchQuery: 'react hooks',
     };
     filterState.activeFilters = [
       'severity:error',
       'tools:eslint,typescript',
       'score:8-10',
-      'search:react hooks'
+      'search:react hooks',
     ];
     filterState.isFiltering = true;
 
@@ -404,7 +415,7 @@ describe('2.3-INT-004: Filter State Management Integration', () => {
       severity: [],
       tools: [],
       scoreRange: [1, 10],
-      searchQuery: ''
+      searchQuery: '',
     };
     filterState.activeFilters = [];
     filterState.isFiltering = false;
@@ -428,7 +439,7 @@ describe('2.3-INT-005: Real-time Search with Debouncing Integration', () => {
         const results = [
           { id: 1, message: `Result for "${query}" - Item 1` },
           { id: 2, message: `Result for "${query}" - Item 2` },
-          { id: 3, message: `Result for "${query}" - Item 3` }
+          { id: 3, message: `Result for "${query}" - Item 3` },
         ];
         searchResults = results;
         resolve(results);
@@ -490,9 +501,7 @@ describe('2.3-INT-005: Real-time Search with Debouncing Integration', () => {
             reject(new Error('Search cancelled'));
             return;
           }
-          resolve([
-            { id: 1, message: `Result for "${query}"` }
-          ]);
+          resolve([{ id: 1, message: `Result for "${query}"` }]);
         }, 100);
       });
     };

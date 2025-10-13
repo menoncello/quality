@@ -1,0 +1,392 @@
+<!-- PDF Generation Notice -->
+<!-- This HTML would be converted to PDF using Puppeteer or similar -->
+<!-- In production, implement actual PDF generation -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Test Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+            background: white;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .avoid-page-break {
+            page-break-inside: avoid;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #2563eb;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .meta-table td {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+        }
+
+        .meta-table td:first-child {
+            font-weight: bold;
+            background-color: #f5f5f5;
+            width: 30%;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #2563eb;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .subsection-title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-box {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .issues-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 10px;
+        }
+
+        .issues-table th,
+        .issues-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .issues-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .severity-error {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .severity-warning {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .severity-info {
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        .priority-item {
+            border: 1px solid #ddd;
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .priority-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .priority-meta {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .chart-placeholder {
+            border: 1px dashed #ddd;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-style: italic;
+            margin: 15px 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .summary-box {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .recommendation-list {
+            padding-left: 20px;
+        }
+
+        .recommendation-list li {
+            margin-bottom: 5px;
+        }
+
+        .tool-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .tool-results-table th,
+        .tool-results-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .tool-results-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .status-success {
+            color: #059669;
+            font-weight: bold;
+        }
+
+        .status-error {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .status-warning {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <h1>Performance Test Report</h1>
+        <p class="subtitle">Performance test report</p>
+        <table class="meta-table">
+            <tr>
+                <td>Project ID</td>
+                <td>performance-test-project</td>
+                <td>Overall Score</td>
+                <td>67/100</td>
+            </tr>
+            <tr>
+                <td>Analysis Date</td>
+                <td>10/10/2025</td>
+                <td>Analysis Duration</td>
+                <td>100000ms</td>
+            </tr>
+            <tr>
+                <td>Report Generated</td>
+                <td>10/10/2025, 6:03:29 PM</td>
+                <td>Report ID</td>
+                <td>44a449c3-1873-4f1a-a71f-9bad08f3a9bc</td>
+            </tr>
+        </table>
+    </div>
+
+    
+    <div class="section avoid-page-break">
+        <h2 class="section-title">Executive Summary</h2>
+
+        <div class="summary-box">
+            <p>The codebase has achieved an overall quality score of 67/100 with 10000 total issues identified. 0 errors require immediate attention, while 0 warnings suggest areas for improvement. 0 issues can be automatically resolved.</p>
+        </div>
+
+        <h3 class="subsection-title">Key Metrics</h3>
+        <div class="metrics-grid">
+            
+            <div class="metric-box">
+                <div class="metric-value">67/100</div>
+                <div class="metric-label">Overall Score</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">10000</div>
+                <div class="metric-label">Total Issues</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">0 (0%)</div>
+                <div class="metric-label">Fixable Issues</div>
+            </div>
+        </div>
+
+        
+
+        
+    </div>
+    <div class="section">
+        <h2 class="section-title">Analysis Metrics</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <div class="metric-value">67</div>
+                <div class="metric-label">Overall Score</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">10000</div>
+                <div class="metric-label">Total Issues</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">3334</div>
+                <div class="metric-label">Errors</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">3333</div>
+                <div class="metric-label">Warnings</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">6666</div>
+                <div class="metric-label">Fixable Issues</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value">100000ms</div>
+                <div class="metric-label">Analysis Time</div>
+            </div>
+        </div>
+
+        <h3 class="subsection-title">Tool Results</h3>
+        <table class="tool-results-table">
+            <thead>
+                <tr>
+                    <th>Tool</th>
+                    <th>Status</th>
+                    <th>Issues</th>
+                    <th>Score</th>
+                    <th>Time (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>eslint</td>
+                    <td class="status-completed">completed</td>
+                    <td>0</td>
+                    <td>undefined</td>
+                    <td>20000</td>
+                </tr>
+                <tr>
+                    <td>typescript</td>
+                    <td class="status-completed">completed</td>
+                    <td>0</td>
+                    <td>undefined</td>
+                    <td>30000</td>
+                </tr>
+            </tbody>
+        </table>
+
+        
+    </div>
+      <div class="section">
+        <h2 class="section-title">Issues</h2>
+        <p><strong>No issues found!</strong> Great job maintaining code quality.</p>
+      </div>
+      <div class="section">
+        <h2 class="section-title">Issues</h2>
+        <p><strong>No issues found!</strong> Great job maintaining code quality.</p>
+      </div>
+    <div class="section">
+        <h2 class="section-title">Recommendations</h2>
+        <p>Custom section content would be rendered here based on configuration.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Generated by DevQuality CLI on 10/10/2025, 6:03:29 PM</p>
+        <p>Report ID: 44a449c3-1873-4f1a-a71f-9bad08f3a9bc</p>
+    </div>
+</body>
+</html>

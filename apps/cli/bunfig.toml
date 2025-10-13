@@ -1,0 +1,3 @@
+[test]
+# Reduce concurrency to avoid race conditions in integration tests
+parallel = 1
