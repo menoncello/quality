@@ -98,7 +98,9 @@ export function Dashboard({ analysisResult }: DashboardProps): React.ReactElemen
       default:
         return (
           <>
-            <MetricsSummary />
+            <Box marginBottom={1}>
+              <MetricsSummary />
+            </Box>
             <Box marginBottom={1}>
               <FilterBar />
             </Box>
@@ -156,7 +158,9 @@ export function Dashboard({ analysisResult }: DashboardProps): React.ReactElemen
       )}
 
       {/* Main Content */}
-      <Box flexGrow={1}>{renderCurrentView()}</Box>
+      <Box flexGrow={1}>
+        {renderCurrentView()}
+      </Box>
 
       {/* Footer */}
       <Box marginTop={1}>

@@ -15,7 +15,7 @@ export function IssueDetails(): React.ReactElement {
   // Handle keyboard input
   useInput((input, key) => {
     if (key.escape) {
-      setCurrentView('dashboard');
+      setCurrentView('issue-list');
     }
   });
 
